@@ -1,0 +1,533 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
+/* ── RESET ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── VARIÁVEIS ── */
+:root {
+  --yellow:       #F5B800;
+  --yellow-dark:  #D9A200;
+  --yellow-light: #FFF8DC;
+  --black:        #0F0F0F;
+  --gray-dark:    #333333;
+  --gray:         #666666;
+  --gray-light:   #AAAAAA;
+  --border:       #E2E2E2;
+  --white:        #FFFFFF;
+  --bg:           #F9F7F2;
+
+  --radius-md:   14px;
+  --radius-pill: 100px;
+
+  --shadow-btn: 0 6px 24px rgba(245,184,0,0.40);
+
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+
+  --transition: .22s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── BASE ── */
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--black);
+  overflow-x: hidden;
+}
+
+/* ════════════════════════════
+   GRID DA PÁGINA
+════════════════════════════ */
+.page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+/* ════════════════════════════
+   PAINEL ESQUERDO
+════════════════════════════ */
+.painel-left {
+  background: var(--black);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 56px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* brilho decorativo */
+.painel-left::before {
+  content: '';
+  position: absolute;
+  top: -120px; right: -120px;
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, rgba(245,184,0,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.painel-left::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: -80px;
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(245,184,0,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── left-top ── */
+.left-top {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Logo ── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  margin-bottom: 64px;
+}
+
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--white);
+  letter-spacing: -0.5px;
+}
+
+/* ── Cabeçário ── */
+.left-headline {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+}
+
+.left-headline em {
+  font-style: normal;
+  color: var(--yellow);
+}
+
+.left-sub {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.75;
+  max-width: 340px;
+}
+
+/* ── Feedback / Testimonial ── */
+.testimonial {
+  position: relative;
+  z-index: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-md);
+  padding: 24px 28px;
+}
+
+.testimonial-quote {
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.7;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.testimonial-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--black);
+  flex-shrink: 0;
+}
+
+.testimonial-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--white);
+}
+
+.testimonial-role {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+}
+
+.testimonial-stars {
+  color: var(--yellow);
+  font-size: 0.85rem;
+  margin-left: auto;
+  letter-spacing: 1px;
+}
+
+/* ════════════════════════════
+   PAINEL DIREITO
+════════════════════════════ */
+.panel-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 40px;
+  background: var(--white);
+  position: relative;
+}
+
+/* ── Botão Voltar ── */
+.btn-back {
+  position: absolute;
+  top: 32px; left: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--gray);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  transition: all var(--transition);
+}
+
+.btn-back:hover {
+  color: var(--black);
+  border-color: var(--black);
+  background: var(--bg);
+}
+
+.btn-back svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+/* ── Link cadastro ── */
+.link-subscribe {
+  position: absolute;
+  top: 40px; right: 36px;
+  font-size: 0.85rem;
+  color: var(--gray);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+.link-subscribe:hover { color: var(--black); }
+
+.link-subscribe span {
+  color: var(--yellow-dark);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Form card ── */
+.form-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ── Greeting ── */
+.form-greeting {
+  margin-bottom: 36px;
+}
+
+.form-greeting-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--yellow-light);
+  color: var(--yellow-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 14px;
+}
+
+.form-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.9rem;
+  letter-spacing: -1px;
+  color: var(--black);
+  margin-bottom: 6px;
+}
+
+.form-subtitle {
+  font-size: 0.92rem;
+  color: var(--gray);
+  line-height: 1.6;
+}
+
+/* ── Inputs ── */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-dark);
+  margin-bottom: 7px;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--gray-light);
+  pointer-events: none;
+}
+
+.form-input {
+  width: 100%;
+  padding: 13px 16px 13px 42px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--black);
+  background: var(--bg);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-input::placeholder { color: var(--gray-light); }
+
+.form-input:focus {
+  border-color: var(--yellow);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(245,184,0,0.15);
+}
+
+/* ── Esqueci senha ── */
+.form-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -8px;
+  margin-bottom: 28px;
+}
+
+.link-forgot {
+  font-size: 0.8rem;
+  color: var(--gray);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+.link-forgot:hover {
+  color: var(--yellow-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Botão Logar ── */
+.btn-login {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  background: var(--yellow);
+  color: var(--black);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: var(--shadow-btn);
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  margin-bottom: 14px;
+}
+
+.btn-login:hover {
+  background: var(--yellow-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(245,184,0,0.50);
+}
+
+/* ── Botão Cadastrar ── */
+.btn-register {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  color: var(--black);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: all var(--transition);
+  margin-bottom: 28px;
+}
+
+.btn-register:hover {
+  border-color: var(--black);
+  background: var(--bg);
+}
+
+/* ── Divisor ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.divider-text {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gray-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ── Botões Sociais ── */
+.social-btns {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.btn-social {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.btn-social:hover {
+  background: var(--bg);
+  border-color: #ccc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.google-icon,
+.facebook-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* ── Trocar conta ── */
+.switch-account {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--gray);
+}
+
+.switch-account a {
+  color: var(--yellow-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.switch-account a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Animações CSS ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.painel-left               { animation: fadeIn .6s ease both; }
+.form-greeting             { animation: fadeSlideUp .55s .10s ease both; }
+.form-group:nth-child(1)   { animation: fadeSlideUp .55s .18s ease both; }
+.form-group:nth-child(2)   { animation: fadeSlideUp .55s .26s ease both; }
+.form-row                  { animation: fadeSlideUp .55s .32s ease both; }
+.btn-login                 { animation: fadeSlideUp .55s .38s ease both; }
+.btn-register              { animation: fadeSlideUp .55s .44s ease both; }
+.divider                   { animation: fadeSlideUp .55s .50s ease both; }
+.social-btns               { animation: fadeSlideUp .55s .56s ease both; }
+.switch-account            { animation: fadeSlideUp .55s .62s ease both; }
+
+/* ── Responsivo ── */
+@media (max-width: 860px) {
+  .page { grid-template-columns: 1fr; }
+  .painel-left { display: none; }
+  .panel-right {
+    padding: 80px 24px 48px;
+    min-height: 100vh;
+    align-items: flex-start;
+  }
+  .form-card { max-width: 100%; }
+  .btn-back { top: 20px; left: 20px; }
+  .link-subscribe { top: 26px; right: 20px; }
+}
+
+@media (max-width: 400px) {
+  .form-title { font-size: 1.6rem; }
+}
