@@ -1,44 +1,211 @@
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
+  provider = "mysql"
 }
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
-model User {
-    id                String      @id @default(uuid())
-    email             String      @unique
-    password          String
-    name              String
-    isProvider        Boolean     @default(false)
-    createdAt         DateTime    @default(now())
-    updatedAt         DateTime    @updatedAt
-    
-    services          Service[]     @relation("ProviderServices")
-    contracts         Contract[]    @relation("ClientContracts")
+// ==========================================
+// ENUMERADORES (ENUMS)
+// ==========================================
+
+enum FormaPagamento {
+  CARTAO
+  PIX
+  BOLETO
+  DINHEIRO
+  TRANSFERENCIA
 }
 
-model Service {
-    id            String     @id @default(uuid())
-    title         String
-    description   String     @db.Text
-    price         Decimal    @db.Decimal(10, 2)
-    providerId    String
-    provider      User       @relation("ProviderServices", fields: [providerId], references: [id])
-    createdAt     DateTime   @default(now())
-    updatedAt     DateTime   @updatedAt
-    contracts     Contract[]
+enum MeioIndicado {
+  APLICATIVO
+  WHATSAPP
+  EMAIL
+  TELEFONE
+  REDES_SOCIAIS
+  OUTRO
 }
 
-model Contract {
-    id            String     @id @default(uuid())
-    status        String     @default("PENDING")
-    clientId      String
-    client        User       @relation("ClientContracts", fields: [clientId], references: [id])
-    serviceId     String
-    service       Service    @relation(fields: [serviceId], references: [id])
-    createdAt     DateTime   @default(now())
-    updatedAt     DateTime   @updatedAt
+enum StatusConta {
+  ATIVO
+  INATIVO
+  BLOQUEADO
+  PENDENTE
+}
+
+enum StatusContratacao {
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
+}
+
+enum StatusIndicacao {
+  PENDENTE
+  ACEITA
+  RECUSADA
+  EXPIRADA
+}
+
+enum StatusPagamento {
+  PENDENTE
+  PAGO
+  PARCIALMENTE_PAGO
+  CANCELADO
+  ESTORNADO
+}
+
+enum StatusServico {
+  ATIVO
+  INATIVO
+}
+
+enum TipoRegistro {
+  RECEITA
+  DESPESA
+}
+
+enum TipoUsuario {
+  CONTRATANTE
+  PRESTADOR
+  AMBOS
+}
+
+// ==========================================
+// MODELOS / ENTIDADES
+// ==========================================
+
+model Usuario {
+  idUsuario       Int           @id @default(autoincrement())
+  nome            String
+  email           String        @unique
+  senha           String
+  telefone        String
+  cpf             String        @unique
+  endereco        String
+  tipoUsuario     TipoUsuario
+  dataCadastro    DateTime      @default(now())
+  statusConta     StatusConta   @default(PENDENTE)
+
+  // Extensão de herança para Prestador
+  prestadorPerfil Prestador?
+
+  // Relacionamentos
+  contratacoes    Contratacao[] @relation("UsuarioContratacoes")
+  indicacoesFeitas Indicacao[]   @relation("Indicador")
+  indicacoesRecebidas Indicacao[] @relation("Indicado")
+  faturas         Fatura[]
+}
+
+model Prestador {
+  idPrestador     Int       @id
+  areaAtuacao     String
+  experiencia     String
+  certificacoes   Json      // Armazena a lista de strings (string[]) no MySQL
+  avaliacaoMedia  Float     @default(0.0)
+  cnpj            String    @unique
+
+  // Vínculo 1:1 simulando a Herança de Usuario
+  usuario         Usuario   @relation(fields: [idPrestador], references: [idUsuario], onDelete: Cascade)
+
+  // Relacionamentos
+  servicos        Servico[]
+}
+
+model Servico {
+  idServico    Int           @id @default(autoincrement())
+  titulo       String
+  descricao    String        @db.Text
+  precoBase    Float
+  dataCadastro DateTime      @default(now())
+  status       StatusServico @default(ATIVO)
+  
+  // Relacionamentos
+  prestadorId  Int
+  prestador    Prestador     @relation(fields: [prestadorId], references: [idPrestador], onDelete: Cascade)
+  contratacoes Contratacao[]
+}
+
+model Contratacao {
+  idContratacao  Int               @id @default(autoincrement())
+  dataContratacao DateTime          @default(now())
+  status         StatusContratacao @default(PENDENTE)
+  valor          Float
+  formaPagamento FormaPagamento
+  dataVencimento DateTime?
+
+  // Relacionamentos
+  indicacaoId    String?
+  indicacao      Indicacao?        @relation(fields: [indicacaoId], references: [idIndicacao])
+  
+  servicoId      Int
+  servico        Servico           @relation(fields: [servicoId], references: [idServico])
+  
+  contratanteId  Int
+  contratante    Usuario           @relation("UsuarioContratacoes", fields: [contratanteId], references: [idUsuario])
+  
+  fatura         Fatura?
+  avaliacao      Avaliacao?
+  financeiros    Financeiro[]
+}
+
+model Indicacao {
+  idIndicacao    String          @id @default(uuid())
+  meioIndicado   MeioIndicado
+  dataIndicacao  DateTime        @default(now())
+  statusIndicado StatusIndicacao @default(PENDENTE)
+  observacao     String          @db.Text
+
+  // Relacionamentos baseados no auto-relacionamento implícito de Usuário
+  indicadorId    Int
+  indicador      Usuario         @relation("Indicador", fields: [indicadorId], references: [idUsuario])
+  
+  indicadoId     Int
+  indicado       Usuario         @relation("Indicado", fields: [indicadoId], references: [idUsuario])
+  
+  contratacoes   Contratacao[]
+}
+
+model Avaliacao {
+  idAvaliacao    Int         @id @default(autoincrement())
+  nota           Float
+  comentario     String?     @db.Text
+  dataAvaliacao  DateTime    @default(now())
+
+  // Relacionamentos
+  contratacaoId  Int         @unique
+  contratacao    Contratacao @relation(fields: [contratacaoId], references: [idContratacao], onDelete: Cascade)
+}
+
+model Fatura {
+  idFatura        Int             @id @default(autoincrement())
+  dataEmissao     DateTime        @default(now())
+  valorTotal      Float
+  statusPagamento StatusPagamento @default(PENDENTE)
+  dataPagamento   DateTime?
+
+  // Relacionamentos
+  usuarioId       Int
+  usuario         Usuario         @relation(fields: [usuarioId], references: [idUsuario])
+  
+  contratacaoId   Int             @unique
+  contratacao     Contratacao     @relation(fields: [contratacaoId], references: [idContratacao], onDelete: Cascade)
+  
+  financeiros     Financeiro[]
+}
+
+model Financeiro {
+  idFinanceiro  Int          @id @default(autoincrement())
+  tipoRegistro  TipoRegistro
+  valor         Float
+  descricao     String?      @db.Text
+  dataRegistro  DateTime     @default(now())
+
+  // Relacionamentos
+  faturaId      Int?
+  fatura        Fatura?      @relation(fields: [faturaId], references: [idFatura])
+  
+  contratacaoId Int
+  contratacao   Contratacao  @relation(fields: [contratacaoId], references: [idContratacao])
 }
