@@ -3,28 +3,36 @@ Está é a primeira versão da pagina de web pagina de login do HIVE
 
 ---
 
-@Vimtoooo — 16/05/2026
+@Vimtoooo — 18/05/2026
 
 ## Mudanças e Atualizações:
 
-* **Diretórios Arquitetados em Lógica**: Cada pasta têm seu propósito, módulos e ramos para produção e organização.
+* **Arquitetura Separada**: Divisão clara entre `apps/backend` (NestJS) e `apps/frontend` (Next.js).
+* **Persistência de Dados**: Prisma configurado no backend para gestão de banco de dados MySQL.
 
-## Próximos Passos:
+## Estrutura de Pastas Sugerida:
+```text
+HIVE/
+├── apps/
+│   ├── backend/          # API NestJS, Prisma Models, Seeds
+│   └── frontend/         # Interface Next.js (no futuro), Styles
+└── README.md
+```
 
-Próximos requisitos a concluir...
+## Roadmap de Desenvolvimento:
 
-* **Configurar e inicializar Node.js e runtime em `backend` e `frontend`**: Pastas devem conter seus próprios módulos:
-    - `frontend`: Next.js + React
-    - `backend`: Node.js + NestJS/Express
-* **Preencher arquivos de classes em `modules`**: Essencial para exibição durante a apresentação.
-* **Construir uma ponte para adquirir dados do BD (ORM)**: O Prisma seria uma ótima escolha.
+1.  **Setup de Ambiente**: Inicializar projetos Next.js (frontend) e NestJS (backend).
+2.  **Modelagem de Dados (Prioridade)**: Configurar o `schema.prisma` no backend para definir as entidades de Prestadores, Clientes e Contratos.
+3.  **Core Backend**: Implementar módulos de Autenticação (JWT) e o CRUD de serviços/contratações.
+4.  **Integração Frontend**: Consumir a API do backend utilizando React Query ou SWR para gestão de estado.
+5.  **Upload de Arquivos**: Configurar Cloudinary/S3 para fotos de perfil e portfólios.
 
 ### Resumo de Stacks (Pré-determinadas):
 
 |     **Camada**     |        **Tecnologias**        |
 | :----------------: | :---------------------------: |
 |      Frontend      |  Next.js + React/TypeScript   |
-|      Backend       |  Node.js + NestJS OU/Express  |
+|      Backend       |       Node.js + NestJS        |
 |       Banco        |      MySQL OU/PostGreSQL      |
 |        ORM         |            Prisma             |
 |        Auth        |             JWT               |
