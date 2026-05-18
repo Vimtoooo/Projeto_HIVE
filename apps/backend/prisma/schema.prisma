@@ -1,0 +1,44 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    id                String      @id @default(uuid())
+    email             String      @unique
+    password          String
+    name              String
+    isProvider        Boolean     @default(false)
+    createdAt         DateTime    @default(now())
+    updatedAt         DateTime    @updatedAt
+    
+    services          Service[]     @relation("ProviderServices")
+    contracts         Contract[]    @relation("ClientContracts")
+}
+
+model Service {
+    id            String     @id @default(uuid())
+    title         String
+    description   String     @db.Text
+    price         Decimal    @db.Decimal(10, 2)
+    providerId    String
+    provider      User       @relation("ProviderServices", fields: [providerId], references: [id])
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
+    contracts     Contract[]
+}
+
+model Contract {
+    id            String     @id @default(uuid())
+    status        String     @default("PENDING")
+    clientId      String
+    client        User       @relation("ClientContracts", fields: [clientId], references: [id])
+    serviceId     String
+    service       Service    @relation(fields: [serviceId], references: [id])
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
+}
