@@ -11,18 +11,20 @@ import {
 } from '@prisma/client';
 
 const prisma = new PrismaClient({
+  // @ts-ignore
   datasourceUrl: process.env.DATABASE_URL,
-})
+});
 
 async function main() {
   // Limpa os dados existentes para evitar erros de duplicidade ao rodar o seed várias vezes
-  await prisma.financeiro.deleteMany()
-  await prisma.fatura.deleteMany()
-  await prisma.avaliacao.deleteMany()
-  await prisma.indicacao.deleteMany()
-  await prisma.contratacao.deleteMany()
-  await prisma.servico.deleteMany()
-  await prisma.usuario.deleteMany()
+  await prisma.financeiro.deleteMany();
+  await prisma.fatura.deleteMany();
+  await prisma.avaliacao.deleteMany();
+  await prisma.indicacao.deleteMany();
+  await prisma.contratacao.deleteMany();
+  await prisma.servico.deleteMany();
+  await prisma.prestador.deleteMany();
+  await prisma.usuario.deleteMany();
 
   // 1. Criar um usuário que é Prestador de Serviço
   const provider = await prisma.usuario.create({
@@ -40,19 +42,20 @@ async function main() {
           areaAtuacao: 'Marcenaria',
           experiencia: '10 anos',
           cnpj: '12.345.678/0001-00',
-          certificacoes: ["Marcenaria Avançada"],
+          certificacoes: ['MarcenariaAvançada'],
           servicos: {
             create: {
               titulo: 'Restauração de Móveis Antigos',
-              descricao: 'Especialista em restauração de móveis de madeira maciça.',
-              precoBase: 250.00,
-            }
-          }
-        }
+              descricao:
+                'Especialista em restauração de móveis de madeira maciça.',
+              precoBase: 250.0,
+            },
+          },
+        },
       },
     },
-    include: { prestadorPerfil: { include: { servicos: true } } }
-  })
+    include: { prestadorPerfil: { include: { servicos: true } } },
+  });
 
   // 2. Criar um usuário que é Cliente
   const client = await prisma.usuario.create({
@@ -66,11 +69,11 @@ async function main() {
       tipoUsuario: TipoUsuario.CONTRATANTE,
       statusConta: StatusConta.ATIVO,
     },
-  })
+  });
 
   // 3. Criar uma Contratação de exemplo (Fluxo Completo)
-  const service = provider.prestadorPerfil!.servicos[0]
-  
+  const service = provider.prestadorPerfil!.servicos[0];
+
   const contract = await prisma.contratacao.create({
     data: {
       contratanteId: client.idUsuario,
@@ -79,53 +82,53 @@ async function main() {
       status: StatusContratacao.EM_ANDAMENTO,
       formaPagamento: FormaPagamento.PIX,
       dataVencimento: new Date(new Date().setDate(new Date().getDate() + 7)), // 7 dias a partir de hoje
-      
+
       // Criar fatura vinculada automaticamente
       fatura: {
         create: {
           valorTotal: service.precoBase,
           statusPagamento: StatusPagamento.PENDENTE,
           usuarioId: client.idUsuario,
-        }
+        },
       },
-      
+
       // Criar registro financeiro inicial
       financeiros: {
         create: {
           tipoRegistro: TipoRegistro.RECEITA,
           valor: service.precoBase,
           descricao: `Contratação inicial: ${service.titulo}`,
-        }
-      }
+        },
+      },
     },
     include: {
       fatura: true,
-      financeiros: true
-    }
-  })
+      financeiros: true,
+    },
+  });
 
   // 4. Registrar uma indicação
   await prisma.indicacao.create({
     data: {
       indicadorId: provider.idUsuario,
       indicadoId: client.idUsuario,
-      meioIndicado: 'WHATSAPP',
+      meioIndicacao: 'WHATSAPP',
       observacao: 'Cliente veio através de recomendação no grupo do bairro',
-      statusIndicado: 'PENDENTE'
-    }
-  })
+      statusIndicacao: 'PENDENTE',
+    },
+  });
 
-  console.log('--- Dados de Teste Populados ---')
-  console.log(`Prestador: ${provider.nome} | Cliente: ${client.nome}`)
-  console.log(`Contrato de ${service.titulo} gerado com sucesso!`)
-  console.log('Seed finalizado com sucesso! 🌱')
+  console.log('--- Dados de Teste Populados ---');
+  console.log(`Prestador: ${provider.nome} | Cliente: ${client.nome}`);
+  console.log(`Contrato de ${service.titulo} gerado com sucesso!`);
+  console.log('Seed finalizado com sucesso! 🌱');
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
