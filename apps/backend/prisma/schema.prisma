@@ -93,8 +93,7 @@ model Usuario {
 
   // Relacionamentos
   contratacoes    Contratacao[] @relation("UsuarioContratacoes")
-  indicacoesFeitas Indicacao[]   @relation("Indicador")
-  indicacoesRecebidas Indicacao[] @relation("Indicado")
+  indicacoesFeitas Indicacao[]   @relation("Indicador") // Usuário que fez a indicação
   faturas         Fatura[]
 }
 
@@ -111,6 +110,7 @@ model Prestador {
 
   // Relacionamentos
   servicos        Servico[]
+  indicacoesRecebidas Indicacao[] @relation("Indicado") // Indicações que este Prestador recebeu
 }
 
 model Servico {
@@ -136,7 +136,7 @@ model Contratacao {
   dataVencimento DateTime?
 
   // Relacionamentos
-  indicacaoId    String?
+  indicacaoId    Int?
   indicacao      Indicacao?        @relation(fields: [indicacaoId], references: [idIndicacao])
   
   servicoId      Int
@@ -151,10 +151,10 @@ model Contratacao {
 }
 
 model Indicacao {
-  idIndicacao    String          @id @default(uuid())
-  meioIndicado   MeioIndicado
+  idIndicacao    Int             @id @default(autoincrement())
+  meioIndicacao  MeioIndicado
   dataIndicacao  DateTime        @default(now())
-  statusIndicado StatusIndicacao @default(PENDENTE)
+  statusIndicacao StatusIndicacao @default(PENDENTE)
   observacao     String          @db.Text
 
   // Relacionamentos baseados no auto-relacionamento implícito de Usuário
@@ -162,7 +162,7 @@ model Indicacao {
   indicador      Usuario         @relation("Indicador", fields: [indicadorId], references: [idUsuario])
   
   indicadoId     Int
-  indicado       Usuario         @relation("Indicado", fields: [indicadoId], references: [idUsuario])
+  indicado       Prestador       @relation("Indicado", fields: [indicadoId], references: [idPrestador])
   
   contratacoes   Contratacao[]
 }
