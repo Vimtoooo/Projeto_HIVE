@@ -9,10 +9,13 @@ import {
   StatusPagamento,
   TipoRegistro,
 } from '@prisma/client';
+import { url } from 'inspector';
 
 const prisma = new PrismaClient({
   // @ts-ignore
-  datasourceUrl: process.env.DATABASE_URL,
+  db: {
+    url: process.env.DATABASE_URL,
+  },
 });
 
 async function main() {
@@ -110,8 +113,8 @@ async function main() {
   // 4. Registrar uma indicação
   await prisma.indicacao.create({
     data: {
-      indicadorId: provider.idUsuario,
-      indicadoId: client.idUsuario,
+      indicadorId: client.idUsuario,
+      indicadoId: provider.prestadorPerfil!.idPrestador,
       meioIndicacao: 'WHATSAPP',
       observacao: 'Cliente veio através de recomendação no grupo do bairro',
       statusIndicacao: 'PENDENTE',
