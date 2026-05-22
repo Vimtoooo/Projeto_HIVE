@@ -25,9 +25,8 @@ export class Usuario {
         endereco: string,
         tipoUsuario: TipoUsuario,
         statusConta: StatusConta,
-        idUsuario?: number
     ) {
-        this.idUsuario = idUsuario || Usuario.proximoId++;
+        this.idUsuario = Usuario.proximoId++;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
