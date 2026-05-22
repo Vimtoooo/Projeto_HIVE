@@ -10,12 +10,7 @@ import {
   TipoRegistro,
 } from '@prisma/client';
 
-const prisma = new PrismaClient({
-  // @ts-ignore
-  db: {
-    url: process.env.DATABASE_URL,
-  },
-});
+const prisma = new PrismaClient();
 
 async function main() {
   // Limpa os dados existentes para evitar erros de duplicidade ao rodar o seed várias vezes
@@ -85,7 +80,7 @@ async function main() {
       formaPagamento: FormaPagamento.PIX,
       dataVencimento: new Date(new Date().setDate(new Date().getDate() + 7)), // 7 dias a partir de hoje
 
-      // Criar fatura vinculada automaticamente
+      // Criar fatura vinculada (opcional na Contratacao)
       fatura: {
         create: {
           valorTotal: service.precoBase,
@@ -94,7 +89,7 @@ async function main() {
         },
       },
 
-      // Criar registro financeiro inicial
+      // Registro financeiro vinculado à Contratação, mas SEM Fatura (Flexibilidade)
       financeiros: {
         create: {
           tipoRegistro: TipoRegistro.RECEITA,
