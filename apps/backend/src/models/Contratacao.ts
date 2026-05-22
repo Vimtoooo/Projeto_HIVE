@@ -1,13 +1,13 @@
-import { Fatura, FormaPagamento, Indicacao, Servico, Usuario, StatusContratacao } from "@prisma/client";
+import { Fatura, FormaPagamento, Indicacao, Servico, Usuario, StatusContratacao, StatusPagamento } from "@prisma/client";
 
 export class Contratacao {
     private static proximoId: number = 1;
 
     private idContratacao: number;
-    private indicacao: Indicacao;
+    private indicacao?: Indicacao;
     private servico: Servico;
     private contratante: Usuario;
-    private fatura: Fatura;
+    private fatura?: Fatura;
     private dataContratacao: Date;
     private status: StatusContratacao;
     private valor: number;
@@ -15,19 +15,17 @@ export class Contratacao {
     private dataVencimento?: Date;
 
     constructor(
-        indicacao: Indicacao,
         servico: Servico,
         contratante: Usuario,
-        fatura: Fatura,
         valor: number,
         formaPagamento: FormaPagamento,
+        indicacao?: Indicacao,
         dataVencimento?: Date
     ) {
         this.idContratacao = Contratacao.proximoId++;
-        this.indicacao = indicacao;
         this.servico = servico;
         this.contratante = contratante;
-        this.fatura = fatura;
+        this.indicacao = indicacao;
         this.dataContratacao = new Date();
         this.status = StatusContratacao.PENDENTE;
         this.valor = valor;
@@ -48,16 +46,34 @@ export class Contratacao {
     };
 
     public calcularValorFinal(): number {
-        // Lógica para calcular valor com possíveis descontos ou taxas
-        return this.valor;
+        let valorFinal = this.valor;
+
+        // Exemplo de ajuste: Se houver indicação, aplica-se um desconto de 5%
+        if (this.indicacao) {
+            valorFinal = valorFinal * 0.95;
+        };
+
+        // Aqui poderiam entrar outros ajustes do Prestador (taxas extras, materiais, etc)
+        return valorFinal;
     };
 
     public gerarFatura(): Fatura {
-        // Aqui você implementaria a lógica para criar uma nova instância de Fatura
-        // baseada nos dados desta contratação.
-        // this.fatura = new
+        const valorFinal = this.calcularValorFinal();
+
+        // Criamos o objeto de Fatura seguindo a interface do Prisma
+        const novaFatura: Fatura = {
+            idFatura: Math.floor(Math.random() * 10000), // Placeholder para ID real
+            dataEmissao: new Date(),
+            valorTotal: valorFinal,
+            statusPagamento: StatusPagamento.PENDENTE,
+            dataPagamento: null,
+            usuarioId: this.contratante.idUsuario,
+            contratacaoId: this.idContratacao
+        };
+
+        this.fatura = novaFatura;
 
         console.log("Fatura gerada com sucesso.");
-        return {} as Fatura; // Placeholder
+        return novaFatura;
     };
 };
