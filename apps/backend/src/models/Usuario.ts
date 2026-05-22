@@ -85,4 +85,4 @@ export class Usuario {
     public get id(): number {
         return this.idUsuario;
     };
-}
+};

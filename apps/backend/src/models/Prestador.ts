@@ -1,5 +1,6 @@
-import { Fatura, Financeiro, Servico, StatusConta, TipoRegistro, TipoUsuario } from "@prisma/client";
+import { Contratacao, Fatura, Financeiro, StatusConta, StatusServico, TipoRegistro, TipoUsuario } from "@prisma/client";
 import { Usuario } from "./Usuario";
+import { Servico } from "./Servico";
 
 export class Prestador extends Usuario {
 
@@ -36,7 +37,15 @@ export class Prestador extends Usuario {
         precoBase: number
     ): Servico {
         // Cadastra um serviço...
-        return {} as Servico;
+        const novoServico = new Servico(
+            this as any,
+            titulo,
+            descricao,
+            precoBase,
+            StatusServico.ATIVO
+        );
+
+        return novoServico;
     };
 
     public atualizarServico(
@@ -59,7 +68,7 @@ export class Prestador extends Usuario {
         return {} as Financeiro;
     };
 
-    public emitirFatura(contratacaoId: number): Fatura {
+    public emitirFatura(contratacao: Contratacao): Fatura {
         // Gerar fatura de uma contratação...
         return {} as Fatura;
     };
