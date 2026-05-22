@@ -41,7 +41,7 @@ enum StatusContratacao {
   CANCELADA
 }
 
-enum StatusIndicacao {
+enum StatusIndicado {
   PENDENTE
   ACEITA
   RECUSADA
@@ -154,7 +154,7 @@ model Indicacao {
   idIndicacao    Int             @id @default(autoincrement())
   meioIndicacao  MeioIndicado
   dataIndicacao  DateTime        @default(now())
-  statusIndicacao StatusIndicacao @default(PENDENTE)
+  statusIndicacao StatusIndicado @default(PENDENTE)
   observacao     String          @db.Text
 
   // Relacionamentos baseados no auto-relacionamento implícito de Usuário
