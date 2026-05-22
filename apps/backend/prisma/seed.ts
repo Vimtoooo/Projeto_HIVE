@@ -9,7 +9,6 @@ import {
   StatusPagamento,
   TipoRegistro,
 } from '@prisma/client';
-import { url } from 'inspector';
 
 const prisma = new PrismaClient({
   // @ts-ignore
