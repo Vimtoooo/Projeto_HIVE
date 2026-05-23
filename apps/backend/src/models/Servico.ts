@@ -31,8 +31,7 @@ export class Servico {
     public atualizarPreco(preco: number): void {
         // Modifica o preço de um serviço...
         if (preco <= 0) {
-            console.log(`O preço deve ser superior a R$ 0,00. Valor informado: ${preco}`);
-            return;
+            throw new Error(`O preço deve ser superior a R$ 0,00. Valor informado: ${preco}`);
         };
 
         this.precoBase = preco;
@@ -41,9 +40,8 @@ export class Servico {
 
     public editarDescricao(descricao: string): void {
         // Edite a descrição de um serviço...
-        if (!Boolean(descricao) && descricao.length === 0) {
-            console.log(`Uma descrição vazia não é válido!`)
-            return;
+        if (!descricao || descricao.trim().length === 0) {
+            throw new Error(`Uma descrição vazia não é válida!`);
         };
 
         this.descricao = descricao;
@@ -53,13 +51,13 @@ export class Servico {
     public ativar(): void {
         // Ative um serviço para ser disponível ao público...
         this.status = StatusServico.ATIVO;
-        console.log(`Serviço "${this.getTitulo}" foi ativado.`);
+        console.log(`Serviço "${this.titulo}" foi ativado.`);
     };
 
     public desativar(): void {
         // Desative um serviço, ou seja, para não ser disponível ao público...
         this.status = StatusServico.INATIVO;
-        console.log(`Serviço "${this.getTitulo}" foi desativado.`);
+        console.log(`Serviço "${this.titulo}" foi desativado.`);
     };
 
     // Getters e Setters

@@ -11,7 +11,7 @@ export class Usuario {
     private static proximoId: number = 1;
 
     private idUsuario: number;
-    private nome: string;
+    protected nome: string; // Alterado de private para protected
     private email: string;
     private senha: string;
     private telefone: string;
@@ -119,6 +119,11 @@ export class Usuario {
     };
 
     public get getCpf(): string { return this.cpf; }
+    public set setCpf(cpf: string) {
+        const cpfLimpo = cpf.replace(/\D/g, '');
+        if (cpfLimpo.length !== 11) throw new Error("CPF deve conter exatamente 11 dígitos.");
+        this.cpf = cpfLimpo;
+    };
 
     public get getEndereco(): string { return this.endereco; }
     public set setEndereco(endereco: string) {
@@ -139,6 +144,6 @@ export class Usuario {
      */
     public inativarConta(): void {
         this.statusConta = StatusConta.INATIVO;
-        console.log(`Conta de ${this.getNome} inativada.`);
+        console.log(`Conta de ${this.nome} inativada.`);
     };
 };
