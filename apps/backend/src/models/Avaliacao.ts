@@ -1,4 +1,4 @@
-import { Contratacao } from "@prisma/client";
+import { Contratacao } from "./Contratacao";
 
 export class Avaliacao {
 
@@ -33,7 +33,7 @@ export class Avaliacao {
             throw new Error("Falha ao registrar: A nota deve estar entre 0 e 5.");
         };
         
-        console.log(`Avaliação ${this.idAvaliacao} registrada com sucesso.`);
+        console.log(`Avaliação ${this.getIdAvaliacao} registrada com sucesso.`);
     };
 
     public editarComentario(
@@ -53,10 +53,10 @@ export class Avaliacao {
     public get getContratacao(): Contratacao { return this.contratacao; }
 
     public get getNota(): number { return this.nota; }
-    public set setNota(nota: number) { 
-        if (nota < 0 || nota > 5) throw new Error("A nota deve estar entre 0 e 5.");
-        this.nota = nota; 
-    }
+    public set setNota(nota: number) {
+        if (nota < 0 || nota > 5) throw new Error(`A nota deve estar entre 0 e 5. Valor informado: ${nota}`);
+        this.nota = nota;
+    };
 
     public get getDataAvaliacao(): Date { return this.dataAvaliacao; }
 

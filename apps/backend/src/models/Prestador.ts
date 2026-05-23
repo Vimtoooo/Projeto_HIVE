@@ -48,7 +48,7 @@ export class Prestador extends Usuario {
             StatusServico.ATIVO
         );
 
-        console.log(`Cadastro de serviço "${novoServico.getTitulo}" gerada por ${this.getNome}.`);
+        console.log(`Cadastro de serviço "${novoServico.getTitulo}" gerada por ${this.nome}.`);
         return novoServico;
     };
 
@@ -62,7 +62,7 @@ export class Prestador extends Usuario {
     };
 
     public calcularAvaliacaoMedia(): void {
-        console.log(`Calculando nova média para ${this.getNome}...`);
+        console.log(`Calculando nova média para ${this.nome}...`);
     };
 
     public registrarFinanceiro(
@@ -88,7 +88,7 @@ export class Prestador extends Usuario {
     public emitirFatura(contratacao: Contratacao): Fatura {
         // A Fatura é emitida PARA o Contratante (Cliente)
         // Delegamos a criação para o método que já implementamos na classe Contratacao
-        console.log(`Prestador ${this.getNome} solicitou a emissão da fatura.`);
+        console.log(`Prestador ${this.nome} solicitou a emissão da fatura.`);
         return contratacao.gerarFatura();
     };
 

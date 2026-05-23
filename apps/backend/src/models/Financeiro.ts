@@ -63,9 +63,9 @@ export class Financeiro {
     public get getValor(): number { return this.valor; }
 
     public get getDescricao(): string | undefined { return this.descricao; }
-    public set setDescricao(desc: string) { 
-        this.descricao = desc ? desc.trim() : undefined; 
-    }
+    public set setDescricao(desc: string) {
+        this.descricao = desc ? desc.trim() : undefined;
+    };
 
     public get getDataRegistro(): Date { return this.dataRegistro; }
 };

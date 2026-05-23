@@ -64,8 +64,8 @@ export class Contratacao {
         const valorFinal = this.calcularValorFinal();
 
         const novaFatura: Fatura = new Fatura(
-            this.getContratante,
-            this as any,
+            this.contratante,
+            this,
             valorFinal,
             StatusPagamento.PENDENTE
         );
@@ -87,19 +87,19 @@ export class Contratacao {
     public set setStatus(status: StatusContratacao) { this.status = status; }
 
     public get getValor(): number { return this.valor; }
-    public set setValor(valor: number) { 
+    public set setValor(valor: number) {
         if (valor <= 0) throw new Error("O valor da contratação deve ser positivo.");
-        this.valor = valor; 
-    }
+        this.valor = valor;
+    };
 
     public get getFormaPagamento(): FormaPagamento { return this.formaPagamento; }
     public set setFormaPagamento(forma: FormaPagamento) { this.formaPagamento = forma; }
 
     public get getDataVencimento(): Date | undefined { return this.dataVencimento; }
-    public set setDataVencimento(data: Date) { 
+    public set setDataVencimento(data: Date) {
         if (data < new Date()) {
             throw new Error("A data de vencimento não pode ser no passado.");
-        }
-        this.dataVencimento = data; 
-    }
+        };
+        this.dataVencimento = data;
+    };
 };
