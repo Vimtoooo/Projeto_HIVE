@@ -51,4 +51,20 @@ export class Fatura {
         
         console.log(`Pagamento de R$${this.valorTotal} registrado via ${metodo} em ${data}`);
     };
+
+    // Getters e Setters
+    public get getIdFatura(): number { return this.idFatura; }
+
+    public get getUsuario(): Usuario { return this.usuario; }
+
+    public get getContratacao(): Contratacao { return this.contratacao; }
+
+    public get getFinanceiros(): Financeiro[] { return this.financeiros; }
+
+    public get getDataEmissao(): Date { return this.dataEmissao; }
+
+    public get getValorTotal(): number { return this.valorTotal; }
+
+    public get getStatusPagamento(): StatusPagamento { return this.statusPagamento; }
+    public set setStatusPagamento(status: StatusPagamento) { this.statusPagamento = status; }
 };

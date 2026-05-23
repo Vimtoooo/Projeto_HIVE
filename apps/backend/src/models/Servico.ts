@@ -2,7 +2,7 @@ import { Prestador, StatusServico } from "@prisma/client";
 
 export class Servico {
 
-    private static proximoId: number;
+    private static proximoId: number = 1;
 
     private idServico: number;
     private prestador: Prestador;
@@ -56,4 +56,22 @@ export class Servico {
         // Desative um serviço, ou seja, para não ser disponível ao público...
         this.status = StatusServico.INATIVO;
     };
+
+    // Getters e Setters
+    public get getIdServico(): number { return this.idServico; }
+
+    public get getPrestador(): Prestador { return this.prestador; }
+
+    public get getTitulo(): string { return this.titulo; }
+    public set setTitulo(titulo: string) { this.titulo = titulo; }
+
+    public get getDescricao(): string { return this.descricao; }
+    public set setDescricao(desc: string) { this.descricao = desc; }
+
+    public get getPrecoBase(): number { return this.precoBase; }
+    public set setPrecoBase(preco: number) { this.precoBase = preco; }
+
+    public get getDataCadastro(): Date { return this.dataCadastro; }
+
+    public get getStatus(): StatusServico { return this.status; }
 };

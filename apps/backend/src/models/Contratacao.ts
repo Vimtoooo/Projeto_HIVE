@@ -76,4 +76,23 @@ export class Contratacao {
         console.log("Fatura gerada com sucesso.");
         return novaFatura;
     };
+
+    // Getters e Setters
+    public get getIdContratacao(): number { return this.idContratacao; }
+
+    public get getServico(): Servico { return this.servico; }
+
+    public get getContratante(): Usuario { return this.contratante; }
+
+    public get getStatus(): StatusContratacao { return this.status; }
+    public set setStatus(status: StatusContratacao) { this.status = status; }
+
+    public get getValor(): number { return this.valor; }
+    public set setValor(valor: number) { this.valor = valor; }
+
+    public get getFormaPagamento(): FormaPagamento { return this.formaPagamento; }
+    public set setFormaPagamento(forma: FormaPagamento) { this.formaPagamento = forma; }
+
+    public get getDataVencimento(): Date | undefined { return this.dataVencimento; }
+    public set setDataVencimento(data: Date) { this.dataVencimento = data; }
 };
