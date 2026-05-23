@@ -1,6 +1,9 @@
-import { Contratacao, Fatura, Financeiro, StatusConta, StatusServico, TipoRegistro, TipoUsuario } from "@prisma/client";
+import { StatusConta, StatusServico, TipoRegistro, TipoUsuario } from "@prisma/client";
 import { Usuario } from "./Usuario";
 import { Servico } from "./Servico";
+import { Financeiro } from "./Financeiro";
+import { Fatura } from "./Fatura";
+import { Contratacao } from "./Contratacao";
 
 export class Prestador extends Usuario {
 
@@ -38,7 +41,7 @@ export class Prestador extends Usuario {
     ): Servico {
         // Cadastra um serviço...
         const novoServico = new Servico(
-            this as any,
+            this,
             titulo,
             descricao,
             precoBase,
@@ -50,44 +53,70 @@ export class Prestador extends Usuario {
     };
 
     public atualizarServico(
-        servicoId: Servico,
+        servico: Servico,
         dados: Partial<Servico>
     ): void {
-        // Atualize serviços pela classe Prestador...
-        Object.assign(this, dados);
-        console.log(`Serviço de ${this.getNome} atualizado.`);
+        // Corrigido: Agora mescla os dados no objeto Serviço recebido
+        Object.assign(servico, dados);
+        console.log(`Serviço "${servico.getTitulo}" atualizado com sucesso.`);
     };
 
     public calcularAvaliacaoMedia(): void {
-        // Calcula a média de uma avaliação...
+        console.log(`Calculando nova média para ${this.getNome}...`);
     };
 
     public registrarFinanceiro(
+        contratacao: Contratacao,
         tipo: TipoRegistro,
         valor: number,
-        descricao: string
+        descricao?: string,
+        fatura?: Fatura
     ): Financeiro {
         // Registra o financeiro de uma cobrança ou ganho (receita ou despesa)
-        return {} as Financeiro;
+        const novaFinanca: Financeiro = new Financeiro(
+            contratacao,
+            tipo,
+            valor,
+            descricao,
+            fatura
+        );
+
+        console.log(`Registro financeiro de ${tipo} criado para a contratação #${contratacao.getIdContratacao}`);
+        return novaFinanca;
     };
 
     public emitirFatura(contratacao: Contratacao): Fatura {
-        // Gerar fatura de uma contratação...
-        return {} as Fatura;
+        // A Fatura é emitida PARA o Contratante (Cliente)
+        // Delegamos a criação para o método que já implementamos na classe Contratacao
+        console.log(`Prestador ${this.getNome} solicitou a emissão da fatura.`);
+        return contratacao.gerarFatura();
     };
 
     // Getters e Setters específicos do Prestador
     public get getAreaAtuacao(): string { return this.areaAtuacao; }
-    public set setAreaAtuacao(area: string) { this.areaAtuacao = area; }
+    public set setAreaAtuacao(area: string) {
+        if (area.trim().length === 0) throw new Error("Área de atuação é obrigatória.");
+        this.areaAtuacao = area.trim();
+    };
 
     public get getExperiencia(): string { return this.experiencia; }
-    public set setExperiencia(exp: string) { this.experiencia = exp; }
+    public set setExperiencia(exp: string) {
+        if (exp.trim().length === 0) throw new Error("Descrição de experiência é obrigatória.");
+        this.experiencia = exp.trim();
+    };
 
     public get getCertificacoes(): string[] { return this.certificacoes; }
-    public set setCertificacoes(certs: string[]) { this.certificacoes = certs; }
+    public set setCertificacoes(certs: string[]) {
+        if (!certs || certs.length === 0) throw new Error("O prestador deve ter ao menos uma certificação ou habilidade listada.");
+        this.certificacoes = certs;
+    };
 
     public get getAvaliacaoMedia(): number { return this.avaliacaoMedia; }
 
     public get getCnpj(): string { return this.cnpj; }
-    public set setCnpj(cnpj: string) { this.cnpj = cnpj; }
+    public set setCnpj(cnpj: string) {
+        const cnpjLimpo = cnpj.replace(/\D/g, '');
+        if (cnpjLimpo.length !== 14) throw new Error("CNPJ deve conter exatamente 14 dígitos.");
+        this.cnpj = cnpjLimpo;
+    };
 };

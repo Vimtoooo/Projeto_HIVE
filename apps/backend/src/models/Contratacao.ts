@@ -1,4 +1,7 @@
-import { Fatura, FormaPagamento, Indicacao, Servico, Usuario, StatusContratacao, StatusPagamento } from "@prisma/client";
+import { FormaPagamento, Indicacao, StatusContratacao, StatusPagamento } from "@prisma/client";
+import { Usuario } from "./Usuario";
+import { Servico } from "./Servico";
+import { Fatura } from "./Fatura";
 
 export class Contratacao {
     private static proximoId: number = 1;
@@ -60,16 +63,12 @@ export class Contratacao {
     public gerarFatura(): Fatura {
         const valorFinal = this.calcularValorFinal();
 
-        // Criamos o objeto de Fatura seguindo a interface do Prisma
-        const novaFatura: Fatura = {
-            idFatura: Math.floor(Math.random() * 10000), // Placeholder para ID real
-            dataEmissao: new Date(),
-            valorTotal: valorFinal,
-            statusPagamento: StatusPagamento.PENDENTE,
-            dataPagamento: null,
-            usuarioId: this.contratante.idUsuario,
-            contratacaoId: this.idContratacao
-        };
+        const novaFatura: Fatura = new Fatura(
+            this.getContratante,
+            this as any,
+            valorFinal,
+            StatusPagamento.PENDENTE
+        );
 
         this.fatura = novaFatura;
 
@@ -88,11 +87,19 @@ export class Contratacao {
     public set setStatus(status: StatusContratacao) { this.status = status; }
 
     public get getValor(): number { return this.valor; }
-    public set setValor(valor: number) { this.valor = valor; }
+    public set setValor(valor: number) { 
+        if (valor <= 0) throw new Error("O valor da contratação deve ser positivo.");
+        this.valor = valor; 
+    }
 
     public get getFormaPagamento(): FormaPagamento { return this.formaPagamento; }
     public set setFormaPagamento(forma: FormaPagamento) { this.formaPagamento = forma; }
 
     public get getDataVencimento(): Date | undefined { return this.dataVencimento; }
-    public set setDataVencimento(data: Date) { this.dataVencimento = data; }
+    public set setDataVencimento(data: Date) { 
+        if (data < new Date()) {
+            throw new Error("A data de vencimento não pode ser no passado.");
+        }
+        this.dataVencimento = data; 
+    }
 };

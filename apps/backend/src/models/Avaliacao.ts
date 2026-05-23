@@ -53,7 +53,10 @@ export class Avaliacao {
     public get getContratacao(): Contratacao { return this.contratacao; }
 
     public get getNota(): number { return this.nota; }
-    public set setNota(nota: number) { this.nota = nota; }
+    public set setNota(nota: number) { 
+        if (nota < 0 || nota > 5) throw new Error("A nota deve estar entre 0 e 5.");
+        this.nota = nota; 
+    }
 
     public get getDataAvaliacao(): Date { return this.dataAvaliacao; }
 

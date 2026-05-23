@@ -1,4 +1,7 @@
-import { Contratacao, Financeiro, FormaPagamento, StatusPagamento, Usuario } from "@prisma/client";
+import { FormaPagamento, StatusPagamento } from "@prisma/client";
+import { Usuario } from "./Usuario";
+import { Contratacao } from "./Contratacao";
+import { Financeiro } from "./Financeiro";
 
 export class Fatura {
 
@@ -30,7 +33,7 @@ export class Fatura {
     };
 
     public gerar(): void {
-        console.log(`Fatura ${this.idFatura} emitida para o usuário ${this.usuario.nome}`);
+        console.log(`Fatura ${this.idFatura} emitida para o usuário ${this.usuario.getNome}`);
     };
 
     public calcularTotal(): number {
