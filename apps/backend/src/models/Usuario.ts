@@ -82,7 +82,39 @@ export class Usuario {
     };
 
     // Getters para campos privados que podem ser necessários em outras partes do modelo
-    public get id(): number {
+    public get getIdUsuario(): number {
         return this.idUsuario;
     };
+
+    public get getNome(): string { return this.nome; }
+    public set setNome(nome: string) { this.nome = nome; }
+
+    public get getEmail(): string { return this.email; }
+    public set setEmail(email: string) { this.email = email; }
+
+    public set setSenha(senha: string) { this.senha = senha; }
+
+    public get getTelefone(): string { return this.telefone; }
+    public set setTelefone(telefone: string) { this.telefone = telefone; }
+
+    public get getCpf(): string { return this.cpf; }
+
+    public get getEndereco(): string { return this.endereco; }
+    public set setEndereco(endereco: string) { this.endereco = endereco; }
+
+    public get getTipoUsuario(): TipoUsuario { return this.tipoUsuario; }
+    public set setTipoUsuario(tipo: TipoUsuario) { this.tipoUsuario = tipo; }
+
+    public get getDataCadastro(): Date { return this.dataCadastro; }
+
+    public get getStatusConta(): StatusConta { return this.statusConta; }
+    public set setStatusConta(status: StatusConta) { this.statusConta = status; }
+
+    /**
+     * Exclusão lógica: Inativa a conta do usuário
+     */
+    public inativarConta(): void {
+        this.statusConta = StatusConta.INATIVO;
+        console.log(`Conta de ${this.nome} inativada.`);
+    }
 };

@@ -45,6 +45,7 @@ export class Prestador extends Usuario {
             StatusServico.ATIVO
         );
 
+        console.log(`Cadastro de serviço "${novoServico.getTitulo}" gerada por ${this.getNome}.`);
         return novoServico;
     };
 
@@ -53,6 +54,8 @@ export class Prestador extends Usuario {
         dados: Partial<Servico>
     ): void {
         // Atualize serviços pela classe Prestador...
+        Object.assign(this, dados);
+        console.log(`Serviço de ${this.getNome} atualizado.`);
     };
 
     public calcularAvaliacaoMedia(): void {
@@ -72,4 +75,19 @@ export class Prestador extends Usuario {
         // Gerar fatura de uma contratação...
         return {} as Fatura;
     };
+
+    // Getters e Setters específicos do Prestador
+    public get getAreaAtuacao(): string { return this.areaAtuacao; }
+    public set setAreaAtuacao(area: string) { this.areaAtuacao = area; }
+
+    public get getExperiencia(): string { return this.experiencia; }
+    public set setExperiencia(exp: string) { this.experiencia = exp; }
+
+    public get getCertificacoes(): string[] { return this.certificacoes; }
+    public set setCertificacoes(certs: string[]) { this.certificacoes = certs; }
+
+    public get getAvaliacaoMedia(): number { return this.avaliacaoMedia; }
+
+    public get getCnpj(): string { return this.cnpj; }
+    public set setCnpj(cnpj: string) { this.cnpj = cnpj; }
 };

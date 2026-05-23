@@ -50,4 +50,20 @@ export class Financeiro {
         console.log(`Despesa de R$${valor} registrada para a contratação ${contratacao.idContratacao}.`);
         return new Financeiro(contratacao, TipoRegistro.DESPESA, valor, descricao, fatura);
     };
+
+    // Getters e Setters
+    public get getIdFinanceiro(): number { return this.idFinanceiro; }
+
+    public get getFatura(): Fatura | undefined { return this.fatura; }
+
+    public get getContratacao(): Contratacao { return this.contratacao; }
+
+    public get getTipoRegistro(): TipoRegistro { return this.tipoRegistro; }
+
+    public get getValor(): number { return this.valor; }
+
+    public get getDescricao(): string | undefined { return this.descricao; }
+    public set setDescricao(desc: string) { this.descricao = desc; }
+
+    public get getDataRegistro(): Date { return this.dataRegistro; }
 };

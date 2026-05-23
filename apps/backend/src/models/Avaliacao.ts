@@ -46,4 +46,16 @@ export class Avaliacao {
     public validarNota(): boolean {
         return this.nota >= 0 && this.nota <= 5;
     };
+
+    // Getters e Setters
+    public get getIdAvaliacao(): number { return this.idAvaliacao; }
+
+    public get getContratacao(): Contratacao { return this.contratacao; }
+
+    public get getNota(): number { return this.nota; }
+    public set setNota(nota: number) { this.nota = nota; }
+
+    public get getDataAvaliacao(): Date { return this.dataAvaliacao; }
+
+    public get getComentario(): string | undefined { return this.comentario; }
 };

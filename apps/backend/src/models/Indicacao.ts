@@ -57,4 +57,22 @@ export class Indicacao {
     public atualizarStatus(status: StatusIndicado): void {
         this.statusIndicacao = status;
     };
+
+    // Getters e Setters
+    public get getIdIndicacao(): number { return this.idIndicacao; }
+    
+    public get getIndicador(): Usuario { return this.indicador; }
+    
+    public get getIndicado(): PrestadorComDadosDeUsuario { return this.indicado; }
+    
+    public get getMeioIndicado(): MeioIndicado { return this.meioIndicado; }
+    public set setMeioIndicado(meio: MeioIndicado) { this.meioIndicado = meio; }
+
+    public get getDataIndicado(): Date { return this.dataIndicado; }
+
+    public get getStatusIndicacao(): StatusIndicado { return this.statusIndicacao; }
+    public set setStatusIndicacao(status: StatusIndicado) { this.statusIndicacao = status; }
+
+    public get getObservacao(): string { return this.observacao; }
+    public set setObservacao(obs: string) { this.observacao = obs; }
 };
