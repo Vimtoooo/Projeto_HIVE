@@ -1,4 +1,6 @@
-import { Fatura, Contratacao, TipoRegistro } from "@prisma/client";
+import { TipoRegistro } from "@prisma/client";
+import { Contratacao } from "./Contratacao";
+import { Fatura } from "./Fatura";
 
 export class Financeiro {
 
@@ -10,7 +12,7 @@ export class Financeiro {
     private tipoRegistro: TipoRegistro;
     private valor: number;
     private descricao?: string;
-    private dataRegistro: Date;
+    private dataRegistro: Date = new Date();
 
     public constructor(
         contratacao: Contratacao,
@@ -18,7 +20,6 @@ export class Financeiro {
         valor: number,
         descricao?: string,
         fatura?: Fatura, // Tornando fatura opcional no construtor
-        dataRegistro: Date = new Date() // Valor padrão para dataRegistro
     ) {
         this.idFinanceiro = Financeiro.proximoId++;
         this.fatura = fatura; // Atribui a fatura se for fornecida
@@ -26,7 +27,6 @@ export class Financeiro {
         this.tipoRegistro = tipoRegistro;
         this.valor = valor;
         this.descricao = descricao;
-        this.dataRegistro = dataRegistro;
     };
 
     // Métodos estáticos de fábrica para criar novos registros financeiros
@@ -37,7 +37,7 @@ export class Financeiro {
         descricao?: string,
         fatura?: Fatura
     ): Financeiro {
-        console.log(`Receita de R$${valor} registrada para a contratação ${contratacao.idContratacao}.`);
+        console.log(`Receita de R$${valor} registrada para a contratação ${contratacao.getIdContratacao}.`);
         return new Financeiro(contratacao, TipoRegistro.RECEITA, valor, descricao, fatura);
     };
 
@@ -47,7 +47,7 @@ export class Financeiro {
         descricao?: string,
         fatura?: Fatura
     ): Financeiro {
-        console.log(`Despesa de R$${valor} registrada para a contratação ${contratacao.idContratacao}.`);
+        console.log(`Despesa de R$${valor} registrada para a contratação ${contratacao.getIdContratacao}.`);
         return new Financeiro(contratacao, TipoRegistro.DESPESA, valor, descricao, fatura);
     };
 
@@ -63,7 +63,9 @@ export class Financeiro {
     public get getValor(): number { return this.valor; }
 
     public get getDescricao(): string | undefined { return this.descricao; }
-    public set setDescricao(desc: string) { this.descricao = desc; }
+    public set setDescricao(desc: string) { 
+        this.descricao = desc ? desc.trim() : undefined; 
+    }
 
     public get getDataRegistro(): Date { return this.dataRegistro; }
 };

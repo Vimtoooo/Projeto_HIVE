@@ -1,5 +1,10 @@
-import { FormaPagamento, Indicacao, StatusConta, TipoUsuario, Servico } from "@prisma/client";
+// 1. Imports de Banco (Enums e Tipos do Prisma)
+import { FormaPagamento, StatusConta, TipoUsuario } from "@prisma/client";
+
+// 2. Imports de Domínio (Suas Classes)
+import { Servico } from "./Servico";
 import { Contratacao } from "./Contratacao";
+import { Indicacao } from "./Indicacao";
 
 export class Usuario {
 
@@ -66,7 +71,7 @@ export class Usuario {
             formaPagamento
         );
 
-        console.log(`Contratação do serviço "${servico.titulo}" gerada por ${this.nome}.`);
+        console.log(`Contratação do serviço "${servico.getTitulo}" gerada por ${this.nome}.`);
         return novaContratacao;
     };
 
@@ -78,7 +83,7 @@ export class Usuario {
     };
 
     public receberIndicacao(indicacao: Indicacao): void {
-        console.log(`Usuário ${this.nome} recebeu uma indicação através de ${indicacao.meioIndicacao}.`);
+        console.log(`Usuário ${this.nome} recebeu uma indicação através de ${indicacao.getMeioIndicado}.`);
     };
 
     // Getters para campos privados que podem ser necessários em outras partes do modelo
@@ -87,20 +92,39 @@ export class Usuario {
     };
 
     public get getNome(): string { return this.nome; }
-    public set setNome(nome: string) { this.nome = nome; }
+    public set setNome(nome: string) {
+        if (nome.trim().length < 3) throw new Error("O nome deve ter pelo menos 3 caracteres.");
+        this.nome = nome.trim();
+    };
 
     public get getEmail(): string { return this.email; }
-    public set setEmail(email: string) { this.email = email; }
+    public set setEmail(email: string) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) throw new Error("Formato de e-mail inválido.");
+        this.email = email.toLowerCase().trim();
+    };
 
-    public set setSenha(senha: string) { this.senha = senha; }
+    public set setSenha(senha: string) {
+        if (senha.length < 8) throw new Error("A senha deve conter no mínimo 8 caracteres por questões de segurança.");
+        this.senha = senha;
+    };
 
     public get getTelefone(): string { return this.telefone; }
-    public set setTelefone(telefone: string) { this.telefone = telefone; }
+    public set setTelefone(telefone: string) {
+        const foneLimpo = telefone.replace(/\D/g, '');
+        if (foneLimpo.length < 10 || foneLimpo.length > 11) {
+            throw new Error("Telefone deve conter DDD e ter 10 ou 11 dígitos.");
+        };
+        this.telefone = foneLimpo;
+    };
 
     public get getCpf(): string { return this.cpf; }
 
     public get getEndereco(): string { return this.endereco; }
-    public set setEndereco(endereco: string) { this.endereco = endereco; }
+    public set setEndereco(endereco: string) {
+        if (endereco.trim().length < 5) throw new Error("Endereço muito curto ou incompleto.");
+        this.endereco = endereco.trim();
+    };
 
     public get getTipoUsuario(): TipoUsuario { return this.tipoUsuario; }
     public set setTipoUsuario(tipo: TipoUsuario) { this.tipoUsuario = tipo; }
@@ -115,6 +139,6 @@ export class Usuario {
      */
     public inativarConta(): void {
         this.statusConta = StatusConta.INATIVO;
-        console.log(`Conta de ${this.nome} inativada.`);
-    }
+        console.log(`Conta de ${this.getNome} inativada.`);
+    };
 };

@@ -74,5 +74,10 @@ export class Indicacao {
     public set setStatusIndicacao(status: StatusIndicado) { this.statusIndicacao = status; }
 
     public get getObservacao(): string { return this.observacao; }
-    public set setObservacao(obs: string) { this.observacao = obs; }
+    public set setObservacao(obs: string) { 
+        if (!obs || obs.trim().length === 0) {
+            throw new Error("A observação não pode ser vazia.");
+        }
+        this.observacao = obs.trim(); 
+    }
 };
