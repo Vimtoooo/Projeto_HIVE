@@ -95,4 +95,9 @@ npx ts-node test/manual-test.ts
 ---
 
 **Desenvolvido para fins acadêmicos e profissionais.**
+
+## 📄 Licença
+
+Este projeto está sob a licença [MIT](./LICENSE).
+
 *Mantido por @Vimtoooo e @jeflotz*
