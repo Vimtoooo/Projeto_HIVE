@@ -7,11 +7,11 @@ import { Contratacao } from "./Contratacao";
 
 export class Prestador extends Usuario {
 
-    private areaAtuacao: string;
-    private experiencia: string;
-    private certificacoes: string[];
+    private areaAtuacao!: string;
+    private experiencia!: string;
+    private certificacoes!: string[];
     private avaliacaoMedia: number = 0;
-    private cnpj: string;
+    private cnpj!: string;
 
     public constructor(
         nome: string,
@@ -28,10 +28,10 @@ export class Prestador extends Usuario {
         cnpj: string
     ) {
         super(nome, email, senha, telefone, cpf, endereco, tipoUsuario, statusConta);
-        this.areaAtuacao = areaAtuacao;
-        this.experiencia = experiencia;
-        this.certificacoes = certificacoes;
-        this.cnpj = cnpj;
+        this.setAreaAtuacao = areaAtuacao;
+        this.setExperiencia = experiencia;
+        this.setCertificacoes = certificacoes;
+        this.setCnpj = cnpj;
     };
 
     public cadastrarServico(

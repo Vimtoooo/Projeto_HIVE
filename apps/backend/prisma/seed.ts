@@ -30,7 +30,7 @@ async function main() {
       email: 'carlos@hive.com',
       senha: 'senha_criptografada_aqui',
       telefone: '11999999999',
-      cpf: '123.456.789-00',
+      cpf: '12345678900',
       endereco: 'Rua das Madeiras, 123',
       tipoUsuario: TipoUsuario.PRESTADOR,
       statusConta: StatusConta.ATIVO,
@@ -38,7 +38,7 @@ async function main() {
         create: {
           areaAtuacao: 'Marcenaria',
           experiencia: '10 anos',
-          cnpj: '12.345.678/0001-00',
+          cnpj: '12345678000100',
           certificacoes: ['MarcenariaAvançada'],
           servicos: {
             create: {
@@ -61,7 +61,7 @@ async function main() {
       email: 'ana.souza@email.com',
       senha: 'outra_senha_segura',
       telefone: '11988888888',
-      cpf: '987.654.321-11',
+      cpf: '98765432111',
       endereco: 'Avenida Brasil, 456',
       tipoUsuario: TipoUsuario.CONTRATANTE,
       statusConta: StatusConta.ATIVO,
@@ -109,7 +109,7 @@ async function main() {
     data: {
       indicadorId: client.idUsuario,
       indicadoId: provider.prestadorPerfil!.idPrestador,
-      meioIndicacao: 'WHATSAPP',
+      meioIndicado: 'WHATSAPP',
       observacao: 'Cliente veio através de recomendação no grupo do bairro',
       statusIndicacao: 'PENDENTE',
     },

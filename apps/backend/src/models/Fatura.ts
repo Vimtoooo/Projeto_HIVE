@@ -8,12 +8,12 @@ export class Fatura {
     private static proximoId: number = 1;
 
     private idFatura: number;
-    private usuario: Usuario;
-    private contratacao: Contratacao;
+    private usuario!: Usuario;
+    private contratacao!: Contratacao;
     private financeiros: Financeiro[]; // Alterado para array conforme schema.prisma
     private dataEmissao: Date;
-    private valorTotal: number;
-    private statusPagamento: StatusPagamento;
+    private valorTotal!: number;
+    private statusPagamento!: StatusPagamento;
     private dataPagamento?: Date | null;
 
     public constructor(
@@ -23,12 +23,12 @@ export class Fatura {
         statusPagamento: StatusPagamento = StatusPagamento.PENDENTE
     ) {
         this.idFatura = Fatura.proximoId++;
-        this.usuario = usuario;
-        this.contratacao = contratacao;
+        this.setUsuario = usuario;
+        this.setContratacao = contratacao;
         this.financeiros = []; // Inicia vazio, registros são adicionados no pagamento
         this.dataEmissao = new Date();
-        this.valorTotal = valorTotal;
-        this.statusPagamento = statusPagamento;
+        this.setValorTotal = valorTotal;
+        this.setStatusPagamento = statusPagamento;
         this.dataPagamento = null;
     };
 
@@ -59,14 +59,20 @@ export class Fatura {
     public get getIdFatura(): number { return this.idFatura; }
 
     public get getUsuario(): Usuario { return this.usuario; }
+    public set setUsuario(usuario: Usuario) { this.usuario = usuario; }
 
     public get getContratacao(): Contratacao { return this.contratacao; }
+    public set setContratacao(contratacao: Contratacao) { this.contratacao = contratacao; }
 
     public get getFinanceiros(): Financeiro[] { return this.financeiros; }
 
     public get getDataEmissao(): Date { return this.dataEmissao; }
 
     public get getValorTotal(): number { return this.valorTotal; }
+    public set setValorTotal(valor: number) {
+        if (valor <= 0) throw new Error("O valor total da fatura deve ser positivo.");
+        this.valorTotal = valor;
+    }
 
     public get getStatusPagamento(): StatusPagamento { return this.statusPagamento; }
     public set setStatusPagamento(status: StatusPagamento) { this.statusPagamento = status; }

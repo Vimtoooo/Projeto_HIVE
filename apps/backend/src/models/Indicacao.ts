@@ -1,4 +1,6 @@
-import { MeioIndicado, Prestador, StatusIndicado, Usuario } from "@prisma/client";
+import { MeioIndicado, StatusIndicado} from "@prisma/client";
+import { Usuario } from "./Usuario";
+import { Prestador } from "./Prestador";
 
 // Definimos um tipo que representa a herança do UML: Prestador é um Usuario
 type PrestadorComDadosDeUsuario = Prestador & Usuario;
@@ -10,10 +12,10 @@ export class Indicacao {
     private idIndicacao: number;
     private indicador: Usuario; // Renomeado para refletir o schema
     private indicado: PrestadorComDadosDeUsuario; // Agora possui o atributo .nome
-    private meioIndicado: MeioIndicado; // Corrigido o nome
+    private meioIndicado!: MeioIndicado;
     private dataIndicado: Date = new Date(); // Corrigido o nome
-    private statusIndicacao: StatusIndicado; // Corrigido o nome
-    private observacao: string;
+    private statusIndicacao!: StatusIndicado;
+    private observacao!: string;
 
     // Propriedades para facilitar a persistência no Prisma
     public indicadorId: number;
@@ -30,18 +32,18 @@ export class Indicacao {
         this.idIndicacao = idIndicacao || Indicacao.proximoId++; // Mantém o gerador em memória para testes, mas o DB sobrescreverá
         this.indicador = indicador;
         this.indicado = indicado;
-        this.indicadorId = indicador.idUsuario; // Armazena o ID para persistência
-        this.indicadoId = indicado.idPrestador; // Armazena o ID para persistência
-        this.meioIndicado = meioIndicacao;
-        this.statusIndicacao = statusIndicacao;
-        this.observacao = observacao;
+        this.indicadorId = indicador.getIdUsuario; // Armazena o ID para persistência
+        this.indicadoId = indicado.getIdUsuario; // Armazena o ID para persistência
+        this.setMeioIndicado = meioIndicacao;
+        this.setStatusIndicacao = statusIndicacao;
+        this.setObservacao = observacao;
     };
 
     public registrarIndicacao(): void {
         if (!this.validarIndicacao()) {
             throw new Error("Não foi possível registrar a indicação: dados inválidos.");
         };
-        console.log(`Indicação ${this.idIndicacao} registrada com sucesso para ${this.indicado.nome}.`);
+        console.log(`Indicação ${this.idIndicacao} registrada com sucesso para ${this.indicado.getNome}.`);
     };
 
     public validarIndicacao(): boolean {

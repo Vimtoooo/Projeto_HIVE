@@ -7,9 +7,9 @@ export class Servico {
 
     private idServico: number;
     private prestador: Prestador;
-    private titulo: string;
-    private descricao: string;
-    private precoBase: number;
+    private titulo!: string;
+    private descricao!: string;
+    private precoBase!: number;
     private dataCadastro: Date = new Date();
     private status: StatusServico;
 
@@ -22,9 +22,9 @@ export class Servico {
     ) {
         this.idServico = Servico.proximoId++;
         this.prestador = prestador;
-        this.titulo = titulo;
-        this.descricao = descricao;
-        this.precoBase = precoBase;
+        this.setTitulo = titulo;
+        this.setDescricao = descricao;
+        this.setPrecoBase = precoBase;
         this.status = status;
     };
 
