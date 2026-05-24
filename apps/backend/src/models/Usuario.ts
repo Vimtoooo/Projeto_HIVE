@@ -11,15 +11,15 @@ export class Usuario {
     private static proximoId: number = 1;
 
     private idUsuario: number;
-    protected nome: string; // Alterado de private para protected
-    private email: string;
-    private senha: string;
-    private telefone: string;
-    private cpf: string;
-    protected endereco: string;
-    protected tipoUsuario: TipoUsuario;
+    protected nome!: string; // O '!' avisa ao TS que o setter cuidará da inicialização
+    private email!: string;
+    private senha!: string;
+    private telefone!: string;
+    private cpf!: string;
+    protected endereco!: string;
+    protected tipoUsuario!: TipoUsuario;
     private dataCadastro: Date = new Date();
-    private statusConta: StatusConta;
+    private statusConta!: StatusConta;
 
     public constructor(
         nome: string,
@@ -32,14 +32,14 @@ export class Usuario {
         statusConta: StatusConta,
     ) {
         this.idUsuario = Usuario.proximoId++;
-        this.nome = nome;
-        this.email = email;
-        this.senha = senha;
-        this.telefone = telefone;
-        this.cpf = cpf;
-        this.endereco = endereco;
-        this.tipoUsuario = tipoUsuario;
-        this.statusConta = statusConta;
+        this.setNome = nome;
+        this.setEmail = email;
+        this.setSenha = senha;
+        this.setTelefone = telefone;
+        this.setCpf = cpf;
+        this.setEndereco = endereco;
+        this.setTipoUsuario = tipoUsuario;
+        this.setStatusConta = statusConta;
     };
 
     public cadastrar(): void {

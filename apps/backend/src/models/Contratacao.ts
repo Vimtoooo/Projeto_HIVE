@@ -1,20 +1,21 @@
-import { FormaPagamento, Indicacao, StatusContratacao, StatusPagamento } from "@prisma/client";
+import { FormaPagamento, StatusContratacao, StatusPagamento } from "@prisma/client";
 import { Usuario } from "./Usuario";
 import { Servico } from "./Servico";
 import { Fatura } from "./Fatura";
+import { Indicacao } from "./Indicacao";
 
 export class Contratacao {
     private static proximoId: number = 1;
 
     private idContratacao: number;
     private indicacao?: Indicacao;
-    private servico: Servico;
-    private contratante: Usuario;
+    private servico!: Servico;
+    private contratante!: Usuario;
     private fatura?: Fatura;
     private dataContratacao: Date;
     private status: StatusContratacao;
-    private valor: number;
-    private formaPagamento: FormaPagamento;
+    private valor!: number;
+    private formaPagamento!: FormaPagamento;
     private dataVencimento?: Date;
 
     constructor(
@@ -26,14 +27,14 @@ export class Contratacao {
         dataVencimento?: Date
     ) {
         this.idContratacao = Contratacao.proximoId++;
-        this.servico = servico;
-        this.contratante = contratante;
+        this.setServico = servico;
+        this.setContratante = contratante;
         this.indicacao = indicacao;
         this.dataContratacao = new Date();
         this.status = StatusContratacao.PENDENTE;
-        this.valor = valor;
-        this.formaPagamento = formaPagamento;
-        this.dataVencimento = dataVencimento;
+        this.setValor = valor;
+        this.setFormaPagamento = formaPagamento;
+        this.setDataVencimento = dataVencimento;
     };
 
     public iniciar(): void {
@@ -80,8 +81,13 @@ export class Contratacao {
     public get getIdContratacao(): number { return this.idContratacao; }
 
     public get getServico(): Servico { return this.servico; }
+    public set setServico(servico: Servico) { this.servico = servico; }
 
     public get getContratante(): Usuario { return this.contratante; }
+    public set setContratante(contratante: Usuario) { this.contratante = contratante; }
+
+    public get getIndicacao(): Indicacao | undefined { return this.indicacao; }
+    public set setIndicacao(indicacao: Indicacao) { this.indicacao = indicacao; }
 
     public get getStatus(): StatusContratacao { return this.status; }
     public set setStatus(status: StatusContratacao) { this.status = status; }
@@ -96,10 +102,16 @@ export class Contratacao {
     public set setFormaPagamento(forma: FormaPagamento) { this.formaPagamento = forma; }
 
     public get getDataVencimento(): Date | undefined { return this.dataVencimento; }
-    public set setDataVencimento(data: Date) {
+    public set setDataVencimento(data: Date | undefined) {
+        if (!data) {
+            this.dataVencimento = data;
+            return;
+        };
+        
         if (data < new Date()) {
             throw new Error("A data de vencimento não pode ser no passado.");
         };
+        
         this.dataVencimento = data;
     };
 };

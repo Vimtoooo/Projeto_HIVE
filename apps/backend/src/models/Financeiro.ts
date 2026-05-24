@@ -8,9 +8,9 @@ export class Financeiro {
 
     private idFinanceiro: number;
     private fatura?: Fatura; // Fatura é opcional no schema.prisma
-    private contratacao: Contratacao;
-    private tipoRegistro: TipoRegistro;
-    private valor: number;
+    private contratacao!: Contratacao;
+    private tipoRegistro!: TipoRegistro;
+    private valor!: number;
     private descricao?: string;
     private dataRegistro: Date = new Date();
 
@@ -22,11 +22,11 @@ export class Financeiro {
         fatura?: Fatura, // Tornando fatura opcional no construtor
     ) {
         this.idFinanceiro = Financeiro.proximoId++;
-        this.fatura = fatura; // Atribui a fatura se for fornecida
-        this.contratacao = contratacao;
-        this.tipoRegistro = tipoRegistro;
-        this.valor = valor;
-        this.descricao = descricao;
+        this.setFatura = fatura;
+        this.setContratacao = contratacao;
+        this.setTipoRegistro = tipoRegistro;
+        this.setValor = valor;
+        this.setDescricao = descricao;
     };
 
     // Métodos estáticos de fábrica para criar novos registros financeiros
@@ -55,15 +55,22 @@ export class Financeiro {
     public get getIdFinanceiro(): number { return this.idFinanceiro; }
 
     public get getFatura(): Fatura | undefined { return this.fatura; }
+    public set setFatura(fatura: Fatura | undefined) { this.fatura = fatura; }
 
     public get getContratacao(): Contratacao { return this.contratacao; }
+    public set setContratacao(contratacao: Contratacao) { this.contratacao = contratacao; }
 
     public get getTipoRegistro(): TipoRegistro { return this.tipoRegistro; }
+    public set setTipoRegistro(tipo: TipoRegistro) { this.tipoRegistro = tipo; }
 
     public get getValor(): number { return this.valor; }
+    public set setValor(valor: number) {
+        if (valor <= 0) throw new Error("O valor do registro financeiro deve ser positivo.");
+        this.valor = valor;
+    }
 
     public get getDescricao(): string | undefined { return this.descricao; }
-    public set setDescricao(desc: string) {
+    public set setDescricao(desc: string | undefined) {
         this.descricao = desc ? desc.trim() : undefined;
     };
 

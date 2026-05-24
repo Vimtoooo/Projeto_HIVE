@@ -14,7 +14,7 @@ export enum StatusContratacao {
     'PENDENTE', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA'
 };
 
-export enum StatusIndicacao {
+export enum StatusIndicado {
     'PENDENTE', 'ACEITA', 'RECUSADA', 'EXPIRADA'
 };
 

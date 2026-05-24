@@ -5,8 +5,8 @@ export class Avaliacao {
     private static proximoId: number = 1;
 
     private idAvaliacao: number;
-    private contratacao: Contratacao;
-    private nota: number;
+    private contratacao!: Contratacao;
+    private nota!: number;
     private dataAvaliacao: Date;
     private comentario?: string;
 
@@ -16,10 +16,10 @@ export class Avaliacao {
         comentario?: string
     ) {
         this.idAvaliacao = Avaliacao.proximoId++;
-        this.contratacao = contratacao;
-        this.nota = nota;
+        this.setContratacao = contratacao;
+        this.setNota = nota;
         this.dataAvaliacao = new Date();
-        this.comentario = comentario;
+        this.setComentario = comentario;
     };
 
     public registrar(
@@ -51,6 +51,7 @@ export class Avaliacao {
     public get getIdAvaliacao(): number { return this.idAvaliacao; }
 
     public get getContratacao(): Contratacao { return this.contratacao; }
+    public set setContratacao(contratacao: Contratacao) { this.contratacao = contratacao; }
 
     public get getNota(): number { return this.nota; }
     public set setNota(nota: number) {
@@ -61,4 +62,8 @@ export class Avaliacao {
     public get getDataAvaliacao(): Date { return this.dataAvaliacao; }
 
     public get getComentario(): string | undefined { return this.comentario; }
+    public set setComentario(comentario: string | undefined) {
+        // Allow undefined or empty string, but trim if not undefined
+        this.comentario = comentario ? comentario.trim() : undefined;
+    }
 };
