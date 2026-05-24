@@ -1,8 +1,8 @@
-# HIVE - Service Ecosystem
+# HIVE - Sistema para Registro de Serviços e Prestadores Autônomos
 
 <p align="center">
   <img src="https://nestjs.com/img/logo-small.svg" width="100" alt="Nest Logo" />
-  <img src="https://raw.githubusercontent.com/prisma/prisma/main/packages/sdk/src/images/prisma_logo.svg" width="100" alt="Prisma Logo" />
+  <img src="https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/prisma/prisma-original.svg" width="100" alt="Prisma Logo" />
 </p>
 
 O **HIVE** é uma plataforma robusta de intermediação de serviços, desenvolvida com foco em escalabilidade, integridade de dados e princípios avançados de Orientação a Objetos. O projeto visa conectar prestadores de serviço e contratantes através de um ecossistema seguro e auditável.
