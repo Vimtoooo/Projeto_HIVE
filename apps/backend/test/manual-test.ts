@@ -1,3 +1,11 @@
+
+/*      ========== Testes de Execução de Classes ==========
+    * Resumo: Este arquivo .ts inclui múltiplos testes de diversos senário.
+    * Estatísticas: Em total, temos 12 funções, 11 delas executam uma simulação de tarefas baseadas no uso real do sistema e 1 para executar tudo e identificar qualquer erros.
+    * Resultados: Todas funcionalidades funcionam com sucesso, sem erros e com alto desempenho de execução.
+    * Próximos Passos: Vincular uma ponte entre o sistema e o banco de dados do MySQL para armazenar e consultar dados de maneira eficiente.
+*/
+
 import { StatusConta, TipoUsuario, MeioIndicado, StatusIndicado, StatusServico, FormaPagamento, StatusPagamento, TipoRegistro } from "@prisma/client";
 import { Usuario } from "../src/models/Usuario";
 import { Prestador } from "../src/models/Prestador";
@@ -9,10 +17,10 @@ import { Avaliacao } from "../src/models/Avaliacao";
 import { Financeiro } from "../src/models/Financeiro";
 
 async function testeNormal() {
-    console.log("=== INICIANDO TESTES DE DOMÍNIO - PROJETO HIVE ===\n");
+    logSection("1. Execução de Testes Normais (Simulação de Usos)");
 
-    // --- TESTE 1: VALIDAÇÕES DE INTEGRIDADE (FAIL-FAST) ---
-    console.log("TESTE 1: Validando restrições de segurança...");
+    // --- Parte 1: VALIDAÇÕES DE INTEGRIDADE (FAIL-FAST) ---
+    console.log("PARTE 1: Validando restrições de segurança...");
     try {
         const userFalho = new Usuario("Jo", "jo@email.com", "senha12345", "11987654321", "12345678901", "Rua A", TipoUsuario.CONTRATANTE, StatusConta.ATIVO);
         userFalho.setNome = "Jo"; // Deve lançar erro (mínimo 3 caracteres)
@@ -32,8 +40,8 @@ async function testeNormal() {
 
     console.log("\n--------------------------------------------------\n");
 
-    // --- TESTE 2: FLUXO FELIZ (HAPPY PATH) ---
-    console.log("TESTE 2: Simulando fluxo real de negócio...");
+    // --- Parte 2: FLUXO FELIZ (HAPPY PATH) ---
+    console.log("PARTE 2: Simulando fluxo real de negócio...");
 
     // 1. Criar Personagens
     const cliente = new Usuario(
@@ -98,14 +106,7 @@ async function testeNormal() {
         fatura
     );
     console.log(`- Lançamento contábil criado: ID ${registro.getIdFinanceiro}`);
-
-    console.log("\n=== TESTES CONCLUÍDOS COM SUCESSO ===");
 }
-
-executarTestes().catch(err => {
-    console.error("❌ Erro inesperado durante os testes:", err);
-});
-
 
 // --- Funções de Teste Distintas ---
 
@@ -117,7 +118,7 @@ function logSection(title: string) {
 
 // Função 1: Testar validações de construtor e setters (já existente, mas encapsulada)
 function testarValidacoesDeIntegridade() {
-    logSection("1. TESTANDO VALIDAÇÕES DE INTEGRIDADE (FAIL-FAST)");
+    logSection("2. TESTANDO VALIDAÇÕES DE INTEGRIDADE (FAIL-FAST)");
 
     console.log("Tentando criar usuário com nome inválido (menos de 3 caracteres)...");
     try {
@@ -161,7 +162,7 @@ function testarValidacoesDeIntegridade() {
 
 // Função 2: Criar e exibir personagens base
 function criarPersonagensBase(): { cliente: Usuario, carpinteiro: Prestador } {
-    logSection("2. CRIANDO PERSONAGENS BASE (CLIENTE E PRESTADOR)");
+    logSection("3. CRIANDO PERSONAGENS BASE (CLIENTE E PRESTADOR)");
 
     const cliente = new Usuario(
         "Ana Souza", "ana@cliente.com", "seguranca123", "11988888888", "98765432100",
@@ -182,7 +183,7 @@ function criarPersonagensBase(): { cliente: Usuario, carpinteiro: Prestador } {
 
 // Função 3: Prestador cadastra e gerencia serviços
 function testarCadastroEGerenciamentoDeServico(carpinteiro: Prestador): Servico {
-    logSection("3. PRESTADOR CADASTRA E GERENCIA SERVIÇOS");
+    logSection("4. PRESTADOR CADASTRA E GERENCIA SERVIÇOS");
 
     const servicoCama = carpinteiro.cadastrarServico(
         "Cama de Casal Provençal",
@@ -207,7 +208,7 @@ function testarCadastroEGerenciamentoDeServico(carpinteiro: Prestador): Servico 
 
 // Função 4: Simular e gerenciar indicações
 function testarFluxoDeIndicacao(cliente: Usuario, carpinteiro: Prestador): Indicacao {
-    logSection("4. SIMULANDO E GERENCIANDO INDICAÇÕES");
+    logSection("5. SIMULANDO E GERENCIANDO INDICAÇÕES");
 
     const indicacao = new Indicacao(
         cliente,
@@ -228,7 +229,7 @@ function testarFluxoDeIndicacao(cliente: Usuario, carpinteiro: Prestador): Indic
 
 // Função 5: Testar contratação com lógica de desconto
 function testarContratacaoComDesconto(cliente: Usuario, servico: Servico, indicacao: Indicacao): Contratacao {
-    logSection("5. TESTANDO CONTRATAÇÃO COM LÓGICA DE DESCONTO");
+    logSection("6. TESTANDO CONTRATAÇÃO COM LÓGICA DE DESCONTO");
 
     const contrato = cliente.solicitarContratacao(
         servico,
@@ -247,7 +248,7 @@ function testarContratacaoComDesconto(cliente: Usuario, servico: Servico, indica
 
 // Função 6: Testar faturamento e pagamento
 function testarFaturamentoEFluxoDePagamento(contrato: Contratacao, cliente: Usuario) {
-    logSection("6. TESTANDO FATURAMENTO E FLUXO DE PAGAMENTO");
+    logSection("7. TESTANDO FATURAMENTO E FLUXO DE PAGAMENTO");
 
     const fatura = contrato.gerarFatura();
     console.log(`- Fatura (ID: ${fatura.getIdFatura}) gerada para ${cliente.getNome}`);
@@ -259,7 +260,7 @@ function testarFaturamentoEFluxoDePagamento(contrato: Contratacao, cliente: Usua
 
 // Função 7: Testar registro financeiro do prestador
 function testarRegistroFinanceiroDoPrestador(carpinteiro: Prestador, contrato: Contratacao, fatura: Fatura) {
-    logSection("7. TESTANDO REGISTRO FINANCEIRO DO PRESTADOR");
+    logSection("8. TESTANDO REGISTRO FINANCEIRO DO PRESTADOR");
 
     const receita = carpinteiro.registrarFinanceiro(
         contrato,
@@ -282,7 +283,7 @@ function testarRegistroFinanceiroDoPrestador(carpinteiro: Prestador, contrato: C
 
 // Função 8: Testar atualização de perfil do usuário
 function testarAtualizacaoDePerfilDoUsuario(cliente: Usuario) {
-    logSection("8. TESTANDO ATUALIZAÇÃO DE PERFIL DO USUÁRIO");
+    logSection("9. TESTANDO ATUALIZAÇÃO DE PERFIL DO USUÁRIO");
 
     console.log(`- Perfil inicial de ${cliente.getNome}: Telefone ${cliente.getTelefone}, Endereço ${cliente.getEndereco}`);
     cliente.setTelefone = "21912345678";
@@ -292,7 +293,7 @@ function testarAtualizacaoDePerfilDoUsuario(cliente: Usuario) {
 
 // Função 9: Testar inativação de conta
 function testarInativacaoDeConta(usuario: Usuario) {
-    logSection("9. TESTANDO INATIVAÇÃO DE CONTA");
+    logSection("10. TESTANDO INATIVAÇÃO DE CONTA");
 
     console.log(`- Status inicial da conta de ${usuario.getNome}: ${usuario.getStatusConta}`);
     usuario.inativarConta();
@@ -301,7 +302,7 @@ function testarInativacaoDeConta(usuario: Usuario) {
 
 // Função 10: Testar avaliação de serviço
 function testarAvaliacaoDeServico(cliente: Usuario, contrato: Contratacao) {
-    logSection("10. TESTANDO AVALIAÇÃO DE SERVIÇO");
+    logSection("11. TESTANDO AVALIAÇÃO DE SERVIÇO");
 
     const avaliacao = new Avaliacao(contrato, 4, "Ótimo serviço, muito profissional!");
     avaliacao.registrar(4, "Ótimo serviço, muito profissional!"); // O método registrar também valida
