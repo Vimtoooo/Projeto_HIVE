@@ -1,21 +1,72 @@
-MIT License
+HIVE — LICENÇA PROPRIETÁRIA DE USO RESTRITO AO GRUPO DE PI
+Versão 1.0 — 12 de setembro de 2026
 
 Copyright (c) 2026 @Vimtoooo
+Os demais autores conservam os direitos sobre suas respectivas contribuições.
+Todos os direitos reservados, ressalvadas as permissões abaixo.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. OBJETO E TITULARIDADE
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Estes termos se aplicam ao código e à documentação originais do HIVE que os
+respectivos titulares disponibilizem sob esta licença (o "Software"). Trata-se
+de uma licença proprietária; a disponibilidade pública do código não constitui
+uma licença de software livre ou de código aberto (open source).
+Esta licença não transfere a titularidade de direitos autorais.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. INTEGRANTES AUTORIZADOS
+
+A autorização de uso é pessoal, não exclusiva e intransferível, limitada aos
+seis integrantes do grupo acadêmico responsável pelo Projeto Integrador HIVE
+na data desta versão, conforme a composição registrada junto à instituição
+de ensino. A condição de integrante deve poder ser comprovada por esse registro.
+Seguir o projeto, contribuir com código ou possuir acesso ao repositório não
+confere, por si só, a condição de integrante autorizado.
+
+Esses integrantes podem copiar, instalar, executar, estudar, modificar e testar
+o Software para desenvolver, manter e apresentar o HIVE no âmbito do Projeto
+Integrador. Podem compartilhar o Software entre si, entregar cópias à instituição
+para avaliação acadêmica e manter o repositório oficial público sob estes termos.
+A entrega para avaliação não autoriza a reutilização do Software em outros
+projetos. A exploração comercial e outros usos fora desse âmbito dependem de
+autorização prévia e escrita dos titulares dos direitos envolvidos.
+
+3. TERCEIROS E RESERVA DE DIREITOS
+
+Terceiros podem consultar o conteúdo disponibilizado publicamente. Salvo as
+exceções das seções 4 e 5, não recebem autorização para executar, modificar,
+reutilizar, incorporar a outros projetos, redistribuir, sublicenciar, vender ou
+explorar o Software, integralmente ou em parte, para fins comerciais ou não
+comerciais. Usos adicionais dependem de autorização prévia e escrita dos
+titulares dos direitos envolvidos.
+
+As cópias autorizadas devem preservar os avisos de autoria e esta licença.
+
+4. REPOSITÓRIO PÚBLICO E DIREITOS LEGAIS
+
+Estes termos não limitam os direitos concedidos ao GitHub e aos seus usuários
+pelos Termos de Serviço aplicáveis, inclusive visualizar e criar forks pela
+funcionalidade do GitHub. Essas permissões não concedem, por esta licença,
+autorização adicional para reutilizar o Software fora desses termos.
+
+Nenhuma disposição restringe direitos ou exceções que a legislação aplicável
+assegure independentemente de autorização dos titulares.
+
+5. VERSÕES ANTERIORES E MATERIAIS DE TERCEIROS
+
+Esta licença não revoga nem restringe direitos já concedidos sobre versões ou
+trechos anteriormente disponibilizados sob a licença MIT ou outras licenças.
+Esses materiais continuam utilizáveis nos termos das licenças sob as quais
+foram recebidos. A mudança não torna retroativamente exclusivo o código já
+licenciado ao público.
+
+Dependências, bibliotecas, imagens e outros materiais de terceiros permanecem
+sujeitos às respectivas licenças e avisos. Estes termos não substituem essas
+licenças nem atribuem ao grupo direitos que ele não possua.
+
+6. AUSÊNCIA DE GARANTIAS
+
+Na extensão permitida pela legislação aplicável, o Software é fornecido no
+estado em que se encontra, sem garantias de funcionamento, adequação a uma
+finalidade específica ou ausência de defeitos. Os autores e titulares não
+respondem por danos decorrentes de seu uso, salvo responsabilidade que não
+possa ser excluída por lei.

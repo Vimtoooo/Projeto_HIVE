@@ -98,6 +98,11 @@ npx ts-node test/manual-test.ts
 
 ## 📄 Licença
 
-Este projeto está sob a licença [MIT](./LICENSE).
+Este projeto utiliza uma [licença proprietária de uso restrito ao grupo de PI](./LICENSE).
+O código é público para consulta, mas sua reutilização não é livre: as permissões
+de desenvolvimento e uso acadêmico são destinadas aos seis integrantes do grupo,
+conforme os termos da licença. Permanecem preservados os direitos previstos nos
+termos do GitHub, nas licenças de terceiros e nas versões anteriormente
+disponibilizadas sob MIT.
 
 *Mantido por @Vimtoooo e @jeflotz*
