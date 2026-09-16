@@ -5,6 +5,7 @@ import { FormaPagamento, StatusConta, TipoUsuario } from "@prisma/client";
 import { Servico } from "./Servico";
 import { Contratacao } from "./Contratacao";
 import { Indicacao } from "./Indicacao";
+import { randomBytes, scrypt } from 'node:crypto';
 
 export class Usuario {
 
@@ -52,6 +53,18 @@ export class Usuario {
     ): boolean {
         return this.email === email && this.senha === senha;
     };
+
+    /** Exporta somente um hash com salt para armazenamento, nunca a senha pura. */
+    public async gerarHashSenha(): Promise<string> {
+        const salt = randomBytes(16).toString('hex');
+        const hash = await new Promise<Buffer>((resolve, reject) => {
+            scrypt(this.senha, salt, 64, (error, chave) => {
+                if (error) reject(error);
+                else resolve(chave);
+            });
+        });
+        return `scrypt$${salt}$${hash.toString('hex')}`;
+    }
 
     public atualizarPerfil(dados: Partial<Usuario>): void {
         // Forma limpa de mesclar dados e modificar sem objetos sem gerar erros

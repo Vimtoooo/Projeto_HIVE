@@ -79,6 +79,7 @@ export class Contratacao {
 
     // Getters e Setters
     public get getIdContratacao(): number { return this.idContratacao; }
+    public get getDataContratacao(): Date { return this.dataContratacao; }
 
     public get getServico(): Servico { return this.servico; }
     public set setServico(servico: Servico) { this.servico = servico; }

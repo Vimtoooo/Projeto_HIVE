@@ -67,6 +67,7 @@ export class Fatura {
     public get getFinanceiros(): Financeiro[] { return this.financeiros; }
 
     public get getDataEmissao(): Date { return this.dataEmissao; }
+    public get getDataPagamento(): Date | null { return this.dataPagamento ?? null; }
 
     public get getValorTotal(): number { return this.valorTotal; }
     public set setValorTotal(valor: number) {

@@ -1,0 +1,8 @@
+{
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": "test/persistencia.integration-spec.ts$",
+  "transform": { "^.+\\.ts$": "ts-jest" },
+  "testTimeout": 30000,
+  "maxWorkers": 1
+}

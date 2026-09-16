@@ -75,8 +75,11 @@ Crie um arquivo `.env` baseado no `.env.example` e configure sua `DATABASE_URL` 
 ```bash
 npx prisma generate
 npx prisma db push
-npx prisma db seed
 ```
+
+Revise as mudanças de estrutura antes de aplicá-las em um banco com dados.
+O seed legado apaga registros existentes; para testar a persistência das classes,
+use o banco separado e os comandos do [guia de persistência](apps/backend/docs/PERSISTENCIA.md).
 
 ### 5. Executar Demonstração de Domínio
 Para visualizar as validações e o fluxo de classes em ação (essencial para apresentações):
@@ -85,6 +88,23 @@ npx ts-node test/manual-test.ts
 ```
 
 ## 📈 Roadmap
+
+### Persistência das classes no banco
+
+A camada `PersistenciaService` permite inserir as oito entidades de domínio no
+MySQL por meio do Prisma, com transações e uso das chaves geradas pelo banco.
+Os testes de integração utilizam objetos de `models`, dados fictícios e um banco
+separado. Consulte o [guia de persistência](apps/backend/docs/PERSISTENCIA.md)
+para configurar o ambiente, executar os testes e entender os limites da entrega
+e os passos para a futura migração para PostgreSQL.
+
+Na pasta `apps/backend`, após configurar `.env.test.local` e criar o banco de testes:
+
+```bash
+npm run prisma:generate
+npm run test:db:prepare
+npm run test:persistencia
+```
 
 - [x] Modelagem de Domínio e Validações de Integridade.
 - [x] Integração com Prisma ORM e MySQL.
