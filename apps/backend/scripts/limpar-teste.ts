@@ -33,6 +33,12 @@ async function main() {
       'api-duplicado',
       'api-rollback',
       'api-filtros',
+      // Lote de exemplos REST Client: emails exatos, sem apagar outros cadastros.
+      ...Array.from(
+        { length: 10 },
+        (_, i) => `api-http${String(i + 1).padStart(2, '0')}`,
+      ),
+      'api-http-invalid',
     ].map((rotulo) => `${rotulo}.${id}@example.invalid`);
     const antes = await prisma.usuario.count({
       where: { email: { in: emails } },
