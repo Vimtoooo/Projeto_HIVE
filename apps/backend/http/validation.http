@@ -1,0 +1,26 @@
+@baseUrl = http://localhost:3333
+
+### Página inválida: começa em 1 (400)
+GET {{baseUrl}}/servicos?pagina=0
+Accept: application/json
+
+### Limite acima do máximo de 100 (400)
+GET {{baseUrl}}/servicos?limite=101
+Accept: application/json
+
+### Faixa de preço invertida (400)
+GET {{baseUrl}}/servicos?precoMin=300&precoMax=100
+Accept: application/json
+
+### Campo não permitido nos filtros (400)
+GET {{baseUrl}}/servicos?status=INATIVO
+Accept: application/json
+
+### Cadastro incompleto: rejeitado antes de gravar no banco (400)
+POST {{baseUrl}}/prestadores
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nome": "Prestador Fictício HTTP"
+}

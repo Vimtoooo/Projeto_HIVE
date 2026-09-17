@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:3333
+
+### Verificar se a API está ligada (200; não verifica o banco)
+GET {{baseUrl}}/
+
+### Listar serviços ativos (200; itens pode estar vazio)
+GET {{baseUrl}}/servicos
+Accept: application/json
+
+### Buscar por título ou descrição e faixa de preço (200)
+GET {{baseUrl}}/servicos?texto=mesa&precoMin=100&precoMax=300
+Accept: application/json
+
+### Buscar por área de atuação e paginar (200)
+GET {{baseUrl}}/servicos?areaAtuacao=Montagem&pagina=1&limite=5
+Accept: application/json

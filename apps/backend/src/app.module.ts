@@ -3,7 +3,7 @@ import { APP_PIPE } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PersistenciaModule } from './persistence/persistencia.module';
-import { CatalogoModule } from './catalogo/catalogo.module';
+import { CatalogoModule } from './catalog/catalogo.module';
 
 @Module({
   imports: [PersistenciaModule, CatalogoModule],

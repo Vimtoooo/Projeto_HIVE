@@ -62,6 +62,12 @@ npm run start:prod
 
 O script usa `dist/src/main`. O build é necessário para refletir mudanças no código.
 
+## Requisições manuais no VS Code
+
+A pasta [http](http/README.md) contém exemplos para cadastro, busca e validação
+com REST Client. Use a API iniciada por `npm run start:demo` para gravar apenas
+no banco de testes. Os exemplos têm dados fictícios e instruções de limpeza.
+
 ## Rotas disponíveis
 
 | Método e rota | Comportamento |
@@ -79,10 +85,10 @@ limites, exemplos JSON e respostas 400, 409, 503 e 500.
 
 | Camada | Responsabilidade e motivo |
 | --- | --- |
-| `src/catalogo/servico.controller.ts` | Recebe POST/GET e delega ao serviço, seguindo o diagrama de sequência |
-| `src/catalogo/catalogo.dto.ts` | Valida formatos, limites e campos extras antes de executar regras ou acessar o banco |
-| `src/catalogo/servico.service.ts` | Coordena o cadastro e a busca, verifica intervalo de preços e traduz erros para HTTP |
-| `src/catalogo/servico.repository.ts` | Define consultas e projeções públicas; evita expor senha, documentos e contato |
+| `src/catalog/servico.controller.ts` | Recebe POST/GET e delega ao serviço, seguindo o diagrama de sequência |
+| `src/catalog/catalogo.dto.ts` | Valida formatos, limites e campos extras antes de executar regras ou acessar o banco |
+| `src/catalog/servico.service.ts` | Coordena o cadastro e a busca, verifica intervalo de preços e traduz erros para HTTP |
+| `src/catalog/servico.repository.ts` | Define consultas e projeções públicas; evita expor senha, documentos e contato |
 | `src/models/` | Mantém as classes Prestador/Servico e demais regras de domínio já utilizadas nos testes |
 | `src/persistence/` | Reutiliza transações, gravação das classes, conexão e adaptador do banco |
 

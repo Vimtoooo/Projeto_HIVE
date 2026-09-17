@@ -218,6 +218,87 @@ Não é necessário executar `TRUNCATE TABLE` nem desativar as chaves estrangeir
 `TRUNCATE` apaga toda a tabela, pode ser impedido por FKs e provoca commit
 implícito; ele não permite a limpeza seletiva usada aqui.
 
+### 7.1. Erro 1701 ao executar TRUNCATE: limpar todas as tabelas de testes
+
+O erro `Cannot truncate a table referenced in a foreign key constraint` ocorre
+porque outra tabela referencia a tabela escolhida. No HIVE, por exemplo,
+`Prestador` referencia `Usuario`. O MySQL pode bloquear TRUNCATE mesmo quando a
+tabela dependente está vazia; apagar seus registros não remove a restrição.
+
+Prefira a limpeza por UUID do passo anterior quando quiser remover somente uma
+execução. Os comandos `:visualizar` preservam os registros intencionalmente.
+Se precisar remover **todos os dados das oito tabelas da aplicação no banco de
+testes**, use o procedimento abaixo. Ele também apaga cadastros manuais que
+estejam nesse banco, mas preserva tabelas, chaves estrangeiras e migrations.
+
+1. Pare a API de demonstração e qualquer teste em execução.
+2. Conecte-se ao servidor correto no Workbench. O exemplo usa exclusivamente
+   `hive_pi_20260915_test`; se seu banco tiver outro nome, substitua esse nome
+   em todas as consultas. Nunca substitua pelo banco principal da aplicação.
+3. Execute somente o primeiro bloco abaixo. Ele usa DELETE na ordem das
+   dependências e abre uma transação nas tabelas InnoDB do projeto.
+
+```sql
+-- Todos os registros destas tabelas do banco de testes serão removidos.
+SET @safe_updates_anterior = @@SESSION.SQL_SAFE_UPDATES;
+SET SESSION SQL_SAFE_UPDATES = 0;
+
+START TRANSACTION;
+
+DELETE FROM hive_pi_20260915_test.Financeiro;
+DELETE FROM hive_pi_20260915_test.Avaliacao;
+DELETE FROM hive_pi_20260915_test.Fatura;
+DELETE FROM hive_pi_20260915_test.Contratacao;
+DELETE FROM hive_pi_20260915_test.Indicacao;
+DELETE FROM hive_pi_20260915_test.Servico;
+DELETE FROM hive_pi_20260915_test.Prestador;
+DELETE FROM hive_pi_20260915_test.Usuario;
+```
+
+A opção SQL_SAFE_UPDATES é alterada somente nesta conexão para permitir DELETE
+sem filtro, evitando o erro 1175 do modo seguro do Workbench. As verificações
+FOREIGN_KEY_CHECKS continuam ativas.
+
+4. Confira a saída de **todos** os DELETEs. Se nenhum falhou, confirme na
+   **mesma conexão**:
+
+```sql
+COMMIT;
+SET SESSION SQL_SAFE_UPDATES = @safe_updates_anterior;
+```
+
+Se qualquer DELETE falhar, não execute COMMIT. Desfaça a transação pendente
+na mesma conexão e restaure a configuração:
+
+```sql
+ROLLBACK;
+SET SESSION SQL_SAFE_UPDATES = @safe_updates_anterior;
+```
+
+Não execute os três blocos em sequência automaticamente: COMMIT e ROLLBACK são
+alternativas. ROLLBACK só desfaz uma transação ainda não confirmada. Se houver
+uma nova tabela com FK não contemplada aqui, revise a ordem de dependências
+antes de tentar novamente, mantendo a validação das chaves estrangeiras.
+
+5. Após confirmar com COMMIT, verifique as contagens; todas devem ser zero:
+
+```sql
+SELECT 'Financeiro' AS tabela, COUNT(*) AS registros FROM hive_pi_20260915_test.Financeiro
+UNION ALL SELECT 'Avaliacao', COUNT(*) FROM hive_pi_20260915_test.Avaliacao
+UNION ALL SELECT 'Fatura', COUNT(*) FROM hive_pi_20260915_test.Fatura
+UNION ALL SELECT 'Contratacao', COUNT(*) FROM hive_pi_20260915_test.Contratacao
+UNION ALL SELECT 'Indicacao', COUNT(*) FROM hive_pi_20260915_test.Indicacao
+UNION ALL SELECT 'Servico', COUNT(*) FROM hive_pi_20260915_test.Servico
+UNION ALL SELECT 'Prestador', COUNT(*) FROM hive_pi_20260915_test.Prestador
+UNION ALL SELECT 'Usuario', COUNT(*) FROM hive_pi_20260915_test.Usuario;
+```
+
+DELETE não reinicia os contadores de IDs. Isso é esperado: os testes usam as
+chaves geradas pelo banco e não dependem de os IDs começarem em 1. A tabela
+`_prisma_migrations`, se existir, não deve ser apagada para limpar dados fictícios.
+
+Referência: [restrições do TRUNCATE no MySQL](https://dev.mysql.com/doc/refman/8.0/en/truncate-table.html).
+
 ## 8. Resolver avisos de tipos no VS Code
 
 O projeto já declara `@types/jest` nas dependências de desenvolvimento.
