@@ -34,15 +34,21 @@ function main() {
   if (modo === 'prepare') {
     // Sincroniza o schema no banco de testes; recusa perda de dados por padrão.
     comando = ['node_modules/prisma/build/index.js', 'db', 'push'];
-  } else if (modo === 'test' || modo === 'demo') {
+  } else if (modo === 'serve') {
+    comando = ['node_modules/ts-node/dist/bin.js', 'src/main.ts'];
+  } else if (['test', 'demo', 'api', 'api-demo'].includes(modo)) {
     comando = [
       'node_modules/jest/bin/jest.js',
       '--config',
-      'test/jest-persistencia.json',
+      modo.startsWith('api')
+        ? 'test/jest-catalogo.json'
+        : 'test/jest-persistencia.json',
       '--runInBand',
     ];
     if (modo === 'demo')
       comando.push('--testNamePattern=grava as oito entidades');
+    if (modo === 'api-demo')
+      comando.push('--testNamePattern=demonstra cadastro e busca');
   } else if (modo === 'clean') {
     if (!process.argv[3] || !/^[0-9a-f-]{36}$/.test(process.argv[3])) {
       throw new Error('Informe o UUID exibido pela demonstração após --.');
@@ -53,14 +59,16 @@ function main() {
       process.argv[3],
     ];
   } else {
-    throw new Error('Modo esperado: prepare, test, demo ou clean.');
+    throw new Error(
+      'Modo esperado: prepare, test, demo, api, api-demo, serve ou clean.',
+    );
   }
   const child = spawnSync(process.execPath, comando, {
     stdio: 'inherit',
     env: {
       ...process.env,
-      HIVE_PRESERVAR_TESTE: modo === 'demo' ? '1' : '0',
-      ...(modo === 'prepare' ? { DATABASE_URL: url } : {}),
+      HIVE_PRESERVAR_TESTE: ['demo', 'api-demo'].includes(modo) ? '1' : '0',
+      ...(['prepare', 'serve'].includes(modo) ? { DATABASE_URL: url } : {}),
     },
   });
   if (child.error)

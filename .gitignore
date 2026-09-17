@@ -1,0 +1,7 @@
+# Configuração local e credenciais, em qualquer pacote do monorepositório.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx

@@ -22,6 +22,6 @@ class ConexaoPrisma implements OnModuleDestroy {
     },
     ConexaoPrisma,
   ],
-  exports: [PersistenciaService],
+  exports: [PersistenciaService, PrismaClient],
 })
 export class PersistenciaModule {}

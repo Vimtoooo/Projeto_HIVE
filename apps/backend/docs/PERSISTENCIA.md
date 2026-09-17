@@ -72,8 +72,9 @@ consultar o banco. Uma referência retornada antes de um rollback não é persis
 Esta entrega implementa **inserção de objetos novos**. Não implementa atualização,
 upsert, carregamento de registros como classes ou associação de objetos carregados
 em outra transação. Essas operações exigirão contratos próprios de repositório;
-não reutilize os IDs de demonstração para simulá-las. Nenhum endpoint novo foi
-exposto: a camada já está disponível para os futuros serviços da API.
+não reutilize os IDs de demonstração para simulá-las. A camada agora é usada
+pelo cadastro de prestador com serviço inicial na
+[API de cadastro e busca](./CATALOGO-API.md), que também implementa consultas públicas.
 
 Senhas novas são persistidas como `scrypt$salt$hash`, com salt aleatório. O método
 `Usuario.autenticar` existente continua sendo uma demonstração em memória, não
@@ -86,7 +87,7 @@ Execute na pasta `apps/backend`:
 
 ```powershell
 npm ci
-# Se ainda não existir, copie .env.example para .env e configure suas credenciais.
+# Crie .env localmente conforme docs/CATALOGO-API.md e configure suas credenciais.
 npm run prisma:generate
 npm run build
 ```
@@ -108,7 +109,7 @@ e ainda utiliza a inicialização legada do client. Use os testes abaixo.
    CREATE DATABASE hive_persistencia_test CHARACTER SET utf8mb4;
    ```
 
-2. Copie `.env.test.example` para `.env.test.local` e configure `TEST_DATABASE_URL`
+2. Crie `.env.test.local` conforme `test/README.md` e configure `TEST_DATABASE_URL`
    para esse banco. A senha deve ser codificada para URL quando necessário.
    O arquivo local é ignorado pelo Git. O usuário MySQL precisa poder criar
    tabelas nesse banco e executar as operações de leitura e escrita.

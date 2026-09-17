@@ -28,6 +28,11 @@ async function main() {
       'rollback-b',
       'relacao',
       'repetido',
+      'api',
+      'api-invalido',
+      'api-duplicado',
+      'api-rollback',
+      'api-filtros',
     ].map((rotulo) => `${rotulo}.${id}@example.invalid`);
     const antes = await prisma.usuario.count({
       where: { email: { in: emails } },

@@ -3,6 +3,27 @@
 Este guia mostra como testar a transferência dos objetos de `src/models` para
 o MySQL pelo Prisma, consultar os dados fictícios e removê-los depois.
 
+## Por que existem suítes diferentes
+
+O teste de persistência verifica as oito classes diretamente no banco. O novo
+teste de catálogo entra pelas rotas HTTP do AppModule real, para também validar
+DTOs, controllers, serviços e respostas. Assim, uma gravação correta no Prisma
+não mascara uma rota ausente, uma entrada inválida aceita ou dados privados na resposta.
+
+| Comando | Cobertura e motivo |
+| --- | --- |
+| `npm test -- --runInBand` | Dois testes unitários: comportamento básico e mensagem segura em falha do banco |
+| `npm run test:e2e -- --runInBand` | Um teste HTTP básico de GET /, com conexão substituída por mock |
+| `npm run test:persistencia` | Cinco testes das classes e transações, usando MySQL real |
+| `npm run test:catalogo` | Dez testes HTTP de cadastro, busca, filtros, paginação, validação e proteção dos dados |
+| `npx ts-node test/manual-test.ts` | Demonstração das classes em memória, sem gravar no MySQL |
+
+As contagens descrevem a entrega atual. `npm test` sozinho não executa as suítes
+de integração, pois cada uma possui sua configuração Jest e seu comando próprio.
+Os testes de catálogo foram escritos antes das rotas e registraram falhas 404
+antes da implementação. As suítes normais limpam somente seus próprios dados;
+os comandos `:visualizar` preservam um cenário para consulta manual.
+
 ## Consulta rápida
 
 Execute os comandos na pasta `apps/backend`, não dentro de `test`.
@@ -12,6 +33,9 @@ Execute os comandos na pasta `apps/backend`, não dentro de `test`.
 | `npm run prisma:generate` | Gerar o Prisma Client a partir do schema |
 | `npm run test:db:prepare` | Preparar as tabelas no banco exclusivo de testes |
 | `npm run test:persistencia` | Executar os cinco testes e limpar os dados da execução |
+| `npm run test:catalogo` | Executar dez testes HTTP de cadastro e busca com MySQL real |
+| `npm run test:catalogo:visualizar` | Preservar um cadastro feito pela API para apresentação |
+| `npm run start:demo` | Iniciar a aplicação real no banco exclusivo de testes |
 | `npm run test:persistencia:visualizar` | Executar um cenário completo e preservar os dados para consulta |
 | `npm run test:persistencia:limpar -- UUID` | Remover somente os dados da execução identificada pelo UUID |
 | `npx tsc --project test/tsconfig.json` | Verificar os tipos TypeScript dos testes sem gerar arquivos |
@@ -49,17 +73,23 @@ Em uma nova instalação:
    CREATE DATABASE IF NOT EXISTS hive_pi_20260915_test CHARACTER SET utf8mb4;
    ```
 
-3. Se `.env.test.local` ainda não existir, copie o modelo, no terminal do backend:
-
-   ```powershell
-   Copy-Item .env.test.example .env.test.local
-   ```
+3. Se `.env.test.local` ainda não existir, crie esse arquivo na pasta do backend.
+   Os arquivos de ambiente e seus modelos não são distribuídos pelo Git.
 
 4. Edite `.env.test.local` com as credenciais do seu MySQL:
 
    ```dotenv
    TEST_DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_pi_20260915_test"
    ```
+
+   Para MySQL 8 local com autenticação RSA, acrescente:
+
+   ```dotenv
+   MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
+   ```
+
+   Essa opção só funciona com host local. A configuração para servidores remotos
+   está no [guia da API](../docs/CATALOGO-API.md).
 
 Substitua usuário e senha. Caracteres especiais nas credenciais precisam estar
 codificados para URL. O usuário do banco precisa de permissões para preparar as
@@ -216,4 +246,22 @@ Execute o teste com os scripts npm, não diretamente com `node` ou `ts-node`:
 - [Teste de integração](./persistencia.integration-spec.ts)
 - [Consultas para o Workbench](./consultar-persistencia.sql)
 - [Guia técnico de persistência e migração para PostgreSQL](../docs/PERSISTENCIA.md)
-- [Modelo de configuração do banco de testes](../.env.test.example)
+- [API de cadastro e busca: configuração e apresentação](../docs/CATALOGO-API.md)
+- [Teste HTTP do fluxo do diagrama](./catalogo.integration-spec.ts)
+- [Configuração e arquitetura do backend](../README.md)
+- [Schema, migrations e conexão Prisma](../prisma/README.md)
+
+## Demonstrar o fluxo do diagrama de sequência
+
+Depois da preparação do banco, execute `npm run test:catalogo`: são dez testes
+de cadastro, busca, validação, paginação, privacidade e rollback. Para preservar
+um cadastro, use `npm run test:catalogo:visualizar` (um aprovado, nove pulados).
+
+Copie o UUID exibido e rode `npm run start:demo` em outro terminal do backend.
+Abra `http://localhost:3000/servicos?texto=UUID_DA_EXECUCAO` substituindo o UUID.
+Você verá a aplicação consultando pelo Controller, Service, Repositório e Prisma.
+
+Use o comando de limpeza exibido no terminal para remover aquela execução.
+As consultas do arquivo `consultar-persistencia.sql` são do teste das oito
+entidades; para o cadastro via API, use o SQL específico no
+[roteiro de apresentação](../docs/CATALOGO-API.md#apresentação-para-o-grupo-e-o-professor).

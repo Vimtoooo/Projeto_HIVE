@@ -23,12 +23,27 @@ export function criarPrismaClient(
       'Configure opções adicionais (como TLS) na fábrica do adaptador; parâmetros de URL não são suportados aqui.',
     );
   }
+  const recuperarChaveLocal =
+    process.env.MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL === 'true';
+  if (
+    recuperarChaveLocal &&
+    !['localhost', '127.0.0.1', '[::1]'].includes(conexao.hostname)
+  ) {
+    throw new Error(
+      'Recuperação de chave pública permitida somente no MySQL local.',
+    );
+  }
   const adapter = new PrismaMariaDb({
     host: conexao.hostname,
     port: Number(conexao.port || 3306),
     user: decodeURIComponent(conexao.username),
     password: decodeURIComponent(conexao.password),
     database: decodeURIComponent(conexao.pathname.slice(1)),
+    // MySQL 8 pode exigir RSA após reiniciar o servidor e esvaziar o cache de autenticação.
+    // Remotamente, configure a chave pública confiável; não aceite uma chave da rede.
+    cachingRsaPublicKey: process.env.MYSQL_SERVER_PUBLIC_KEY,
+    rsaPublicKey: process.env.MYSQL_SERVER_PUBLIC_KEY,
+    allowPublicKeyRetrieval: recuperarChaveLocal,
     connectionLimit: 5,
     connectTimeout: 5000,
     acquireTimeout: 10000,
