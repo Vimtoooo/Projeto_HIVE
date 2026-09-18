@@ -11,7 +11,7 @@ O **HIVE** é uma plataforma robusta de intermediação de serviços, desenvolvi
 
 ## 🚀 Destaques da Arquitetura
 
-A arquitetura organiza as regras em **classes de domínio** e o fluxo da API em Controller → Service → Repositório → Prisma/MySQL. As classes ainda utilizam tipos e enums do Prisma.
+A arquitetura organiza as regras em **classes de domínio** e o fluxo da API em Controller → Service → Repositório → Prisma/MySQL. As classes ainda utilizam tipos e enums do Prisma. A orientação a Domain-Driven Design (DDD) e a independência das regras em relação à infraestrutura permanecem como direção arquitetural.
 
 *   **Encapsulamento Rigoroso**: Atributos privados protegidos por lógica de validação em *setters*.
 *   **Princípio Fail-Fast**: DTOs e classes validam campos antes da persistência. CPF e CNPJ são verificados por formato e comprimento, sem cálculo de dígitos verificadores.
@@ -29,11 +29,15 @@ Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/te
 
 | Camada | Tecnologias |
 | :--- | :--- |
-| **Frontend** | HTML5 + CSS3; tela estática de entrada, sem framework JavaScript |
+| **Frontend atual** | HTML5 + CSS3; protótipo estático da tela de entrada |
+| **Frontend planejado** | Node.js como ambiente de desenvolvimento/execução; Next.js é o framework previsto no planejamento original |
 | **Backend** | Node.js + NestJS (TypeScript) |
 | **Persistência** | MySQL + Prisma ORM |
 | **Testes** | Jest, integração com MySQL e exemplos HTTP |
 | **Qualidade de código** | TypeScript, ESLint e Prettier |
+| **Ambiente planejado** | Docker; configuração ainda a implementar |
+
+Node.js é um ambiente de execução JavaScript, enquanto NestJS e Next.js são frameworks distintos. O backend já usa NestJS sobre Node.js; a estrutura Node.js/Next.js do frontend ainda não está implementada. As tecnologias planejadas não substituem a descrição do código atual.
 
 ## 📂 Estrutura do Projeto
 
@@ -56,7 +60,7 @@ HIVE/
 │   │   ├── test/                  # Integração, E2E e demonstrações
 │   │   │   └── support/           # Limpeza seletiva de dados fictícios
 │   │   └── README.md              # Configuração e execução do backend
-│   └── frontend/                  # Interface estática, ainda sem acesso à API
+│   └── frontend/                  # Protótipo estático; evolução Node.js/Next.js planejada
 │       ├── imagens/               # Logotipos e imagens
 │       ├── pages/                 # Página de entrada Hive.html
 │       └── styles/                # Estilos CSS da interface
@@ -116,6 +120,8 @@ Para visualizar o frontend, abra [Hive.html](apps/frontend/pages/Hive.html) no n
 - [ ] Endpoints de contratação, pagamento e avaliação.
 - [x] Tela estática de entrada em HTML/CSS.
 - [ ] Integração do frontend com a API e desenvolvimento das demais telas.
+- [ ] Interface Administrativa e Dashboard do Cliente (Next.js, conforme planejamento original).
+- [ ] Configuração do ambiente com Docker.
 
 ---
 
