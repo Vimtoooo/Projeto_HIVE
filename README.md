@@ -11,13 +11,13 @@ O **HIVE** é uma plataforma robusta de intermediação de serviços, desenvolvi
 
 ## 🚀 Destaques da Arquitetura
 
-A arquitetura parte da **Camada de Domínio**, utilizando padrões de **Domain-Driven Design (DDD)** para garantir que as regras de negócio sejam independentes de infraestrutura.
+A arquitetura organiza as regras em **classes de domínio** e o fluxo da API em Controller → Service → Repositório → Prisma/MySQL. As classes ainda utilizam tipos e enums do Prisma.
 
 *   **Encapsulamento Rigoroso**: Atributos privados protegidos por lógica de validação em *setters*.
-*   **Princípio Fail-Fast**: O sistema valida a integridade dos dados (CPF, CNPJ, e-mail, formatos de string) no momento da instancialização, impedindo que estados inválidos persistam no banco de dados.
+*   **Princípio Fail-Fast**: DTOs e classes validam campos antes da persistência. CPF e CNPJ são verificados por formato e comprimento, sem cálculo de dígitos verificadores.
 *   **Modelagem de Herança**: Implementação de especialização de classes onde `Prestador` estende `Usuario`, compartilhando atributos base e estendendo funcionalidades específicas.
 *   **Persistência com Prisma**: Mapeamento objeto-relacional (ORM) otimizado para MySQL, garantindo consistência entre as classes TypeScript e o schema do banco.
-*   **Lógica de Negócio Injetada**: Cálculos automatizados de faturamento, descontos por indicação e fluxos de caixa integrados.
+*   **Regras de Domínio**: Classes modelam faturamento, indicação e financeiro; esses fluxos ainda não possuem endpoints na API.
 
 ## Integração atual
 
@@ -29,39 +29,55 @@ Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/te
 
 | Camada | Tecnologias |
 | :--- | :--- |
+| **Frontend** | HTML5 + CSS3; tela estática de entrada, sem framework JavaScript |
 | **Backend** | Node.js + NestJS (TypeScript) |
 | **Persistência** | MySQL + Prisma ORM |
 | **Testes** | Jest, integração com MySQL e exemplos HTTP |
-| **Ambiente** | Docker Ready (Configuração futura) |
+| **Qualidade de código** | TypeScript, ESLint e Prettier |
 
 ## 📂 Estrutura do Projeto
 
+Principais diretórios e arquivos (dependências e saídas de compilação omitidas):
+
 ```text
 HIVE/
-├── apps/
-│   ├── backend/
-│   │   ├── prisma/             # Schema e configuração do Prisma
-│   │   ├── src/
-│   │   │   ├── models/         # Classes de Domínio (Core Logic)
-│   │   │   ├── enums/          # Definições de tipos constantes
-│   │   └── test/               # Scripts de validação e demonstração
-│   └── frontend/               # Páginas HTML/CSS (ainda sem integração à API)
-└── README.md
+├── apps/                          # Aplicações do projeto
+│   ├── backend/                   # API NestJS e persistência
+│   │   ├── docs/                  # Contratos e explicações técnicas
+│   │   ├── http/                  # 90 requisições para o REST Client
+│   │   ├── prisma/                # Schema, migrations e seed
+│   │   ├── scripts/               # Preparação e limpeza do banco de testes
+│   │   ├── src/                   # Código-fonte do backend
+│   │   │   ├── catalog/           # Cadastro de prestador e busca de serviços
+│   │   │   ├── enums/             # Enumerações auxiliares do domínio
+│   │   │   ├── models/            # Classes de domínio
+│   │   │   ├── persistence/       # Cliente Prisma e repositório de domínio
+│   │   │   └── main.ts            # Inicialização da API
+│   │   ├── test/                  # Integração, E2E e demonstrações
+│   │   │   └── support/           # Limpeza seletiva de dados fictícios
+│   │   └── README.md              # Configuração e execução do backend
+│   └── frontend/                  # Interface estática, ainda sem acesso à API
+│       ├── imagens/               # Logotipos e imagens
+│       ├── pages/                 # Página de entrada Hive.html
+│       └── styles/                # Estilos CSS da interface
+├── LICENSE                        # Termos de uso do código
+└── README.md                      # Visão geral do projeto
 ```
 
 ## 📋 Entidades de Domínio
 
 Abaixo, as principais entidades que compõem a lógica do HIVE:
 
-1.  **Usuario/Prestador**: Gestão de perfis com validações estritas de documentos (CPF/CNPJ).
+1.  **Usuario/Prestador**: Gestão de perfis com validação de formato de CPF/CNPJ e unicidade na persistência.
 2.  **Servico**: Catálogo de ofertas vinculadas a prestadores com controle de status (Ativo/Inativo).
 3.  **Contratacao**: Orquestração do fluxo de serviço, incluindo cálculo de valores e aplicação de regras de indicação.
 4.  **Indicacao**: Sistema de *referral* que permite rastrear a origem de novos usuários e aplicar benefícios financeiros.
-5.  **Fatura/Financeiro**: Gestão de contas a receber e lançamentos contábeis automáticos após conclusões de serviço.
+5.  **Avaliacao**: Registro de nota e comentário associado à contratação.
+6.  **Fatura/Financeiro**: Gestão de contas a receber e lançamentos contábeis automáticos após conclusões de serviço.
 
 ## ⚙️ Instalação e Execução
 
-Para reproduzir o ambiente de desenvolvimento e executar a demonstração das classes:
+Para preparar o backend e demonstrar a API com dados fictícios:
 
 ### 1. Clonar o Repositório
 ```bash
@@ -89,6 +105,8 @@ Para testar cadastro e busca com os exemplos HTTP, mantenha a API ligada:
 npm run start:demo
 ```
 
+Para visualizar o frontend, abra [Hive.html](apps/frontend/pages/Hive.html) no navegador. A tela é apenas visual: login e cadastro ainda não enviam requisições à API.
+
 ## 📈 Roadmap
 
 - [x] Modelagem de Domínio e Validações de Integridade.
@@ -96,7 +114,8 @@ npm run start:demo
 - [ ] Implementação de Autenticação JWT e RBAC (Role-Based Access Control).
 - [x] Endpoints REST de cadastro de prestador e busca de serviços no NestJS.
 - [ ] Endpoints de contratação, pagamento e avaliação.
-- [ ] Interface Administrativa e Dashboard do Cliente (Next.js).
+- [x] Tela estática de entrada em HTML/CSS.
+- [ ] Integração do frontend com a API e desenvolvimento das demais telas.
 
 ---
 
