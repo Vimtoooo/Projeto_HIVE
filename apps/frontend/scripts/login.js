@@ -28,10 +28,11 @@ btnLogin.addEventListener('click', async () => {
             return;
         }
 
-        alert(`Bem-vindo, ${dados.nome}!`);
+      alert(`Bem-vindo, ${dados.nome}!`);
 
-        console.log('Usuário autenticado:', dados);
+console.log('Usuário autenticado:', dados);
 
+window.location.href = './Home.html';
         // Depois vamos decidir para qual página o usuário será enviado.
         // window.location.href = './alguma-pagina.html';
 
