@@ -152,8 +152,8 @@ model Contratacao {
 
 model Indicacao {
   idIndicacao    Int             @id @default(autoincrement())
-  meioIndicado   MeioIndicado
-  dataIndicado   DateTime        @default(now())
+  meioIndicado   MeioIndicado    @map("meioIndicacao")
+  dataIndicado   DateTime        @default(now()) @map("dataIndicacao")
   statusIndicacao StatusIndicado  @default(PENDENTE)
   observacao     String          @db.Text
 

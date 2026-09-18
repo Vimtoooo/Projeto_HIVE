@@ -1,69 +1,78 @@
-import { Contratacao } from "./Contratacao";
+import { Contratacao } from './Contratacao';
 
 export class Avaliacao {
+  private static proximoId: number = 1;
 
-    private static proximoId: number = 1;
+  private idAvaliacao: number;
+  private contratacao!: Contratacao;
+  private nota!: number;
+  private dataAvaliacao: Date;
+  private comentario?: string;
 
-    private idAvaliacao: number;
-    private contratacao!: Contratacao;
-    private nota!: number;
-    private dataAvaliacao: Date;
-    private comentario?: string;
+  public constructor(
+    contratacao: Contratacao,
+    nota: number,
+    comentario?: string,
+  ) {
+    this.idAvaliacao = Avaliacao.proximoId++;
+    this.setContratacao = contratacao;
+    this.setNota = nota;
+    this.dataAvaliacao = new Date();
+    this.setComentario = comentario;
+  }
 
-    public constructor(
-        contratacao: Contratacao,
-        nota: number,
-        comentario?: string
-    ) {
-        this.idAvaliacao = Avaliacao.proximoId++;
-        this.setContratacao = contratacao;
-        this.setNota = nota;
-        this.dataAvaliacao = new Date();
-        this.setComentario = comentario;
-    };
+  public registrar(nota: number, comentario?: string): void {
+    this.nota = nota;
+    this.comentario = comentario;
 
-    public registrar(
-        nota: number,
-        comentario?: string
-    ): void {
-        this.nota = nota;
-        this.comentario = comentario;
-        
-        if (!this.validarNota()) {
-            throw new Error("Falha ao registrar: A nota deve estar entre 0 e 5.");
-        };
-        
-        console.log(`Avaliação ${this.getIdAvaliacao} registrada com sucesso.`);
-    };
-
-    public editarComentario(
-        comentario: string
-    ): void {
-        this.comentario = comentario;
-        console.log("Comentário atualizado.");
-    };
-
-    public validarNota(): boolean {
-        return this.nota >= 0 && this.nota <= 5;
-    };
-
-    // Getters e Setters
-    public get getIdAvaliacao(): number { return this.idAvaliacao; }
-
-    public get getContratacao(): Contratacao { return this.contratacao; }
-    public set setContratacao(contratacao: Contratacao) { this.contratacao = contratacao; }
-
-    public get getNota(): number { return this.nota; }
-    public set setNota(nota: number) {
-        if (nota < 0 || nota > 5) throw new Error(`A nota deve estar entre 0 e 5. Valor informado: ${nota}`);
-        this.nota = nota;
-    };
-
-    public get getDataAvaliacao(): Date { return this.dataAvaliacao; }
-
-    public get getComentario(): string | undefined { return this.comentario; }
-    public set setComentario(comentario: string | undefined) {
-        // Allow undefined or empty string, but trim if not undefined
-        this.comentario = comentario ? comentario.trim() : undefined;
+    if (!this.validarNota()) {
+      throw new Error('Falha ao registrar: A nota deve estar entre 0 e 5.');
     }
-};
+
+    console.log(`Avaliação ${this.getIdAvaliacao} registrada com sucesso.`);
+  }
+
+  public editarComentario(comentario: string): void {
+    this.comentario = comentario;
+    console.log('Comentário atualizado.');
+  }
+
+  public validarNota(): boolean {
+    return this.nota >= 0 && this.nota <= 5;
+  }
+
+  // Getters e Setters
+  public get getIdAvaliacao(): number {
+    return this.idAvaliacao;
+  }
+
+  public get getContratacao(): Contratacao {
+    return this.contratacao;
+  }
+  public set setContratacao(contratacao: Contratacao) {
+    this.contratacao = contratacao;
+  }
+
+  public get getNota(): number {
+    return this.nota;
+  }
+  public set setNota(nota: number) {
+    if (nota < 0 || nota > 5)
+      throw new Error(
+        `A nota deve estar entre 0 e 5. Valor informado: ${nota}`,
+      );
+    this.nota = nota;
+  }
+
+  public get getDataAvaliacao(): Date {
+    return this.dataAvaliacao;
+  }
+
+  public get getComentario(): string | undefined {
+    return this.comentario;
+  }
+  public set setComentario(comentario: string | undefined) {
+    // Allow undefined or empty string, but trim if not undefined
+    this.comentario = comentario ? comentario.trim() : undefined;
+  }
+}

@@ -1,0 +1,496 @@
+@baseUrl = http://localhost:3333
+@executionId = 35b612d3-d246-4ec7-9eb2-24fb697dc0dd
+
+# Use npm run start:demo. Envie um bloco por vez pelo Send Request.
+# Todos os blocos devem retornar 400; não exigem cadastros anteriores.
+# Um erro de validação esperado não significa que a API deixou de funcionar.
+
+### 01. Página zero
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?pagina=0
+Accept: application/json
+
+### 02. Página negativa
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?pagina=-1
+Accept: application/json
+
+### 03. Página fracionária
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?pagina=1.5
+Accept: application/json
+
+### 04. Página acima do máximo
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?pagina=100001
+Accept: application/json
+
+### 05. Limite zero
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?limite=0
+Accept: application/json
+
+### 06. Limite acima do máximo
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?limite=101
+Accept: application/json
+
+### 07. Preço não numérico
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?precoMin=abc
+Accept: application/json
+
+### 08. Preço negativo
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?precoMax=-1
+Accept: application/json
+
+### 09. Preço com três casas decimais
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?precoMin=1.001
+Accept: application/json
+
+### 10. Intervalo invertido
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?precoMin=300&precoMax=100
+Accept: application/json
+
+### 11. ID de prestador zero
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?prestadorId=0
+Accept: application/json
+
+### 12. ID de prestador fracionário
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?prestadorId=1.5
+Accept: application/json
+
+### 13. Texto vazio
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?texto=
+Accept: application/json
+
+### 14. Parâmetro desconhecido
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?status=INATIVO
+Accept: application/json
+
+### 15. Texto repetido como array
+# Esperado: HTTP 400
+# expectedStatus: 400
+GET {{baseUrl}}/servicos?texto=a&texto=b
+Accept: application/json
+
+### 16. Nome muito curto
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Ab",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 17. E-mail inválido
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "invalido",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 18. Senha curta
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 19. Telefone sem DDD
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 20. CPF curto
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "123",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 21. CNPJ curto
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "123",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 22. Endereço curto
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 23. Área vazia
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": " ",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 24. Experiência vazia
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": " ",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 25. Habilidades vazias
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 26. Serviço nulo
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": null
+}
+
+### 27. Título curto
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "Mesa",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 28. Descrição vazia
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": " ",
+    "precoBase": 200
+  }
+}
+
+### 29. Preço zero
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 0
+  }
+}
+
+### 30. ID interno enviado pelo cliente
+# Esperado: HTTP 400
+# expectedStatus: 400
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http-invalid.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991315",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084227",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  },
+  "idUsuario": 999
+}

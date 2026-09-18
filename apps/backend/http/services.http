@@ -1,0 +1,214 @@
+@baseUrl = http://localhost:3333
+@executionId = 35b612d3-d246-4ec7-9eb2-24fb697dc0dd
+
+# Use npm run start:demo. Envie um bloco por vez pelo Send Request.
+# Para as contagens indicadas, execute primeiro providers.http (lote completo).
+# expectedCount é o total de resultados, não o tamanho da página itens.
+
+### 01. Verificar aplicação (não verifica conexão com o banco)
+# Esperado: HTTP 200
+# expectedStatus: 200
+GET {{baseUrl}}/
+Accept: application/json
+
+### 02. Listagem com paginação padrão
+# Esperado: HTTP 200
+# expectedStatus: 200
+GET {{baseUrl}}/servicos
+Accept: application/json
+
+### 03. Todos os dez serviços do lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 10
+GET {{baseUrl}}/servicos?texto={{executionId}}
+Accept: application/json
+
+### 04. Primeira página com um item
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 10
+GET {{baseUrl}}/servicos?texto={{executionId}}&pagina=1&limite=1
+Accept: application/json
+
+### 05. Segunda página com um item
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 10
+GET {{baseUrl}}/servicos?texto={{executionId}}&pagina=2&limite=1
+Accept: application/json
+
+### 06. Último serviço, página 10
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 10
+GET {{baseUrl}}/servicos?texto={{executionId}}&pagina=10&limite=1
+Accept: application/json
+
+### 07. Página depois do último serviço: itens vazio
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 10
+GET {{baseUrl}}/servicos?texto={{executionId}}&pagina=11&limite=1
+Accept: application/json
+
+### 08. Maior página permitida: itens vazio
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 10
+GET {{baseUrl}}/servicos?texto={{executionId}}&pagina=100000&limite=1
+Accept: application/json
+
+### 09. Limite máximo de 100
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 10
+GET {{baseUrl}}/servicos?texto={{executionId}}&limite=100
+Accept: application/json
+
+### 10. Busca por texto inexistente
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 0
+GET {{baseUrl}}/servicos?texto=SEM_RESULTADO_{{executionId}}
+Accept: application/json
+
+### 11. Filtrar área Montagem
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Montagem
+Accept: application/json
+
+### 12. Filtrar área Eletrica
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Eletrica
+Accept: application/json
+
+### 13. Filtrar área Pintura
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Pintura
+Accept: application/json
+
+### 14. Filtrar área Limpeza
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Limpeza
+Accept: application/json
+
+### 15. Filtrar área Jardinagem
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Jardinagem
+Accept: application/json
+
+### 16. Filtrar área Encanamento
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Encanamento
+Accept: application/json
+
+### 17. Filtrar área Informatica
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Informatica
+Accept: application/json
+
+### 18. Filtrar área Costura
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Costura
+Accept: application/json
+
+### 19. Filtrar área Marcenaria
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Marcenaria
+Accept: application/json
+
+### 20. Filtrar área Manutencao
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Manutencao
+Accept: application/json
+
+### 21. Preço mínimo igual a zero
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 10
+GET {{baseUrl}}/servicos?texto={{executionId}}&precoMin=0
+Accept: application/json
+
+### 22. Preço máximo igual a zero: vazio
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 0
+GET {{baseUrl}}/servicos?texto={{executionId}}&precoMax=0
+Accept: application/json
+
+### 23. Limite inclusivo de um centavo
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&precoMin=0.01&precoMax=0.01
+Accept: application/json
+
+### 24. Limite inclusivo de um milhão
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&precoMin=1000000&precoMax=1000000
+Accept: application/json
+
+### 25. Faixa de R$ 100 a R$ 300
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 4
+GET {{baseUrl}}/servicos?texto={{executionId}}&precoMin=100&precoMax=300
+Accept: application/json
+
+### 26. Preço exato com centavos
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&precoMin=199.99&precoMax=199.99
+Accept: application/json
+
+### 27. Área e preço sem combinação
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 0
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Montagem&precoMax=100
+Accept: application/json
+
+### 28. Texto com espaços externos normalizados
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 10
+GET {{baseUrl}}/servicos?texto=%20{{executionId}}%20
+Accept: application/json
+
+### 29. Área com espaços externos normalizados
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=%20Montagem%20
+Accept: application/json
+
+### 30. Área, texto, preço e paginação juntos
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Montagem&precoMin=200&precoMax=200&pagina=1&limite=5
+Accept: application/json

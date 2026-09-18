@@ -1,98 +1,176 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend do HIVE
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API NestJS com Prisma 7 e MySQL. Esta etapa conecta as classes de domínio à
+aplicação HTTP: cadastro de prestador com serviço inicial e busca de serviços.
+O frontend estático ainda não está conectado a essas rotas.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Preparar o ambiente
 
-## Description
+Execute os comandos desta página em `apps/backend`. O ambiente usado na
+validação foi Node.js 24.13, npm 11 e MySQL 8.0; as versões de dependências
+resolvidas estão em `package-lock.json`.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
+```powershell
+npm ci
 ```
 
-## Compile and run the project
+Crie `.env` manualmente, com suas credenciais locais:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```dotenv
+DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive"
+PORT=3000
 ```
 
-## Run tests
+Não versione esse arquivo. Os modelos `.env.example` também são ignorados;
+os exemplos da documentação usam apenas valores fictícios. Caracteres especiais
+nas credenciais devem ser codificados para URL.
 
-```bash
-# unit tests
-$ npm run test
+Crie o banco da aplicação no MySQL e gere o client:
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```powershell
+npm run prisma:generate
+npm run prisma:validate
 ```
 
-## Deployment
+Para um banco local novo, sincronize as tabelas e inicie a API:
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```powershell
+npx prisma db push
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Em um banco com dados, revise a mudança antes de aplicar. Não aceite perda de
+dados nem use o seed legado para preparar a demonstração. Veja o
+[README do Prisma](prisma/README.md) para distinguir client, schema e inserções.
 
-## Resources
+Se o MySQL 8 local exigir a chave RSA após reiniciar, acrescente ao `.env`:
 
-Check out a few resources that may come in handy when working with NestJS:
+```dotenv
+MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Essa opção só é aceita para hosts de loopback. Para servidores remotos, use
+chave pública confiável ou configure TLS validado, conforme o
+[guia da API](docs/CATALOGO-API.md#configurar-e-iniciar).
 
-## Support
+Para executar a versão compilada:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```powershell
+npm run build
+npm run start:prod
+```
 
-## Stay in touch
+O script usa `dist/src/main`. O build é necessário para refletir mudanças no código.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Requisições manuais no VS Code
 
-## License
+A pasta [http](http/README.md) contém exemplos para cadastro, busca e validação
+com REST Client. Use a API iniciada por `npm run start:demo` para gravar apenas
+no banco de testes. Os exemplos têm dados fictícios e instruções de limpeza.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Rotas disponíveis
+
+| Método e rota | Comportamento |
+| --- | --- |
+| `POST /prestadores` | Cria Usuario, Prestador e o primeiro Servico juntos; retorna 201 |
+| `GET /servicos` | Busca pública com filtros, paginação e retorno somente de campos públicos |
+| `GET /` | Verificação básica já existente; retorna Hello World! |
+
+O POST exige dados pessoais, dados profissionais e o objeto `servico`.
+O GET aceita `texto`, `areaAtuacao`, `precoMin`, `precoMax`, `prestadorId`,
+`pagina` e `limite`. O [contrato da API](docs/CATALOGO-API.md) detalha os campos,
+limites, exemplos JSON e respostas 400, 409, 503 e 500.
+
+## Arquitetura e motivos das mudanças
+
+| Camada | Responsabilidade e motivo |
+| --- | --- |
+| `src/catalog/servico.controller.ts` | Recebe POST/GET e delega ao serviço, seguindo o diagrama de sequência |
+| `src/catalog/catalogo.dto.ts` | Valida formatos, limites e campos extras antes de executar regras ou acessar o banco |
+| `src/catalog/servico.service.ts` | Coordena o cadastro e a busca, verifica intervalo de preços e traduz erros para HTTP |
+| `src/catalog/servico.repository.ts` | Define consultas e projeções públicas; evita expor senha, documentos e contato |
+| `src/models/` | Mantém as classes Prestador/Servico e demais regras de domínio já utilizadas nos testes |
+| `src/persistence/` | Reutiliza transações, gravação das classes, conexão e adaptador do banco |
+
+`AppModule` registra `CatalogoModule` e um `ValidationPipe` global com transformação,
+whitelist e rejeição de campos desconhecidos. `class-validator` e
+`class-transformer` fornecem a validação em tempo de execução; tipos TypeScript
+sozinhos não validam um JSON recebido pela rede.
+
+O cadastro usa uma transação para impedir perfis ou serviços parciais. Os IDs
+são gerados pelo banco, não pelos contadores das classes. Email, CPF e CNPJ
+únicos evitam duplicidade; uma colisão retorna 409 sem sobrescrever dados.
+
+A senha é transformada em hash scrypt com salt. A busca seleciona explicitamente
+os campos públicos, retorna somente serviços e contas ativos e ordena por ID.
+A lista e sua contagem são consultadas na mesma transação com RepeatableRead.
+
+A fábrica do client concentra o driver MySQL, permitindo planejar a troca para
+PostgreSQL sem espalhar configuração de conexão pelos controllers. Isso não
+elimina a necessidade de migrar schema, SQL e dados; veja [Prisma](prisma/README.md).
+
+## Correções do editor e qualidade
+
+- Models, enums e demonstração manual foram formatados conforme Prettier, mantendo o ESLint habilitado.
+- Foi retirado o cast desnecessário em Usuario; datas em mensagens são convertidas explicitamente para texto.
+- `module` e `moduleResolution` usam `Node16`, mantendo CommonJS neste pacote e removendo a resolução legada `node`.
+- `test/tsconfig.json` declara os tipos de Node/Jest para reconhecer describe, it, expect e hooks no editor.
+
+```powershell
+npm run lint:check
+npx tsc --project test/tsconfig.json
+npm test -- --runInBand
+npm run test:e2e -- --runInBand
+```
+
+`lint:check` não altera arquivos. `npm run lint` aplica correções automáticas.
+Se persistirem avisos antigos, selecione a versão TypeScript do workspace e
+reinicie os servidores TypeScript e ESLint pela paleta de comandos do VS Code.
+
+## Testes reais e demonstração
+
+Configure um banco separado com nome terminado em `_test` e `.env.test.local`,
+conforme o [README dos testes](test/README.md). Depois execute:
+
+```powershell
+npm run test:db:prepare
+npm run test:persistencia
+npm run test:catalogo
+```
+
+São cinco testes de persistência e dez testes HTTP de catálogo. As suítes
+normais removem somente os registros da própria execução. Para apresentação:
+
+```powershell
+npm run test:catalogo:visualizar
+npm run start:demo
+```
+
+O primeiro comando preserva um cadastro e imprime seu UUID. O segundo mantém a
+API real ligada ao banco de testes, sem alterar `.env`. Abra
+`http://localhost:3000/servicos?texto=UUID_DA_EXECUCAO` usando o UUID recebido.
+Pare a API com Ctrl+C; limpe a execução usando o comando exibido pelo teste.
+O [roteiro completo](docs/CATALOGO-API.md#apresentação-para-o-grupo-e-o-professor)
+inclui a consulta no Workbench.
+
+## Limites atuais
+
+O cadastro abre uma nova conta com seu serviço inicial; não adiciona serviços a
+contas existentes. Novos cadastros ficam ativos nesta etapa acadêmica.
+Autenticação, autorização, aprovação e limitação de requisições ainda precisam
+ser implementadas antes de disponibilizar a API em produção.
+
+CPF/CNPJ têm validação de tamanho, não verificação fiscal. Valores monetários
+continuam como Float. Contratação, pagamento e avaliação estão nas classes e
+na persistência, mas ainda não possuem rotas. O método Usuario.autenticar não
+implementa login da API.
+
+## Documentação complementar
+
+- [Plano de implementação](docs/PLANO-CADASTRO-BUSCA.md)
+- [Persistência: transações, relações e limitações](docs/PERSISTENCIA.md)
+- [Prisma: schema, migrations e troca de banco](prisma/README.md)
+- [Segurança e sincronização após limpeza do histórico](docs/SEGURANCA-HISTORICO.md)
+
+O HIVE segue a [licença do repositório](../../LICENSE); as licenças das dependências
+continuam aplicáveis a seus respectivos códigos.

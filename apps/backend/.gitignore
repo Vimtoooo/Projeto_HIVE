@@ -8,6 +8,7 @@ tsconfig.tsbuildinfo
 
 # Variáveis de Ambiente (CRÍTICO: Contém senhas do Banco de Dados)
 .env
+.env.*
 
 # Logs
 *.log
