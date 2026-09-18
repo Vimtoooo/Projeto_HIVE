@@ -9,9 +9,12 @@ páginas estáticas HTML/CSS e ainda não está integrado à API.
 - Cadastro de prestador com seu primeiro serviço em uma única transação.
 - Busca de serviços ativos com filtros e paginação, seguindo Controller → Service → Repositório → banco.
 - Persistência das oito entidades de domínio, com testes automatizados usando MySQL real.
+- Autenticação de usuários por e-mail e senha.
+- Validação da senha utilizando o algoritmo scrypt.
+- Integração da tela de login do frontend com a API do backend.
 
-Autenticação e os endpoints de contratação, pagamento e avaliação são etapas
-futuras. Os fluxos dessas entidades já possuem classes e testes de persistência.
+Os endpoints de contratação, pagamento e avaliação ainda são etapas futuras.
+Os fluxos dessas entidades já possuem classes e testes de persistência.
 
 ## Por onde começar
 
@@ -20,7 +23,7 @@ futuras. Os fluxos dessas entidades já possuem classes e testes de persistênci
 | Configurar e executar o backend | [README do backend](apps/backend/README.md) |
 | Testar e apresentar ao professor | [README dos testes](apps/backend/test/README.md) |
 | Entender schema, banco e Prisma | [README do Prisma](apps/backend/prisma/README.md) |
-| Consultar rotas, campos e respostas | [Contrato da API](apps/backend/docs/CATALOGO-API.md) |
+| Entender autenticação e login | [Documentação de autenticação](apps/backend/docs/AUTENTICACAO.md) |
 
 Arquivos de ambiente ficam somente na máquina de cada integrante. Após a
 limpeza do histórico, consulte as [orientações para a equipe](apps/backend/docs/SEGURANCA-HISTORICO.md)
