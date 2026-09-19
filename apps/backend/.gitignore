@@ -6,8 +6,18 @@ dist/
 build/
 tsconfig.tsbuildinfo
 
-# Variáveis de Ambiente (CRÍTICO: Contém senhas do Banco de Dados)
-.env
+# Variáveis de Ambiente (CRÍTICO: podem conter senhas do Banco de Dados)
+.env/*
+
+# Credenciais e certificados locais
+*.pem
+*.key
+*.crt
+
+# Bancos de dados locais
+*.db
+*.sqlite
+*.sqlite3
 
 # Logs
 *.log
@@ -25,3 +35,11 @@ Thumbs.db
 
 # Relatórios de Teste
 coverage/
+
+# Caches e arquivos temporários de ferramentas
+.eslintcache
+.cache/
+.turbo/
+.nx/
+tmp/
+temp/
