@@ -32,7 +32,7 @@ btnLogin.addEventListener('click', async () => {
 
 console.log('Usuário autenticado:', dados);
 
-window.location.href = './Home.html';
+window.location.href = './home.html';
         // Depois vamos decidir para qual página o usuário será enviado.
         // window.location.href = './alguma-pagina.html';
 
