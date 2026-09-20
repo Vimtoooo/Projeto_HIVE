@@ -9,11 +9,7 @@ import { CatalogoModule } from './catalog/catalogo.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [
-    PersistenciaModule,
-    CatalogoModule,
-    AuthModule,
-  ],
+  imports: [PersistenciaModule, CatalogoModule, AuthModule],
 
   controllers: [AppController],
 
@@ -34,4 +30,4 @@ import { AuthModule } from './auth/auth.module';
     },
   ],
 })
-export class AppModule {} 
+export class AppModule {}

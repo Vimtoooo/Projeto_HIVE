@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:3333
+@baseUrl = http://localhost:3000
 @executionId = 35b612d3-d246-4ec7-9eb2-24fb697dc0dd
 
 # Use npm run start:demo. Envie um bloco por vez pelo Send Request.

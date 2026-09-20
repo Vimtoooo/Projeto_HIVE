@@ -6,10 +6,13 @@ fictícia do prestador, não a senha de conexão com o MySQL.
 
 ## Executar
 
-1. Configure o banco exclusivo e `.env.test.local` conforme o [guia de testes](../test/README.md).
+1. Configure o banco exclusivo em `.env/.env.test.local` conforme o [guia de testes](../test/README.md).
 2. Na pasta `apps/backend`, execute:
 
    ```powershell
+   $env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+   $env:TEST_DATABASE_URL = 'mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_test'
+   $env:PORT = '3000'
    npm run prisma:generate
    npm run test:db:prepare
    npm run start:demo
@@ -33,11 +36,12 @@ Para estes exemplos, use **start:demo**, evitando gravar no banco principal.
 ## Conexão recusada no REST Client
 
 Confira se `@baseUrl` usa a mesma porta da API. Os exemplos estão configurados
-para `http://localhost:3333`, correspondente ao PORT do ambiente local atual.
+para `http://localhost:3000`, correspondente ao PORT usado pela API e pelo
+frontend de login.
 Em outra máquina, ajuste essa linha em cada `.http` conforme a porta utilizada.
 
 Se ocorrer RequestError, mantenha `npm run start:demo` rodando no terminal e
-abra `http://localhost:3333/` no navegador. A resposta esperada é Hello World!.
+abra `http://localhost:3000/` no navegador. A resposta esperada é Hello World!.
 Se funcionar, mas o REST Client falhar, confira a URL do arquivo e as opções
 de proxy do VS Code. Preparar as tabelas ou executar testes não mantém a API
 ligada: é necessário executar um comando de inicialização.
@@ -114,3 +118,87 @@ contratação, pagamento e avaliação.
 
 Veja o [contrato completo](../docs/CATALOGO-API.md) e a
 [documentação do REST Client](https://github.com/Huachao/vscode-restclient#usage).
+
+## Criar suas próprias requisições
+
+Crie um arquivo, por exemplo `http/minhas-requisicoes.http`, e defina a URL
+uma única vez:
+
+```http
+@baseUrl = http://localhost:3000
+```
+
+Separe cada requisição com `###`. No VS Code, a extensão REST Client mostra o
+link **Send Request** acima de cada bloco.
+
+### GET com filtros
+
+```http
+### Buscar serviços por texto e preço
+GET {{baseUrl}}/servicos?texto=mesa&precoMin=50&precoMax=300&pagina=1&limite=20
+Accept: application/json
+```
+
+Os filtros disponíveis são `texto`, `areaAtuacao`, `precoMin`, `precoMax`,
+`prestadorId`, `pagina` e `limite`. Você pode remover os filtros que não quiser
+usar. Os parâmetros são combinados por `AND`, e `texto` procura no título ou na
+descrição.
+
+### POST com JSON
+
+```http
+### Criar prestador com serviço inicial
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+   "nome": "Prestador de Teste",
+   "email": "prestador-teste@example.invalid",
+   "senha": "SenhaFicticia!123",
+   "telefone": "11999990000",
+   "cpf": "12345678901",
+   "endereco": "Rua de Testes, 100",
+   "areaAtuacao": "Montagem",
+   "experiencia": "Montagem de móveis",
+   "certificacoes": ["Montagem de móveis"],
+   "cnpj": "12345678000199",
+   "servico": {
+      "titulo": "Montagem de mesa",
+      "descricao": "Montagem de mesa e cadeira",
+      "precoBase": 200
+   }
+}
+```
+
+Use dados fictícios e um email, CPF e CNPJ novos a cada execução. O POST retorna
+`201` quando cria o cadastro e `409` quando email, CPF ou CNPJ já existem.
+Telefone, CPF e CNPJ devem conter somente dígitos; a senha deve ter pelo menos
+oito caracteres; `precoBase` deve ser positivo, ter no máximo duas casas e não
+exceder 1.000.000.
+
+### Testar uma resposta inválida
+
+```http
+### Campo obrigatório ausente
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+   "nome": "Cadastro incompleto"
+}
+```
+
+Esse exemplo deve retornar `400`. O `ValidationPipe` também rejeita campos
+extras que não fazem parte do contrato.
+
+### Boas práticas
+
+- Use `http://localhost:3000` se a API foi iniciada com `PORT=3000`; ajuste
+   `@baseUrl` se escolher outra porta.
+- Execute um bloco por vez e confira o status HTTP e o JSON retornado.
+- Não use emails, documentos, senhas ou tokens reais em arquivos versionados.
+- Prefira o banco de testes e limpe os cadastros criados quando terminar.
+- Não envie senhas ou dados privados no `GET /servicos`; a resposta pública não
+   deve expor esses campos.

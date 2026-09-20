@@ -134,10 +134,7 @@ export class RepositorioDominio {
         },
         indicado: {
           connect: {
-            idPrestador: this.id(
-              indicacao.getIndicado,
-              'Prestador indicado',
-            ),
+            idPrestador: this.id(indicacao.getIndicado, 'Prestador indicado'),
           },
         },
       },
@@ -176,10 +173,7 @@ export class RepositorioDominio {
         },
         contratante: {
           connect: {
-            idUsuario: this.id(
-              contratacao.getContratante,
-              'Contratante',
-            ),
+            idUsuario: this.id(contratacao.getContratante, 'Contratante'),
           },
         },
         ...(indicacao
@@ -219,10 +213,7 @@ export class RepositorioDominio {
         },
         contratacao: {
           connect: {
-            idContratacao: this.id(
-              fatura.getContratacao,
-              'Contratação',
-            ),
+            idContratacao: this.id(fatura.getContratacao, 'Contratação'),
           },
         },
       },
@@ -243,10 +234,7 @@ export class RepositorioDominio {
         dataAvaliacao: avaliacao.getDataAvaliacao,
         contratacao: {
           connect: {
-            idContratacao: this.id(
-              avaliacao.getContratacao,
-              'Contratação',
-            ),
+            idContratacao: this.id(avaliacao.getContratacao, 'Contratação'),
           },
         },
       },
@@ -262,10 +250,7 @@ export class RepositorioDominio {
 
     const fatura = financeiro.getFatura;
 
-    if (
-      fatura &&
-      fatura.getContratacao !== financeiro.getContratacao
-    ) {
+    if (fatura && fatura.getContratacao !== financeiro.getContratacao) {
       throw new Error(
         'A fatura e o lançamento financeiro devem pertencer à mesma contratação.',
       );
@@ -279,10 +264,7 @@ export class RepositorioDominio {
         dataRegistro: financeiro.getDataRegistro,
         contratacao: {
           connect: {
-            idContratacao: this.id(
-              financeiro.getContratacao,
-              'Contratação',
-            ),
+            idContratacao: this.id(financeiro.getContratacao, 'Contratação'),
           },
         },
         ...(fatura

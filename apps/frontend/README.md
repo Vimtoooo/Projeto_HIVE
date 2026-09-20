@@ -226,3 +226,12 @@ No terminal da API e no terminal do frontend, pressione `Ctrl+C`.
 
 A interface atual usa HTML, CSS e JavaScript. O planejamento de evolução com
 Node.js/Next.js e as demais telas permanece registrado no [README principal](../../README.md).
+
+## Alternativa: contas do seed local
+
+Para repetir a apresentação com contas e serviços previsíveis, siga o
+[seed local do backend](../backend/prisma/README.md#seed-local-para-apresentação).
+Após a carga, inicie a API com o mesmo DATABASE_URL e entre com
+`ana@hive.example.invalid` e a senha fictícia `HiveDemo!2026`.
+Essa alternativa dispensa o POST manual; o reset substitui todos os dados
+do banco local selecionado.

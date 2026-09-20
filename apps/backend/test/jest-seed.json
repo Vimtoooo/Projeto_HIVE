@@ -1,0 +1,9 @@
+{
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": "test/seed.spec.ts$",
+  "transform": {
+    "^.+\\.ts$": "ts-jest"
+  },
+  "testTimeout": 30000
+}

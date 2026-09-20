@@ -20,7 +20,9 @@ a API chama as operações de persistência dentro de uma transação.
 
 - [schema.prisma](schema.prisma): oito entidades, enums, PKs, FKs e restrições únicas.
 - [migrations/](migrations/): histórico SQL existente, específico do MySQL.
-- [seed.ts](seed.ts): demonstração legada que apaga registros e usa inicialização antiga do client; não usar para preparar esta entrega.
+- [seed.ts](seed.ts): comando de carga local com confirmação de destino.
+- [seed-data.ts](seed-data.ts): nomes, contas, serviços e senha fictícia para editar e apresentar.
+- [seed-local.ts](seed-local.ts): proteção de ambiente e carga transacional das oito entidades.
 - [prisma.config.ts](../prisma.config.ts): define schema, caminho das migrations, seed e DATABASE_URL para a CLI.
 - [prisma-client.factory.ts](../src/persistence/prisma-client.factory.ts): configura o adaptador MariaDB compatível com MySQL para o Prisma 7.
 
@@ -109,3 +111,123 @@ de ambiente, e executar novamente as suítes de persistência e catálogo.
 A busca segue a collation do banco; maiúsculas e acentos precisam de revisão.
 Valores monetários continuam Float; adotar Decimal é uma mudança adicional de
 schema e regras. PostgreSQL ainda não foi implementado nem validado nesta etapa.
+
+## Seed local para apresentação
+
+Execute em `apps/backend`. Os comandos `:local` usam **DATABASE_URL**; os comandos `:test` usam
+**TEST_DATABASE_URL** e exigem sufixo `_test`. Configure um arquivo local, por exemplo `.env/.env.demo.local`:
+
+```dotenv
+DATABASE_URL="mysql://USUARIO:SENHA@localhost:3306/hive_demo_local"
+MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
+PORT=3000
+```
+
+Crie `hive_demo_local` no seu MySQL e prepare o schema uma vez:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.demo.local'
+npm run prisma:generate
+npx prisma db push
+npm run db:seed:local -- --confirm hive_demo_local
+```
+
+**Para apagar os dados das oito tabelas e repor a demonstração**, pare a API,
+confira DATABASE_URL e execute neste mesmo terminal:
+
+```powershell
+npm run db:reset:local -- --confirm hive_demo_local
+npm run start:dev
+```
+
+No Git Bash, configure `export DOTENV_CONFIG_PATH='.env/.env.demo.local'`;
+os comandos npm são iguais. Para testar a tela, sirva o frontend conforme seu
+[README](../../frontend/README.md). Use `start:dev` com o mesmo arquivo de
+ambiente: `start:demo` seleciona TEST_DATABASE_URL e pode apontar para outro banco.
+
+O reset substitui **todos** os dados dessas tabelas, inclusive os inseridos
+manualmente; faça backup se precisar preservá-los. É reset de dados, não de
+schema: mantém tabelas, migrations e contadores de IDs. Não execute simultaneamente
+com a API ou outra carga. O comando é manual, nunca roda ao iniciar a aplicação.
+
+### Contas e roteiro
+
+Todas as contas usam a senha fictícia **HiveDemo!2026**, armazenada como hash
+scrypt com salt pela mesma classe Usuario usada na aplicação.
+
+| Conta | Email | Papel |
+| --- | --- | --- |
+| Ana Souza (Demo) | ana@hive.example.invalid | Contratante |
+| Carlos Lima (Demo) | carlos@hive.example.invalid | Prestador de marcenaria |
+| Beatriz Santos (Demo) | beatriz@hive.example.invalid | Prestadora de jardinagem |
+
+1. Entre com Ana no formulário e confirme o redirecionamento à Home.
+2. Consulte GET /servicos: aparecem montagem de estante (150) e manutenção de jardim (120).
+3. Confira no MySQL a restauração de mesa (250), inativa e ausente da busca pública.
+4. Mostre a contratação concluída de Ana com Carlos: fatura paga de 150, receita vinculada e avaliação 5.
+5. Compare com a contratação pendente de jardinagem: fatura pendente de 120, sem receita nem avaliação.
+
+Totais: **3 usuários, 2 prestadores, 3 serviços, 2 contratações, 1 indicação,
+1 avaliação, 2 faturas e 1 lançamento financeiro**. Datas são fixas em setembro
+de 2026 para facilitar a apresentação; não representam vencimentos atuais.
+Nomes, documentos e contatos são fictícios. Os emails usam o domínio reservado
+example.invalid. As entidades sem endpoints são demonstradas pelo banco.
+
+### Proteções e repetição
+
+- Somente MySQL em localhost, 127.0.0.1 ou ::1, com nome hive ou terminado em _local ou _test.
+- Exige `--confirm NOME_EXATO` e recusa NODE_ENV=production antes de conectar.
+- A carga simples recusa banco já populado; o reset pode ser repetido sem duplicar os exemplos.
+- Limpeza em ordem de FKs e inserções compartilham uma transação. Falhas desfazem os dados; os contadores de IDs podem avançar.
+- Não usa TRUNCATE, DROP, desativação de FKs ou SQL específico do MySQL na carga.
+- As senhas demonstrativas são públicas e exclusivas de ambiente local.
+
+### Verificar o seed
+
+```powershell
+npm run test:seed
+```
+
+Por padrão, verifica as proteções sem acessar o banco; os dois testes de integração
+ficam explicitamente pulados. Para executá-los, prepare um banco **descartável e
+vazio** chamado `hive_seed_verificacao_IDENTIFICADOR_test` (identificador com letras
+minúsculas/números), sincronize o schema e forneça sua URL:
+
+```powershell
+$env:SEED_TEST_DATABASE_URL = 'mysql://USUARIO:SENHA@localhost:3306/hive_seed_verificacao_manual_test'
+$env:DATABASE_URL = $env:SEED_TEST_DATABASE_URL
+npx prisma db push
+npm run test:seed
+Remove-Item Env:DATABASE_URL, Env:SEED_TEST_DATABASE_URL
+```
+
+Os testes de integração deixam os exemplos nesse banco descartável e validam
+hash de senha, vínculos, recusa de carga duplicada, repetição e rollback após
+falha simulada. Nunca aponte essa variável para o banco do grupo.
+
+## Usar os bancos hive e hive_pi_2026f0915_test
+
+Não é necessário renomear o banco `hive`. Configure sua URL em
+`.env/.env` (DATABASE_URL) e a URL do banco de testes em
+`.env/.env.test.local` (TEST_DATABASE_URL). Informe o nome que realmente
+existe no seu MySQL; o comando recusa confirmação diferente da URL.
+
+Execute em `apps/backend`, com schema já preparado e API parada para reset:
+
+```powershell
+# Banco original local: hive
+$env:DOTENV_CONFIG_PATH = '.env/.env'
+npm run db:seed:local -- --confirm hive
+# Para substituir os dados existentes, use no lugar do comando anterior:
+npm run db:reset:local -- --confirm hive
+
+# Banco de testes: hive_pi_2026f0915_test
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+npm run db:seed:test -- --confirm hive_pi_2026f0915_test
+# Para substituir os dados existentes, use no lugar do comando anterior:
+npm run db:reset:test -- --confirm hive_pi_2026f0915_test
+```
+
+Escolha **seed ou reset**, não é necessário executar ambos. Seed exige banco
+vazio; reset apaga os dados das oito tabelas e repõe os exemplos. Os comandos
+não criam nem renomeiam bancos e não alteram seus arquivos de credenciais.

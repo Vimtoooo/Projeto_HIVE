@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { scrypt, timingSafeEqual } from 'node:crypto';
 import { PersistenciaService } from '../persistence/persistencia.service';
 
 @Injectable()
@@ -7,8 +7,8 @@ export class AuthService {
   constructor(private readonly persistencia: PersistenciaService) {}
 
   async login(email: string, senha: string) {
-    const usuario = await this.persistencia.executar(
-      (repositorio) => repositorio.buscarUsuarioPorEmail(email),
+    const usuario = await this.persistencia.executar((repositorio) =>
+      repositorio.buscarUsuarioPorEmail(email),
     );
 
     if (!usuario) {
@@ -19,10 +19,7 @@ export class AuthService {
       throw new UnauthorizedException('Conta não está ativa.');
     }
 
-    const senhaValida = await this.verificarSenha(
-      senha,
-      usuario.senha,
-    );
+    const senhaValida = await this.verificarSenha(senha, usuario.senha);
 
     if (!senhaValida) {
       throw new UnauthorizedException('E-mail ou senha inválidos.');
@@ -40,16 +37,13 @@ export class AuthService {
     senha: string,
     senhaArmazenada: string,
   ): Promise<boolean> {
-    const [algoritmo, salt, hashArmazenado] =
-      senhaArmazenada.split('$');
+    const [algoritmo, salt, hashArmazenado] = senhaArmazenada.split('$');
 
     if (algoritmo !== 'scrypt' || !salt || !hashArmazenado) {
       return false;
     }
 
     const hash = await new Promise<Buffer>((resolve, reject) => {
-      const { scrypt } = require('node:crypto');
-
       scrypt(senha, salt, 64, (erro: Error | null, chave: Buffer) => {
         if (erro) {
           reject(erro);

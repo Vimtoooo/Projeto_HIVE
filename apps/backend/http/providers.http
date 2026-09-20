@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:3333
+@baseUrl = http://localhost:3000
 @executionId = 35b612d3-d246-4ec7-9eb2-24fb697dc0dd
 
 # Use npm run start:demo. Envie um bloco por vez pelo Send Request.
@@ -650,5 +650,31 @@ Content-Type: application/json
     "titulo": "HTTP10 serviço {{executionId}}xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "descricao": "Demonstração de serviços com dados fictícios",
     "precoBase": 250
+  }
+}
+
+### Customizada: cadastro do Bob Marley
+
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Bob Marley",
+  "email": "BobMarley@exemplo.com",
+  "senha": "minhasenha123",
+  "telefone": "11956345231",
+  "cpf": "09310563412",
+  "endereco": "Rua do Bob Marley, 21",
+  "areaAtuacao": "Financeiro",
+  "experiencia": "Lidar com as finanças",
+  "certificacoes": [
+    "Financeiro 2026"
+  ],
+  "cnpj": "75843510098456",
+  "servico": {
+    "titulo": "Gestão de finanças",
+    "descricao": "Auxilio em gestão de finanças",
+    "precoBase": 170
   }
 }

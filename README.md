@@ -1,38 +1,139 @@
-# HIVE
+# HIVE - Sistema para Registro de Serviços e Prestadores Autônomos
 
-Projeto interdisciplinar para conectar prestadores de serviços e contratantes.
-O backend usa **NestJS, TypeScript, Prisma e MySQL**; o frontend atual contém
-páginas estáticas HTML/CSS e ainda não está integrado à API.
+<p align="center">
+  <img src="https://nestjs.com/img/logo-small.svg" width="100" alt="Nest Logo" />
+  <img src="https://raw.githubusercontent.com/devicons/devicon/7330accdbc47e2dc0c19789a48533c4a3c50fe58/icons/prisma/prisma-original.svg" width="100" alt="Prisma Logo" />
+</p>
 
-## O que funciona hoje
+O **HIVE** é uma plataforma robusta de intermediação de serviços, desenvolvida com foco em escalabilidade, integridade de dados e princípios avançados de Orientação a Objetos. O projeto visa conectar prestadores de serviço e contratantes através de um ecossistema seguro e auditável.
 
-- Cadastro de prestador com seu primeiro serviço em uma única transação.
-- Busca de serviços ativos com filtros e paginação, seguindo Controller → Service → Repositório → banco.
-- Persistência das oito entidades de domínio, com testes automatizados usando MySQL real.
-- Autenticação de usuários por e-mail e senha.
-- Validação da senha utilizando o algoritmo scrypt.
-- Integração da tela de login do frontend com a API do backend.
+---
 
-Os endpoints de contratação, pagamento e avaliação ainda são etapas futuras.
-Os fluxos dessas entidades já possuem classes e testes de persistência.
+## 🚀 Destaques da Arquitetura
 
-## Por onde começar
+A arquitetura organiza as regras em **classes de domínio** e o fluxo da API em Controller → Service → Repositório → Prisma/MySQL. As classes ainda utilizam tipos e enums do Prisma. A orientação a Domain-Driven Design (DDD) e a independência das regras em relação à infraestrutura permanecem como direção arquitetural.
 
-| Objetivo | Documentação |
-| --- | --- |
-| Configurar e executar o backend | [README do backend](apps/backend/README.md) |
-| Testar e apresentar ao professor | [README dos testes](apps/backend/test/README.md) |
-| Entender schema, banco e Prisma | [README do Prisma](apps/backend/prisma/README.md) |
-| Entender autenticação e login | [Documentação de autenticação](apps/backend/docs/AUTENTICACAO.md) |
+*   **Encapsulamento Rigoroso**: Atributos privados protegidos por lógica de validação em *setters*.
+*   **Princípio Fail-Fast**: DTOs e classes validam campos antes da persistência. CPF e CNPJ são verificados por formato e comprimento, sem cálculo de dígitos verificadores.
+*   **Modelagem de Herança**: Implementação de especialização de classes onde `Prestador` estende `Usuario`, compartilhando atributos base e estendendo funcionalidades específicas.
+*   **Persistência com Prisma**: Mapeamento objeto-relacional (ORM) otimizado para MySQL, garantindo consistência entre as classes TypeScript e o schema do banco.
+*   **Regras de Domínio**: Classes modelam faturamento, indicação e financeiro; esses fluxos ainda não possuem endpoints na API.
 
-Arquivos de ambiente ficam somente na máquina de cada integrante. Após a
-limpeza do histórico, consulte as [orientações para a equipe](apps/backend/docs/SEGURANCA-HISTORICO.md)
-antes de sincronizar uma cópia antiga do repositório.
+## Integração atual
 
-## Licença
+O backend já oferece cadastro de prestador com seu primeiro serviço em uma transação e busca de serviços ativos com filtros e paginação, via API REST em NestJS e persistência Prisma/MySQL. Há testes automatizados com banco de testes e 90 requisições HTTP para demonstração. O frontend ainda não está integrado à API; autenticação, contratação, pagamento e avaliação pela API continuam no roadmap.
 
-O código é público para consulta e utiliza a [licença proprietária do grupo de PI](LICENSE).
-São preservados os direitos previstos nos termos do GitHub, nas licenças de
-terceiros e nas versões anteriormente disponibilizadas sob MIT.
+Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
 
-*Mantido por @Vimtoooo e @jeflotz.*
+## 🛠️ Stack Tecnológica
+
+| Camada | Tecnologias |
+| :--- | :--- |
+| **Frontend atual** | HTML5 + CSS3; protótipo estático da tela de entrada |
+| **Frontend planejado** | Node.js como ambiente de desenvolvimento/execução; Next.js é o framework previsto no planejamento original |
+| **Backend** | Node.js + NestJS (TypeScript) |
+| **Persistência** | MySQL + Prisma ORM |
+| **Testes** | Jest, integração com MySQL e exemplos HTTP |
+| **Qualidade de código** | TypeScript, ESLint e Prettier |
+| **Ambiente planejado** | Docker; configuração ainda a implementar |
+
+Node.js é um ambiente de execução JavaScript, enquanto NestJS e Next.js são frameworks distintos. O backend já usa NestJS sobre Node.js; a estrutura Node.js/Next.js do frontend ainda não está implementada. As tecnologias planejadas não substituem a descrição do código atual.
+
+## 📂 Estrutura do Projeto
+
+Principais diretórios e arquivos (dependências e saídas de compilação omitidas):
+
+```text
+HIVE/
+├── apps/                          # Aplicações do projeto
+│   ├── backend/                   # API NestJS e persistência
+│   │   ├── docs/                  # Contratos e explicações técnicas
+│   │   ├── http/                  # 90 requisições para o REST Client
+│   │   ├── prisma/                # Schema, migrations e seed
+│   │   ├── scripts/               # Preparação e limpeza do banco de testes
+│   │   ├── src/                   # Código-fonte do backend
+│   │   │   ├── catalog/           # Cadastro de prestador e busca de serviços
+│   │   │   ├── enums/             # Enumerações auxiliares do domínio
+│   │   │   ├── models/            # Classes de domínio
+│   │   │   ├── persistence/       # Cliente Prisma e repositório de domínio
+│   │   │   └── main.ts            # Inicialização da API
+│   │   ├── test/                  # Integração, E2E e demonstrações
+│   │   │   └── support/           # Limpeza seletiva de dados fictícios
+│   │   └── README.md              # Configuração e execução do backend
+│   └── frontend/                  # Protótipo estático; evolução Node.js/Next.js planejada
+│       ├── imagens/               # Logotipos e imagens
+│       ├── pages/                 # Página de entrada Hive.html
+│       └── styles/                # Estilos CSS da interface
+├── LICENSE                        # Termos de uso do código
+└── README.md                      # Visão geral do projeto
+```
+
+## 📋 Entidades de Domínio
+
+Abaixo, as principais entidades que compõem a lógica do HIVE:
+
+1.  **Usuario/Prestador**: Gestão de perfis com validação de formato de CPF/CNPJ e unicidade na persistência.
+2.  **Servico**: Catálogo de ofertas vinculadas a prestadores com controle de status (Ativo/Inativo).
+3.  **Contratacao**: Orquestração do fluxo de serviço, incluindo cálculo de valores e aplicação de regras de indicação.
+4.  **Indicacao**: Sistema de *referral* que permite rastrear a origem de novos usuários e aplicar benefícios financeiros.
+5.  **Avaliacao**: Registro de nota e comentário associado à contratação.
+6.  **Fatura/Financeiro**: Gestão de contas a receber e lançamentos contábeis automáticos após conclusões de serviço.
+
+## ⚙️ Instalação e Execução
+
+Para preparar o backend e demonstrar a API com dados fictícios:
+
+### 1. Clonar o Repositório
+```bash
+git clone https://github.com/Vimtoooo/Projeto_HIVE.git
+cd Projeto_HIVE/apps/backend
+```
+
+### 2. Instalar Dependências
+```bash
+npm install
+```
+
+### 3. Configurar Ambiente
+Configure os arquivos de ambiente locais conforme o [guia do backend](apps/backend/README.md). Eles não são versionados; use um banco exclusivo de testes para as demonstrações.
+
+### 4. Preparar o Banco de Dados
+```bash
+npm run prisma:generate
+npm run test:db:prepare
+```
+
+### 5. Executar Demonstração da API
+Para testar cadastro e busca com os exemplos HTTP, mantenha a API ligada:
+```bash
+npm run start:demo
+```
+
+Para visualizar o frontend, abra [Hive.html](apps/frontend/pages/Hive.html) no navegador. A tela é apenas visual: login e cadastro ainda não enviam requisições à API.
+
+## 📈 Roadmap
+
+- [x] Modelagem de Domínio e Validações de Integridade.
+- [x] Integração com Prisma ORM e MySQL.
+- [ ] Implementação de Autenticação JWT e RBAC (Role-Based Access Control).
+- [x] Endpoints REST de cadastro de prestador e busca de serviços no NestJS.
+- [ ] Endpoints de contratação, pagamento e avaliação.
+- [x] Tela estática de entrada em HTML/CSS.
+- [ ] Integração do frontend com a API e desenvolvimento das demais telas.
+- [ ] Interface Administrativa e Dashboard do Cliente (Next.js, conforme planejamento original).
+- [ ] Configuração do ambiente com Docker.
+
+---
+
+**Desenvolvido para fins acadêmicos e profissionais.**
+
+## 📄 Licença
+
+Este projeto utiliza uma [licença proprietária de uso restrito ao grupo de PI](./LICENSE).
+O código é público para consulta, mas sua reutilização não é livre: as permissões
+de desenvolvimento e uso acadêmico são destinadas aos seis integrantes do grupo,
+conforme os termos da licença. Permanecem preservados os direitos previstos nos
+termos do GitHub, nas licenças de terceiros e nas versões anteriormente
+disponibilizadas sob MIT.
+
+*Mantido por @Vimtoooo e @jeflotz*

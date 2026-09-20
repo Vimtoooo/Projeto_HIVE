@@ -61,7 +61,7 @@ iniciar a API NestJS: os testes acessam a camada de persistência diretamente.
 ## 2. Configurar um banco exclusivo para os testes
 
 O banco utilizado na validação local foi `hive_pi_20260915_test`.
-O arquivo `apps/backend/.env.test.local` já foi configurado nessa máquina,
+O arquivo `apps/backend/.env/.env.test.local` já foi configurado nessa máquina,
 mas não é enviado ao GitHub por conter credenciais.
 
 Em uma nova instalação:
@@ -73,10 +73,10 @@ Em uma nova instalação:
    CREATE DATABASE IF NOT EXISTS hive_pi_20260915_test CHARACTER SET utf8mb4;
    ```
 
-3. Se `.env.test.local` ainda não existir, crie esse arquivo na pasta do backend.
+3. Se `.env/.env.test.local` ainda não existir, crie esse arquivo dentro da pasta `.env/` do backend.
    Os arquivos de ambiente e seus modelos não são distribuídos pelo Git.
 
-4. Edite `.env.test.local` com as credenciais do seu MySQL:
+4. Edite `.env/.env.test.local` com as credenciais do seu MySQL:
 
    ```dotenv
    TEST_DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_pi_20260915_test"
@@ -94,6 +94,21 @@ Em uma nova instalação:
 Substitua usuário e senha. Caracteres especiais nas credenciais precisam estar
 codificados para URL. O usuário do banco precisa de permissões para preparar as
 tabelas e executar consultas, inserções e exclusões nesse banco.
+
+Antes dos comandos de teste, carregue o arquivo e a URL no terminal. No
+PowerShell:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+$env:TEST_DATABASE_URL = 'mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_pi_20260915_test'
+```
+
+No Git Bash:
+
+```bash
+export DOTENV_CONFIG_PATH='.env/.env.test.local'
+export TEST_DATABASE_URL='mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_pi_20260915_test'
+```
 
 O nome do banco deve terminar em `_test` e seu destino deve ser diferente do
 `DATABASE_URL` da aplicação. Não aponte os testes para o banco principal `hive`.
@@ -171,7 +186,7 @@ Executar a suíte normal não apaga dados de demonstrações anteriores.
 
 ## 6. Consultar os dados no MySQL Workbench
 
-Conecte-se ao mesmo servidor e porta configurados em `.env.test.local`.
+Conecte-se ao mesmo servidor e porta configurados em `.env/.env.test.local`.
 Atualize a lista de schemas se o banco ainda não aparecer e execute:
 
 ```sql
@@ -346,3 +361,11 @@ Use o comando de limpeza exibido no terminal para remover aquela execução.
 As consultas do arquivo `consultar-persistencia.sql` são do teste das oito
 entidades; para o cadastro via API, use o SQL específico no
 [roteiro de apresentação](../docs/CATALOGO-API.md#apresentação-para-o-grupo-e-o-professor).
+
+## Seed de demonstração
+
+A carga fixa para apresentação e seus testes estão documentados no
+[guia do Prisma](../prisma/README.md#seed-local-para-apresentação).
+`npm run test:seed` verifica as proteções sem banco; a integração exige
+SEED_TEST_DATABASE_URL apontando para um banco descartável exclusivo.
+O comando de reset local não faz parte da limpeza automática destas suítes.

@@ -69,7 +69,7 @@ npm run start:dev
 ```
 
 Em um banco com dados, revise a mudança antes de aplicar. Não aceite perda de
-dados nem use o seed legado para preparar a demonstração. Veja o
+dados. Para carga fictícia, use o seed local protegido abaixo. Veja o
 [README do Prisma](prisma/README.md) para distinguir client, schema e inserções.
 
 Se o MySQL 8 local exigir a chave RSA após reiniciar, acrescente ao `.env`:
@@ -256,3 +256,10 @@ na persistência, mas ainda não possuem rotas. O método Usuario.autenticar nã
 
 O HIVE segue a [licença do repositório](../../LICENSE); as licenças das dependências
 continuam aplicáveis a seus respectivos códigos.
+
+## Recriar dados fictícios para apresentação
+
+O [guia do seed local](prisma/README.md#seed-local-para-apresentação) explica
+`db:seed:local` e `db:reset:local`, com contas prontas para login e oito tabelas
+populadas. O reset exige confirmação do nome do banco e substitui seus dados
+em uma transação. Aceita o banco local `hive` e bancos terminados em `_local` ou `_test`.
