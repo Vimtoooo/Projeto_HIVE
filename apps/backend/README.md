@@ -1,98 +1,265 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend do HIVE
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API NestJS com Prisma 7 e MySQL. Esta etapa conecta as classes de domínio à
+aplicação HTTP: cadastro de prestador com serviço inicial e busca de serviços.
+O frontend estático ainda não está conectado a essas rotas.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Preparar o ambiente
 
-## Description
+Execute os comandos desta página em `apps/backend`. O ambiente usado na
+validação foi Node.js 24.13, npm 11 e MySQL 8.0; as versões de dependências
+resolvidas estão em `package-lock.json`.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
+```powershell
+npm ci
 ```
 
-## Compile and run the project
+Você pode manter vários arquivos de ambiente dentro de uma pasta `.env/` para
+evitar poluir a raiz do backend. Uma organização possível é:
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```text
+.env/
+|- .env                 # aplicação local
+|- .env.example         # modelo da aplicação
+|- .env.test.local      # testes locais
+`- .env.test.example    # modelo dos testes
 ```
 
-## Run tests
+Crie `.env/.env` manualmente, com suas credenciais locais:
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```dotenv
+DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive"
+PORT=3000
 ```
 
-## Deployment
+Não versione os arquivos locais. Os modelos `*.example` podem ser versionados
+se não contiverem segredos. Caracteres especiais nas credenciais devem ser
+codificados para URL.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Como o arquivo está dentro de `.env/`, carregue-o antes de iniciar a API. No
+PowerShell, execute estes comandos na pasta `apps/backend`:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env'
+$env:PORT = '3000'
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+No Git Bash, use a sintaxe equivalente:
 
-## Resources
+```bash
+export DOTENV_CONFIG_PATH='.env/.env'
+export PORT='3000'
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Essas variáveis permanecem somente no terminal atual. Se abrir outro terminal,
+repita os comandos.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Crie o banco da aplicação no MySQL e gere o client:
 
-## Support
+```powershell
+npm run prisma:generate
+npm run prisma:validate
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Para um banco local novo, sincronize as tabelas e inicie a API:
 
-## Stay in touch
+```powershell
+npx prisma db push
+npm run start:dev
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Em um banco com dados, revise a mudança antes de aplicar. Não aceite perda de
+dados. Para carga fictícia, use o seed local protegido abaixo. Veja o
+[README do Prisma](prisma/README.md) para distinguir client, schema e inserções.
 
-## License
+Se o MySQL 8 local exigir a chave RSA após reiniciar, acrescente ao `.env`:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```dotenv
+MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
+```
+
+Se o arquivo usado for `.env/.env`, acrescente a variável nesse arquivo.
+
+Essa opção só é aceita para hosts de loopback. Para servidores remotos, use
+chave pública confiável ou configure TLS validado, conforme o
+[guia da API](docs/CATALOGO-API.md#configurar-e-iniciar).
+
+Para executar a versão compilada:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env'
+$env:PORT = '3000'
+npm run build
+npm run start:prod
+```
+
+### Ambiente de testes
+
+Para os testes, coloque a URL do banco exclusivo em `.env/.env.test.local`:
+
+```dotenv
+TEST_DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_test"
+MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
+```
+
+No PowerShell, em `apps/backend`, carregue o arquivo **antes** de iniciar
+`test-database.cjs`, pois ele verifica TEST_DATABASE_URL imediatamente:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+$env:PORT = '3000'
+node -r dotenv/config scripts/test-database.cjs prepare
+node -r dotenv/config scripts/test-database.cjs test
+node -r dotenv/config scripts/test-database.cjs api
+node -r dotenv/config scripts/test-database.cjs serve
+```
+
+No Git Bash, use `export DOTENV_CONFIG_PATH='.env/.env.test.local'` e
+`export PORT='3000'`, seguidos dos mesmos comandos Node.
+
+O modo `serve` mantém a API ligada ao banco de testes e executa
+`src/main.ts` via ts-node, sem exigir build. Somente `start:prod` usa
+`dist/src/main` e requer compilação prévia. Use um banco terminado em
+`_test`, diferente do principal. Não é necessário copiar a senha para o terminal.
+
+Quando os arquivos estiverem na raiz do backend, os comandos npm de teste
+continuam disponíveis. Com a pasta `.env/`, use o prefixo
+`node -r dotenv/config scripts/test-database.cjs` e o modo correspondente:
+`prepare`, `test`, `api`, `demo`, `api-demo`, `serve` ou `clean UUID`.
+
+## Requisições manuais no VS Code
+
+A pasta [http](http/README.md) contém exemplos para cadastro, busca e validação
+com REST Client. Use a API iniciada por `npm run start:demo` para gravar apenas
+no banco de testes. Os exemplos têm dados fictícios e instruções de limpeza.
+Veja o [guia de requisições HTTP](http/README.md) para criar seus próprios
+blocos `POST` e `GET`.
+
+## Rotas disponíveis
+
+| Método e rota | Comportamento |
+| --- | --- |
+| `POST /prestadores` | Cria Usuario, Prestador e o primeiro Servico juntos; retorna 201 |
+| `GET /servicos` | Busca pública com filtros, paginação e retorno somente de campos públicos |
+| `POST /login` | Confere email, senha scrypt e conta ativa; retorna 201 com os dados públicos do usuário ou 401 para credenciais rejeitadas |
+| `GET /` | Verificação básica já existente; retorna Hello World! |
+
+O POST de `/prestadores` exige dados pessoais, dados profissionais e o objeto `servico`.
+O GET aceita `texto`, `areaAtuacao`, `precoMin`, `precoMax`, `prestadorId`,
+`pagina` e `limite`. O [contrato da API](docs/CATALOGO-API.md) detalha os campos,
+limites, exemplos JSON e respostas 400, 409, 503 e 500.
+
+## Login integrado ao frontend
+
+Crie primeiro a conta com `POST /prestadores` no mesmo banco usado pela API.
+O [guia do frontend](../frontend/README.md#criar-a-conta-antes-do-login) contém
+um POST fictício e o roteiro para abrir a tela e confirmar o redirecionamento.
+O login recebe `{"email":"...","senha":"..."}` e retorna `idUsuario`,
+`nome`, `email` e `tipoUsuario`, sem retornar o hash.
+
+A verificação de senha usa scrypt com salt e comparação com timingSafeEqual.
+O fluxo atual não emite token nem cookie de sessão: o redirecionamento para
+Home comprova a integração, mas ainda não protege essa página. O corpo de
+login usa um tipo inline, sem DTO validado como o do cadastro.
+
+## Arquitetura e motivos das mudanças
+
+| Camada | Responsabilidade e motivo |
+| --- | --- |
+| `src/catalog/servico.controller.ts` | Recebe POST/GET e delega ao serviço, seguindo o diagrama de sequência |
+| `src/catalog/catalogo.dto.ts` | Valida formatos, limites e campos extras antes de executar regras ou acessar o banco |
+| `src/catalog/servico.service.ts` | Coordena o cadastro e a busca, verifica intervalo de preços e traduz erros para HTTP |
+| `src/catalog/servico.repository.ts` | Define consultas e projeções públicas; evita expor senha, documentos e contato |
+| `src/auth/` | Recebe o login, busca a conta e verifica status e senha |
+| `src/models/` | Mantém as classes Prestador/Servico e demais regras de domínio já utilizadas nos testes |
+| `src/persistence/` | Reutiliza transações, gravação das classes, conexão e adaptador do banco |
+
+`AppModule` registra `CatalogoModule`, `AuthModule` e um `ValidationPipe` global com transformação,
+whitelist e rejeição de campos desconhecidos. `class-validator` e
+`class-transformer` fornecem a validação em tempo de execução; tipos TypeScript
+sozinhos não validam um JSON recebido pela rede.
+
+O cadastro usa uma transação para impedir perfis ou serviços parciais. Os IDs
+são gerados pelo banco, não pelos contadores das classes. Email, CPF e CNPJ
+únicos evitam duplicidade; uma colisão retorna 409 sem sobrescrever dados.
+
+A senha é transformada em hash scrypt com salt. A busca seleciona explicitamente
+os campos públicos, retorna somente serviços e contas ativos e ordena por ID.
+A lista e sua contagem são consultadas na mesma transação com RepeatableRead.
+
+A fábrica do client concentra o driver MySQL, permitindo planejar a troca para
+PostgreSQL sem espalhar configuração de conexão pelos controllers. Isso não
+elimina a necessidade de migrar schema, SQL e dados; veja [Prisma](prisma/README.md).
+
+## Correções do editor e qualidade
+
+- Models, enums e demonstração manual foram formatados conforme Prettier, mantendo o ESLint habilitado.
+- Foi retirado o cast desnecessário em Usuario; datas em mensagens são convertidas explicitamente para texto.
+- `module` e `moduleResolution` usam `Node16`, mantendo CommonJS neste pacote e removendo a resolução legada `node`.
+- `test/tsconfig.json` declara os tipos de Node/Jest para reconhecer describe, it, expect e hooks no editor.
+
+```powershell
+npm run lint:check
+npx tsc --project test/tsconfig.json
+npm test -- --runInBand
+npm run test:e2e -- --runInBand
+```
+
+`lint:check` não altera arquivos. `npm run lint` aplica correções automáticas.
+Se persistirem avisos antigos, selecione a versão TypeScript do workspace e
+reinicie os servidores TypeScript e ESLint pela paleta de comandos do VS Code.
+
+## Testes reais e demonstração
+
+Configure um banco separado com nome terminado em `_test` e `.env.test.local`,
+conforme o [README dos testes](test/README.md). Depois execute:
+
+```powershell
+npm run test:db:prepare
+npm run test:persistencia
+npm run test:catalogo
+```
+
+São cinco testes de persistência e dez testes HTTP de catálogo. As suítes
+normais removem somente os registros da própria execução. Para apresentação:
+
+```powershell
+npm run test:catalogo:visualizar
+npm run start:demo
+```
+
+O primeiro comando preserva um cadastro e imprime seu UUID. O segundo mantém a
+API real ligada ao banco de testes, sem alterar `.env`. Abra
+`http://localhost:3000/servicos?texto=UUID_DA_EXECUCAO` usando o UUID recebido.
+Pare a API com Ctrl+C; limpe a execução usando o comando exibido pelo teste.
+O [roteiro completo](docs/CATALOGO-API.md#apresentação-para-o-grupo-e-o-professor)
+inclui a consulta no Workbench.
+
+## Limites atuais
+
+O cadastro abre uma nova conta com seu serviço inicial; não adiciona serviços a
+contas existentes. Novos cadastros ficam ativos nesta etapa acadêmica.
+Autenticação, autorização, aprovação e limitação de requisições ainda precisam
+ser implementadas antes de disponibilizar a API em produção.
+
+CPF/CNPJ têm validação de tamanho, não verificação fiscal. Valores monetários
+continuam como Float. Contratação, pagamento e avaliação estão nas classes e
+na persistência, mas ainda não possuem rotas. O método Usuario.autenticar não
+é o responsável pelo login da API; essa responsabilidade está em AuthService.
+
+## Documentação complementar
+
+- [Plano de implementação](docs/PLANO-CADASTRO-BUSCA.md)
+- [Persistência: transações, relações e limitações](docs/PERSISTENCIA.md)
+- [Prisma: schema, migrations e troca de banco](prisma/README.md)
+- [Segurança e sincronização após limpeza do histórico](docs/SEGURANCA-HISTORICO.md)
+
+O HIVE segue a [licença do repositório](../../LICENSE); as licenças das dependências
+continuam aplicáveis a seus respectivos códigos.
+
+## Recriar dados fictícios para apresentação
+
+O [guia do seed local](prisma/README.md#seed-local-para-apresentação) explica
+`db:seed:local` e `db:reset:local`, com contas prontas para login e oito tabelas
+populadas. O reset exige confirmação do nome do banco e substitui seus dados
+em uma transação. Aceita o banco local `hive` e bancos terminados em `_local` ou `_test`.

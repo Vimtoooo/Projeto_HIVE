@@ -1,85 +1,106 @@
-import { MeioIndicado, StatusIndicado} from "@prisma/client";
-import { Usuario } from "./Usuario";
-import { Prestador } from "./Prestador";
+import { MeioIndicado, StatusIndicado } from '@prisma/client';
+import { Usuario } from './Usuario';
+import { Prestador } from './Prestador';
 
 // Definimos um tipo que representa a herança do UML: Prestador é um Usuario
 type PrestadorComDadosDeUsuario = Prestador & Usuario;
 
 export class Indicacao {
+  private static proximoId: number = 1;
 
-    private static proximoId: number = 1;
+  private idIndicacao: number;
+  private indicador: Usuario; // Renomeado para refletir o schema
+  private indicado: PrestadorComDadosDeUsuario; // Agora possui o atributo .nome
+  private meioIndicado!: MeioIndicado;
+  private dataIndicado: Date = new Date(); // Corrigido o nome
+  private statusIndicacao!: StatusIndicado;
+  private observacao!: string;
 
-    private idIndicacao: number;
-    private indicador: Usuario; // Renomeado para refletir o schema
-    private indicado: PrestadorComDadosDeUsuario; // Agora possui o atributo .nome
-    private meioIndicado!: MeioIndicado;
-    private dataIndicado: Date = new Date(); // Corrigido o nome
-    private statusIndicacao!: StatusIndicado;
-    private observacao!: string;
+  // Propriedades para facilitar a persistência no Prisma
+  public indicadorId: number;
+  public indicadoId: number;
 
-    // Propriedades para facilitar a persistência no Prisma
-    public indicadorId: number;
-    public indicadoId: number;
+  public constructor(
+    indicador: Usuario,
+    indicado: PrestadorComDadosDeUsuario,
+    meioIndicacao: MeioIndicado,
+    observacao: string,
+    statusIndicacao: StatusIndicado = StatusIndicado.PENDENTE, // Valor padrão como no schema
+    idIndicacao?: number, // Opcional, será gerado pelo banco
+  ) {
+    this.idIndicacao = idIndicacao || Indicacao.proximoId++; // Mantém o gerador em memória para testes, mas o DB sobrescreverá
+    this.indicador = indicador;
+    this.indicado = indicado;
+    this.indicadorId = indicador.getIdUsuario; // Armazena o ID para persistência
+    this.indicadoId = indicado.getIdUsuario; // Armazena o ID para persistência
+    this.setMeioIndicado = meioIndicacao;
+    this.setStatusIndicacao = statusIndicacao;
+    this.setObservacao = observacao;
+  }
 
-    public constructor(
-        indicador: Usuario,
-        indicado: PrestadorComDadosDeUsuario,
-        meioIndicacao: MeioIndicado,
-        observacao: string,
-        statusIndicacao: StatusIndicado = StatusIndicado.PENDENTE, // Valor padrão como no schema
-        idIndicacao?: number // Opcional, será gerado pelo banco
-    ) {
-        this.idIndicacao = idIndicacao || Indicacao.proximoId++; // Mantém o gerador em memória para testes, mas o DB sobrescreverá
-        this.indicador = indicador;
-        this.indicado = indicado;
-        this.indicadorId = indicador.getIdUsuario; // Armazena o ID para persistência
-        this.indicadoId = indicado.getIdUsuario; // Armazena o ID para persistência
-        this.setMeioIndicado = meioIndicacao;
-        this.setStatusIndicacao = statusIndicacao;
-        this.setObservacao = observacao;
-    };
+  public registrarIndicacao(): void {
+    if (!this.validarIndicacao()) {
+      throw new Error(
+        'Não foi possível registrar a indicação: dados inválidos.',
+      );
+    }
+    console.log(
+      `Indicação ${this.idIndicacao} registrada com sucesso para ${this.indicado.getNome}.`,
+    );
+  }
 
-    public registrarIndicacao(): void {
-        if (!this.validarIndicacao()) {
-            throw new Error("Não foi possível registrar a indicação: dados inválidos.");
-        };
-        console.log(`Indicação ${this.idIndicacao} registrada com sucesso para ${this.indicado.getNome}.`);
-    };
+  public validarIndicacao(): boolean {
+    // Exemplo de validação: A observação não pode ser vazia
+    if (!this.observacao || this.observacao.trim() === '') {
+      console.error('A observação da indicação não pode ser vazia.');
+      return false;
+    }
+    // Adicione outras regras de validação aqui (ex: verificar se indicador e indicado existem)
+    return true;
+  }
 
-    public validarIndicacao(): boolean {
-        // Exemplo de validação: A observação não pode ser vazia
-        if (!this.observacao || this.observacao.trim() === '') {
-            console.error("A observação da indicação não pode ser vazia.");
-            return false;
-        };
-        // Adicione outras regras de validação aqui (ex: verificar se indicador e indicado existem)
-        return true;
-    };
+  public atualizarStatus(status: StatusIndicado): void {
+    this.statusIndicacao = status;
+  }
 
-    public atualizarStatus(status: StatusIndicado): void {
-        this.statusIndicacao = status;
-    };
+  // Getters e Setters
+  public get getIdIndicacao(): number {
+    return this.idIndicacao;
+  }
 
-    // Getters e Setters
-    public get getIdIndicacao(): number { return this.idIndicacao; }
-    
-    public get getIndicador(): Usuario { return this.indicador; }
-    
-    public get getIndicado(): PrestadorComDadosDeUsuario { return this.indicado; }
-    
-    public get getMeioIndicado(): MeioIndicado { return this.meioIndicado; }
-    public set setMeioIndicado(meio: MeioIndicado) { this.meioIndicado = meio; }
+  public get getIndicador(): Usuario {
+    return this.indicador;
+  }
 
-    public get getDataIndicado(): Date { return this.dataIndicado; }
+  public get getIndicado(): PrestadorComDadosDeUsuario {
+    return this.indicado;
+  }
 
-    public get getStatusIndicacao(): StatusIndicado { return this.statusIndicacao; }
-    public set setStatusIndicacao(status: StatusIndicado) { this.statusIndicacao = status; }
+  public get getMeioIndicado(): MeioIndicado {
+    return this.meioIndicado;
+  }
+  public set setMeioIndicado(meio: MeioIndicado) {
+    this.meioIndicado = meio;
+  }
 
-    public get getObservacao(): string { return this.observacao; }
-    public set setObservacao(obs: string) {
-        if (!obs || obs.trim().length === 0) {
-            throw new Error("A observação não pode ser vazia.");
-        };
-        this.observacao = obs.trim();
-    };
-};
+  public get getDataIndicado(): Date {
+    return this.dataIndicado;
+  }
+
+  public get getStatusIndicacao(): StatusIndicado {
+    return this.statusIndicacao;
+  }
+  public set setStatusIndicacao(status: StatusIndicado) {
+    this.statusIndicacao = status;
+  }
+
+  public get getObservacao(): string {
+    return this.observacao;
+  }
+  public set setObservacao(obs: string) {
+    if (!obs || obs.trim().length === 0) {
+      throw new Error('A observação não pode ser vazia.');
+    }
+    this.observacao = obs.trim();
+  }
+}

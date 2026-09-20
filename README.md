@@ -11,56 +11,84 @@ O **HIVE** é uma plataforma robusta de intermediação de serviços, desenvolvi
 
 ## 🚀 Destaques da Arquitetura
 
-O desenvolvimento atual foca na **Camada de Domínio**, utilizando padrões de **Domain-Driven Design (DDD)** para garantir que as regras de negócio sejam independentes de infraestrutura.
+A arquitetura organiza as regras em **classes de domínio** e o fluxo da API em Controller → Service → Repositório → Prisma/MySQL. As classes ainda utilizam tipos e enums do Prisma. A orientação a Domain-Driven Design (DDD) e a independência das regras em relação à infraestrutura permanecem como direção arquitetural.
 
 *   **Encapsulamento Rigoroso**: Atributos privados protegidos por lógica de validação em *setters*.
-*   **Princípio Fail-Fast**: O sistema valida a integridade dos dados (CPF, CNPJ, e-mail, formatos de string) no momento da instancialização, impedindo que estados inválidos persistam no banco de dados.
+*   **Princípio Fail-Fast**: DTOs e classes validam campos antes da persistência. CPF e CNPJ são verificados por formato e comprimento, sem cálculo de dígitos verificadores.
 *   **Modelagem de Herança**: Implementação de especialização de classes onde `Prestador` estende `Usuario`, compartilhando atributos base e estendendo funcionalidades específicas.
 *   **Persistência com Prisma**: Mapeamento objeto-relacional (ORM) otimizado para MySQL, garantindo consistência entre as classes TypeScript e o schema do banco.
-*   **Lógica de Negócio Injetada**: Cálculos automatizados de faturamento, descontos por indicação e fluxos de caixa integrados.
+*   **Regras de Domínio**: Classes modelam faturamento, indicação e financeiro; esses fluxos ainda não possuem endpoints na API.
+
+## Integração atual
+
+O backend já oferece cadastro de prestador com seu primeiro serviço em uma transação e busca de serviços ativos com filtros e paginação, via API REST em NestJS e persistência Prisma/MySQL. Há testes automatizados com banco de testes e exemplos HTTP para demonstração. O frontend já realiza login via API e redireciona para a Home. Sessão/token, autorização e endpoints de contratação, pagamento e avaliação continuam no roadmap.
+
+Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
 
 ## 🛠️ Stack Tecnológica
 
 | Camada | Tecnologias |
 | :--- | :--- |
+| **Frontend atual** | HTML5 + CSS3 + JavaScript (fetch); login integrado à API |
+| **Frontend planejado** | Node.js como ambiente de desenvolvimento/execução; Next.js é o framework previsto no planejamento original |
 | **Backend** | Node.js + NestJS (TypeScript) |
 | **Persistência** | MySQL + Prisma ORM |
-| **Testes** | Script de Demonstração de Domínio (Manual Test) |
-| **Ambiente** | Docker Ready (Configuração futura) |
+| **Testes** | Jest, integração com MySQL e exemplos HTTP |
+| **Qualidade de código** | TypeScript, ESLint e Prettier |
+| **Ambiente planejado** | Docker; configuração ainda a implementar |
+
+Node.js é um ambiente de execução JavaScript, enquanto NestJS e Next.js são frameworks distintos. O backend já usa NestJS sobre Node.js; a estrutura Node.js/Next.js do frontend ainda não está implementada. As tecnologias planejadas não substituem a descrição do código atual.
 
 ## 📂 Estrutura do Projeto
 
+Principais diretórios e arquivos (dependências e saídas de compilação omitidas):
+
 ```text
 HIVE/
-├── apps/
-│   ├── backend/
-│   │   ├── prisma/             # Schema, Migrations e Seeds
-│   │   ├── src/
-│   │   │   ├── models/         # Classes de Domínio (Core Logic)
-│   │   │   ├── enums/          # Definições de tipos constantes
-│   │   └── test/               # Scripts de validação e demonstração
-│   └── frontend/               # Interface em Next.js (em desenvolvimento)
-└── README.md
+├── apps/                          # Aplicações do projeto
+│   ├── backend/                   # API NestJS e persistência
+│   │   ├── docs/                  # Contratos e explicações técnicas
+│   │   ├── http/                  # Exemplos para o REST Client
+│   │   ├── prisma/                # Schema, migrations e seed
+│   │   ├── scripts/               # Preparação e limpeza do banco de testes
+│   │   ├── src/                   # Código-fonte do backend
+│   │   │   ├── auth/              # Login e verificação de senha
+│   │   │   ├── catalog/           # Cadastro de prestador e busca de serviços
+│   │   │   ├── enums/             # Enumerações auxiliares do domínio
+│   │   │   ├── models/            # Classes de domínio
+│   │   │   ├── persistence/       # Cliente Prisma e repositório de domínio
+│   │   │   └── main.ts            # Inicialização da API
+│   │   ├── test/                  # Integração, E2E e demonstrações
+│   │   │   └── support/           # Limpeza seletiva de dados fictícios
+│   │   └── README.md              # Configuração e execução do backend
+│   └── frontend/                  # Protótipo estático; evolução Node.js/Next.js planejada
+│       ├── images/               # Logotipos e imagens
+│       ├── pages/                 # Login Hive.html e Home provisória
+│       ├── scripts/               # Integração do login com a API
+│       └── styles/                # Estilos CSS da interface
+├── LICENSE                        # Termos de uso do código
+└── README.md                      # Visão geral do projeto
 ```
 
 ## 📋 Entidades de Domínio
 
 Abaixo, as principais entidades que compõem a lógica do HIVE:
 
-1.  **Usuario/Prestador**: Gestão de perfis com validações estritas de documentos (CPF/CNPJ).
+1.  **Usuario/Prestador**: Gestão de perfis com validação de formato de CPF/CNPJ e unicidade na persistência.
 2.  **Servico**: Catálogo de ofertas vinculadas a prestadores com controle de status (Ativo/Inativo).
 3.  **Contratacao**: Orquestração do fluxo de serviço, incluindo cálculo de valores e aplicação de regras de indicação.
 4.  **Indicacao**: Sistema de *referral* que permite rastrear a origem de novos usuários e aplicar benefícios financeiros.
-5.  **Fatura/Financeiro**: Gestão de contas a receber e lançamentos contábeis automáticos após conclusões de serviço.
+5.  **Avaliacao**: Registro de nota e comentário associado à contratação.
+6.  **Fatura/Financeiro**: Gestão de contas a receber e lançamentos contábeis automáticos após conclusões de serviço.
 
 ## ⚙️ Instalação e Execução
 
-Para reproduzir o ambiente de desenvolvimento e executar a demonstração das classes:
+Para preparar o backend e demonstrar a API com dados fictícios:
 
 ### 1. Clonar o Repositório
 ```bash
-git clone https://github.com/seu-usuario/HIVE.git
-cd HIVE/apps/backend
+git clone https://github.com/Vimtoooo/Projeto_HIVE.git
+cd Projeto_HIVE/apps/backend
 ```
 
 ### 2. Instalar Dependências
@@ -69,28 +97,103 @@ npm install
 ```
 
 ### 3. Configurar Ambiente
-Crie um arquivo `.env` baseado no `.env.example` e configure sua `DATABASE_URL` (MySQL).
+Configure os arquivos de ambiente locais conforme o [guia do backend](apps/backend/README.md). Eles não são versionados; use um banco exclusivo de testes para as demonstrações.
 
 ### 4. Preparar o Banco de Dados
-```bash
-npx prisma generate
+
+Comandos abaixo em `apps/backend` (PowerShell), após criar o banco local e
+configurar DATABASE_URL em `.env/.env`:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env'
+npm run prisma:generate
+npm run prisma:validate
 npx prisma db push
-npx prisma db seed
 ```
 
-### 5. Executar Demonstração de Domínio
-Para visualizar as validações e o fluxo de classes em ação (essencial para apresentações):
-```bash
-npx ts-node test/manual-test.ts
+Use `db push` para preparar um banco novo; em banco existente, revise as
+mudanças de estrutura e não aceite perda de dados automaticamente.
+
+### 5. Executar a API e o Frontend
+
+No mesmo terminal do backend:
+
+```powershell
+$env:PORT = '3000'
+npm run start:dev
 ```
+
+Em outro terminal, a partir da raiz do repositório (requer Python):
+
+```powershell
+cd apps/frontend
+py -m http.server 5500 --bind 127.0.0.1
+```
+
+Abra [a tela de login](http://localhost:5500/pages/Hive.html). A conta deve
+existir no mesmo banco da API, criada por POST /prestadores ou pelo seed.
+O login abre `home.html`; a Home ainda é pública, sem sessão/token.
+Cadastro na interface e login social continuam visuais. Detalhes no
+[guia do frontend](apps/frontend/README.md).
+
+### Comandos úteis
+
+Execute em `apps/backend`. Os comandos de seed/reset exigem schema preparado;
+selecione o arquivo de ambiente antes de escolher **uma** operação.
+
+| Objetivo | Comando |
+| --- | --- |
+| Popular o banco vazio hive | `npm run db:seed:local -- --confirm hive` |
+| Apagar os dados do hive e repor o seed | `npm run db:reset:local -- --confirm hive` |
+| Popular o banco vazio de testes | `npm run db:seed:test -- --confirm hive_pi_20260915_test` |
+| Apagar dados de testes e repor o seed | `npm run db:reset:test -- --confirm hive_pi_20260915_test` |
+| Testes unitários | `npm test -- --runInBand` |
+| Teste E2E básico | `npm run test:e2e -- --runInBand` |
+| Proteções do seed | `npm run test:seed` |
+| Verificar lint e tipos | `npm run lint:check` e `npx tsc --project test/tsconfig.json` |
+| Compilar e executar o build | `npm run build`, depois `npm run start:prod` |
+
+**Reset apaga os dados das oito tabelas e repõe os exemplos; não é apenas
+limpeza.** Pare a API antes. Os comandos locais usam DATABASE_URL; os comandos
+`:test` usam TEST_DATABASE_URL. Para estes últimos, configure
+`$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'`. O nome após `--confirm`
+deve coincidir com o banco configurado. Nenhum desses comandos recria o schema.
+
+O seed oferece três contas, incluindo `ana@hive.example.invalid`, com a senha
+fictícia `HiveDemo!2026`. Veja os dados, proteções e testes de integração
+opt-in no [guia do seed](apps/backend/prisma/README.md#seed-local-para-apresentação).
+
+### Demonstração e integração no banco de testes
+
+Com os arquivos dentro de `.env/`, carregue as variáveis antes do script:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+$env:PORT = '3000'
+node -r dotenv/config scripts/test-database.cjs prepare
+node -r dotenv/config scripts/test-database.cjs test
+node -r dotenv/config scripts/test-database.cjs api
+node -r dotenv/config scripts/test-database.cjs serve
+```
+
+Os modos correspondem a `test:db:prepare`, `test:persistencia`,
+`test:catalogo` e `start:demo`. O último mantém a API ligada ao banco de testes,
+sem build; não o execute junto com outra API na porta 3000. Quando os arquivos
+estão na raiz do backend, os scripts npm fazem o carregamento automaticamente.
+Limpeza seletiva por UUID e roteiro de apresentação estão no
+[README dos testes](apps/backend/test/README.md).
 
 ## 📈 Roadmap
 
 - [x] Modelagem de Domínio e Validações de Integridade.
 - [x] Integração com Prisma ORM e MySQL.
 - [ ] Implementação de Autenticação JWT e RBAC (Role-Based Access Control).
-- [ ] Desenvolvimento de Endpoints REST no NestJS.
-- [ ] Interface Administrativa e Dashboard do Cliente (Next.js).
+- [x] Endpoints REST de cadastro de prestador e busca de serviços no NestJS.
+- [ ] Endpoints de contratação, pagamento e avaliação.
+- [x] Tela de entrada em HTML/CSS com login por JavaScript integrado à API.
+- [ ] Ampliar a integração do frontend com a API e desenvolver as demais telas.
+- [ ] Interface Administrativa e Dashboard do Cliente (Next.js, conforme planejamento original).
+- [ ] Configuração do ambiente com Docker.
 
 ---
 

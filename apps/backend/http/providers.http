@@ -1,0 +1,680 @@
+@baseUrl = http://localhost:3000
+@executionId = 35b612d3-d246-4ec7-9eb2-24fb697dc0dd
+
+# Use npm run start:demo. Envie um bloco por vez pelo Send Request.
+# Execute de 01 a 30, em ordem, começando com o lote limpo.
+# Cada grupo cadastra, consulta e verifica duplicidade; ficam 10 prestadores.
+
+### 01. Cadastro padrão — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http01.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991216",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084128",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 02. Consultar somente HTTP01 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Montagem
+Accept: application/json
+
+### 03. Reenviar HTTP01 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP01",
+  "email": "api-http01.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991216",
+  "endereco": "Rua de Testes HTTP, 1",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084128",
+  "servico": {
+    "titulo": "HTTP01 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 200
+  }
+}
+
+### 04. Preço mínimo: R$ 0,01 — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP02",
+  "email": "api-http02.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991217",
+  "endereco": "Rua de Testes HTTP, 2",
+  "areaAtuacao": "Eletrica",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084129",
+  "servico": {
+    "titulo": "HTTP02 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 0.01
+  }
+}
+
+### 05. Consultar somente HTTP02 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Eletrica
+Accept: application/json
+
+### 06. Reenviar HTTP02 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP02",
+  "email": "api-http02.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991217",
+  "endereco": "Rua de Testes HTTP, 2",
+  "areaAtuacao": "Eletrica",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084129",
+  "servico": {
+    "titulo": "HTTP02 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 0.01
+  }
+}
+
+### 07. Preço máximo: R$ 1.000.000 — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP03",
+  "email": "api-http03.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991218",
+  "endereco": "Rua de Testes HTTP, 3",
+  "areaAtuacao": "Pintura",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084130",
+  "servico": {
+    "titulo": "HTTP03 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 1000000
+  }
+}
+
+### 08. Consultar somente HTTP03 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Pintura
+Accept: application/json
+
+### 09. Reenviar HTTP03 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP03",
+  "email": "api-http03.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991218",
+  "endereco": "Rua de Testes HTTP, 3",
+  "areaAtuacao": "Pintura",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084130",
+  "servico": {
+    "titulo": "HTTP03 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 1000000
+  }
+}
+
+### 10. Preço com duas casas decimais — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP04",
+  "email": "api-http04.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991219",
+  "endereco": "Rua de Testes HTTP, 4",
+  "areaAtuacao": "Limpeza",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084131",
+  "servico": {
+    "titulo": "HTTP04 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 199.99
+  }
+}
+
+### 11. Consultar somente HTTP04 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Limpeza
+Accept: application/json
+
+### 12. Reenviar HTTP04 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP04",
+  "email": "api-http04.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991219",
+  "endereco": "Rua de Testes HTTP, 4",
+  "areaAtuacao": "Limpeza",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084131",
+  "servico": {
+    "titulo": "HTTP04 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 199.99
+  }
+}
+
+### 13. Telefone com 10 dígitos — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP05",
+  "email": "api-http05.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "1133334444",
+  "cpf": "61387991220",
+  "endereco": "Rua de Testes HTTP, 5",
+  "areaAtuacao": "Jardinagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084132",
+  "servico": {
+    "titulo": "HTTP05 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 50
+  }
+}
+
+### 14. Consultar somente HTTP05 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Jardinagem
+Accept: application/json
+
+### 15. Reenviar HTTP05 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP05",
+  "email": "api-http05.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "1133334444",
+  "cpf": "61387991220",
+  "endereco": "Rua de Testes HTTP, 5",
+  "areaAtuacao": "Jardinagem",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084132",
+  "servico": {
+    "titulo": "HTTP05 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 50
+  }
+}
+
+### 16. Nome e e-mail com espaços externos — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "  Prestador HTTP06  ",
+  "email": "  API-HTTP06.{{executionId}}@EXAMPLE.INVALID  ",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991221",
+  "endereco": "Rua de Testes HTTP, 6",
+  "areaAtuacao": "Encanamento",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084133",
+  "servico": {
+    "titulo": "HTTP06 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 500
+  }
+}
+
+### 17. Consultar somente HTTP06 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Encanamento
+Accept: application/json
+
+### 18. Reenviar HTTP06 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "  Prestador HTTP06  ",
+  "email": "  API-HTTP06.{{executionId}}@EXAMPLE.INVALID  ",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991221",
+  "endereco": "Rua de Testes HTTP, 6",
+  "areaAtuacao": "Encanamento",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084133",
+  "servico": {
+    "titulo": "HTTP06 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 500
+  }
+}
+
+### 19. Nome e descrição com acentos — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "João Fictício HTTP07",
+  "email": "api-http07.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991222",
+  "endereco": "Rua de Testes HTTP, 7",
+  "areaAtuacao": "Informatica",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084134",
+  "servico": {
+    "titulo": "HTTP07 serviço {{executionId}}",
+    "descricao": "Manutenção de móveis, atenção e organização",
+    "precoBase": 120
+  }
+}
+
+### 20. Consultar somente HTTP07 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Informatica
+Accept: application/json
+
+### 21. Reenviar HTTP07 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "João Fictício HTTP07",
+  "email": "api-http07.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991222",
+  "endereco": "Rua de Testes HTTP, 7",
+  "areaAtuacao": "Informatica",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084134",
+  "servico": {
+    "titulo": "HTTP07 serviço {{executionId}}",
+    "descricao": "Manutenção de móveis, atenção e organização",
+    "precoBase": 120
+  }
+}
+
+### 22. Senha com 8 caracteres — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP08",
+  "email": "api-http08.{{executionId}}@example.invalid",
+  "senha": "Teste123",
+  "telefone": "11999990000",
+  "cpf": "61387991223",
+  "endereco": "Rua de Testes HTTP, 8",
+  "areaAtuacao": "Costura",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084135",
+  "servico": {
+    "titulo": "HTTP08 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 80
+  }
+}
+
+### 23. Consultar somente HTTP08 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Costura
+Accept: application/json
+
+### 24. Reenviar HTTP08 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP08",
+  "email": "api-http08.{{executionId}}@example.invalid",
+  "senha": "Teste123",
+  "telefone": "11999990000",
+  "cpf": "61387991223",
+  "endereco": "Rua de Testes HTTP, 8",
+  "areaAtuacao": "Costura",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084135",
+  "servico": {
+    "titulo": "HTTP08 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 80
+  }
+}
+
+### 25. Lista com 20 habilidades — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP09",
+  "email": "api-http09.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991224",
+  "endereco": "Rua de Testes HTTP, 9",
+  "areaAtuacao": "Marcenaria",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade 1",
+    "Habilidade 2",
+    "Habilidade 3",
+    "Habilidade 4",
+    "Habilidade 5",
+    "Habilidade 6",
+    "Habilidade 7",
+    "Habilidade 8",
+    "Habilidade 9",
+    "Habilidade 10",
+    "Habilidade 11",
+    "Habilidade 12",
+    "Habilidade 13",
+    "Habilidade 14",
+    "Habilidade 15",
+    "Habilidade 16",
+    "Habilidade 17",
+    "Habilidade 18",
+    "Habilidade 19",
+    "Habilidade 20"
+  ],
+  "cnpj": "16783360084136",
+  "servico": {
+    "titulo": "HTTP09 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 350
+  }
+}
+
+### 26. Consultar somente HTTP09 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Marcenaria
+Accept: application/json
+
+### 27. Reenviar HTTP09 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP09",
+  "email": "api-http09.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991224",
+  "endereco": "Rua de Testes HTTP, 9",
+  "areaAtuacao": "Marcenaria",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade 1",
+    "Habilidade 2",
+    "Habilidade 3",
+    "Habilidade 4",
+    "Habilidade 5",
+    "Habilidade 6",
+    "Habilidade 7",
+    "Habilidade 8",
+    "Habilidade 9",
+    "Habilidade 10",
+    "Habilidade 11",
+    "Habilidade 12",
+    "Habilidade 13",
+    "Habilidade 14",
+    "Habilidade 15",
+    "Habilidade 16",
+    "Habilidade 17",
+    "Habilidade 18",
+    "Habilidade 19",
+    "Habilidade 20"
+  ],
+  "cnpj": "16783360084136",
+  "servico": {
+    "titulo": "HTTP09 serviço {{executionId}}",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 350
+  }
+}
+
+### 28. Título com 191 caracteres após substituir o UUID — criar
+# Esperado: HTTP 201
+# expectedStatus: 201
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP10",
+  "email": "api-http10.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991225",
+  "endereco": "Rua de Testes HTTP, 10",
+  "areaAtuacao": "Manutencao",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084137",
+  "servico": {
+    "titulo": "HTTP10 serviço {{executionId}}xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 250
+  }
+}
+
+### 29. Consultar somente HTTP10 deste lote
+# Esperado: HTTP 200
+# expectedStatus: 200
+# expectedCount: 1
+GET {{baseUrl}}/servicos?texto={{executionId}}&areaAtuacao=Manutencao
+Accept: application/json
+
+### 30. Reenviar HTTP10 — rejeitar duplicidade
+# Esperado: HTTP 409
+# expectedStatus: 409
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Prestador Fictício HTTP10",
+  "email": "api-http10.{{executionId}}@example.invalid",
+  "senha": "SenhaFicticia!123",
+  "telefone": "11999990000",
+  "cpf": "61387991225",
+  "endereco": "Rua de Testes HTTP, 10",
+  "areaAtuacao": "Manutencao",
+  "experiencia": "Experiência fictícia para testar a API",
+  "certificacoes": [
+    "Habilidade fictícia"
+  ],
+  "cnpj": "16783360084137",
+  "servico": {
+    "titulo": "HTTP10 serviço {{executionId}}xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "descricao": "Demonstração de serviços com dados fictícios",
+    "precoBase": 250
+  }
+}
+
+### Customizada: cadastro do Bob Marley
+
+POST {{baseUrl}}/prestadores
+Accept: application/json
+Content-Type: application/json
+
+{
+  "nome": "Bob Marley",
+  "email": "BobMarley@exemplo.com",
+  "senha": "minhasenha123",
+  "telefone": "11956345231",
+  "cpf": "09310563412",
+  "endereco": "Rua do Bob Marley, 21",
+  "areaAtuacao": "Financeiro",
+  "experiencia": "Lidar com as finanças",
+  "certificacoes": [
+    "Financeiro 2026"
+  ],
+  "cnpj": "75843510098456",
+  "servico": {
+    "titulo": "Gestão de finanças",
+    "descricao": "Auxilio em gestão de finanças",
+    "precoBase": 170
+  }
+}

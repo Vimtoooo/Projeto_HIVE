@@ -1,83 +1,103 @@
-import { StatusServico } from "@prisma/client";
-import { Prestador } from "./Prestador";
+import { StatusServico } from '@prisma/client';
+import { Prestador } from './Prestador';
 
 export class Servico {
+  private static proximoId: number = 1;
 
-    private static proximoId: number = 1;
+  private idServico: number;
+  private prestador: Prestador;
+  private titulo!: string;
+  private descricao!: string;
+  private precoBase!: number;
+  private dataCadastro: Date = new Date();
+  private status: StatusServico;
 
-    private idServico: number;
-    private prestador: Prestador;
-    private titulo!: string;
-    private descricao!: string;
-    private precoBase!: number;
-    private dataCadastro: Date = new Date();
-    private status: StatusServico;
+  public constructor(
+    prestador: Prestador,
+    titulo: string,
+    descricao: string,
+    precoBase: number,
+    status: StatusServico,
+  ) {
+    this.idServico = Servico.proximoId++;
+    this.prestador = prestador;
+    this.setTitulo = titulo;
+    this.setDescricao = descricao;
+    this.setPrecoBase = precoBase;
+    this.status = status;
+  }
 
-    public constructor(
-        prestador: Prestador,
-        titulo: string,
-        descricao: string,
-        precoBase: number,
-        status: StatusServico
-    ) {
-        this.idServico = Servico.proximoId++;
-        this.prestador = prestador;
-        this.setTitulo = titulo;
-        this.setDescricao = descricao;
-        this.setPrecoBase = precoBase;
-        this.status = status;
-    };
+  public atualizarPreco(preco: number): void {
+    // Modifica o preço de um serviço...
+    if (preco <= 0) {
+      throw new Error(
+        `O preço deve ser superior a R$ 0,00. Valor informado: ${preco}`,
+      );
+    }
 
-    public atualizarPreco(preco: number): void {
-        // Modifica o preço de um serviço...
-        if (preco <= 0) {
-            throw new Error(`O preço deve ser superior a R$ 0,00. Valor informado: ${preco}`);
-        };
+    this.precoBase = preco;
+    console.log(`Preco alterado com sucesso.`);
+  }
 
-        this.precoBase = preco;
-        console.log(`Preco alterado com sucesso.`);
-    };
+  public editarDescricao(descricao: string): void {
+    // Edite a descrição de um serviço...
+    if (!descricao || descricao.trim().length === 0) {
+      throw new Error(`Uma descrição vazia não é válida!`);
+    }
 
-    public editarDescricao(descricao: string): void {
-        // Edite a descrição de um serviço...
-        if (!descricao || descricao.trim().length === 0) {
-            throw new Error(`Uma descrição vazia não é válida!`);
-        };
+    this.descricao = descricao;
+    console.log(`Descrição editada com sucesso.`);
+  }
 
-        this.descricao = descricao;
-        console.log(`Descrição editada com sucesso.`);
-    };
+  public ativar(): void {
+    // Ative um serviço para ser disponível ao público...
+    this.status = StatusServico.ATIVO;
+    console.log(`Serviço "${this.titulo}" foi ativado.`);
+  }
 
-    public ativar(): void {
-        // Ative um serviço para ser disponível ao público...
-        this.status = StatusServico.ATIVO;
-        console.log(`Serviço "${this.titulo}" foi ativado.`);
-    };
+  public desativar(): void {
+    // Desative um serviço, ou seja, para não ser disponível ao público...
+    this.status = StatusServico.INATIVO;
+    console.log(`Serviço "${this.titulo}" foi desativado.`);
+  }
 
-    public desativar(): void {
-        // Desative um serviço, ou seja, para não ser disponível ao público...
-        this.status = StatusServico.INATIVO;
-        console.log(`Serviço "${this.titulo}" foi desativado.`);
-    };
+  // Getters e Setters
+  public get getIdServico(): number {
+    return this.idServico;
+  }
 
-    // Getters e Setters
-    public get getIdServico(): number { return this.idServico; }
+  public get getPrestador(): Prestador {
+    return this.prestador;
+  }
 
-    public get getPrestador(): Prestador { return this.prestador; }
+  public get getTitulo(): string {
+    return this.titulo;
+  }
+  public set setTitulo(titulo: string) {
+    if (titulo.trim().length < 5)
+      throw new Error('O título do serviço deve ter pelo menos 5 caracteres.');
+    this.titulo = titulo.trim();
+  }
 
-    public get getTitulo(): string { return this.titulo; }
-    public set setTitulo(titulo: string) {
-        if (titulo.trim().length < 5) throw new Error("O título do serviço deve ter pelo menos 5 caracteres.");
-        this.titulo = titulo.trim();
-    };
+  public get getDescricao(): string {
+    return this.descricao;
+  }
+  public set setDescricao(desc: string) {
+    this.editarDescricao(desc);
+  }
 
-    public get getDescricao(): string { return this.descricao; }
-    public set setDescricao(desc: string) { this.editarDescricao(desc); }
+  public get getPrecoBase(): number {
+    return this.precoBase;
+  }
+  public set setPrecoBase(preco: number) {
+    this.atualizarPreco(preco);
+  }
 
-    public get getPrecoBase(): number { return this.precoBase; }
-    public set setPrecoBase(preco: number) { this.atualizarPreco(preco); }
+  public get getDataCadastro(): Date {
+    return this.dataCadastro;
+  }
 
-    public get getDataCadastro(): Date { return this.dataCadastro; }
-
-    public get getStatus(): StatusServico { return this.status; }
-};
+  public get getStatus(): StatusServico {
+    return this.status;
+  }
+}

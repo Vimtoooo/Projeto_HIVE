@@ -1,35 +1,61 @@
 export enum FormaPagamento {
-    'CARTAO', 'PIX', 'BOLETO', 'DINHEIRO', 'TRANSFERENCIA'
-};
+  'CARTAO',
+  'PIX',
+  'BOLETO',
+  'DINHEIRO',
+  'TRANSFERENCIA',
+}
 
 export enum MeioIndicado {
-    'APLICATIVO', 'WHATSAPP', 'EMAIL', 'TELEFONE', 'REDES_SOCIAIS', 'OUTROS'
-};
+  'APLICATIVO',
+  'WHATSAPP',
+  'EMAIL',
+  'TELEFONE',
+  'REDES_SOCIAIS',
+  'OUTROS',
+}
 
 export enum StatusConta {
-    'ATIVO', 'INATIVO', 'BLOQUEADO', 'PENDENTE'
-};
+  'ATIVO',
+  'INATIVO',
+  'BLOQUEADO',
+  'PENDENTE',
+}
 
 export enum StatusContratacao {
-    'PENDENTE', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA'
-};
+  'PENDENTE',
+  'EM_ANDAMENTO',
+  'CONCLUIDA',
+  'CANCELADA',
+}
 
 export enum StatusIndicado {
-    'PENDENTE', 'ACEITA', 'RECUSADA', 'EXPIRADA'
-};
+  'PENDENTE',
+  'ACEITA',
+  'RECUSADA',
+  'EXPIRADA',
+}
 
 export enum StatusPagamento {
-    'PENDENTE', 'PAGO', 'PARCIALMENTE_PAGO', 'CANCELADO', 'ESTORNADO'
-};
+  'PENDENTE',
+  'PAGO',
+  'PARCIALMENTE_PAGO',
+  'CANCELADO',
+  'ESTORNADO',
+}
 
 export enum StatusServico {
-    'ATIVO', 'INATIVO'
-};
+  'ATIVO',
+  'INATIVO',
+}
 
 export enum TipoRegistro {
-    'RECEITA', 'DESPESA'
-};
+  'RECEITA',
+  'DESPESA',
+}
 
 export enum TipoUsuario {
-    'CONTRATANTE', 'PRESTADOR', 'AMBOS'
-};
+  'CONTRATANTE',
+  'PRESTADOR',
+  'AMBOS',
+}
