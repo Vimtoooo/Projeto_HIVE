@@ -14,16 +14,45 @@ resolvidas estão em `package-lock.json`.
 npm ci
 ```
 
-Crie `.env` manualmente, com suas credenciais locais:
+Você pode manter vários arquivos de ambiente dentro de uma pasta `.env/` para
+evitar poluir a raiz do backend. Uma organização possível é:
+
+```text
+.env/
+|- .env                 # aplicação local
+|- .env.example         # modelo da aplicação
+|- .env.test.local      # testes locais
+`- .env.test.example    # modelo dos testes
+```
+
+Crie `.env/.env` manualmente, com suas credenciais locais:
 
 ```dotenv
 DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive"
 PORT=3000
 ```
 
-Não versione esse arquivo. Os modelos `.env.example` também são ignorados;
-os exemplos da documentação usam apenas valores fictícios. Caracteres especiais
-nas credenciais devem ser codificados para URL.
+Não versione os arquivos locais. Os modelos `*.example` podem ser versionados
+se não contiverem segredos. Caracteres especiais nas credenciais devem ser
+codificados para URL.
+
+Como o arquivo está dentro de `.env/`, carregue-o antes de iniciar a API. No
+PowerShell, execute estes comandos na pasta `apps/backend`:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env'
+$env:PORT = '3000'
+```
+
+No Git Bash, use a sintaxe equivalente:
+
+```bash
+export DOTENV_CONFIG_PATH='.env/.env'
+export PORT='3000'
+```
+
+Essas variáveis permanecem somente no terminal atual. Se abrir outro terminal,
+repita os comandos.
 
 Crie o banco da aplicação no MySQL e gere o client:
 
@@ -40,7 +69,7 @@ npm run start:dev
 ```
 
 Em um banco com dados, revise a mudança antes de aplicar. Não aceite perda de
-dados nem use o seed legado para preparar a demonstração. Veja o
+dados. Para carga fictícia, use o seed local protegido abaixo. Veja o
 [README do Prisma](prisma/README.md) para distinguir client, schema e inserções.
 
 Se o MySQL 8 local exigir a chave RSA após reiniciar, acrescente ao `.env`:
@@ -49,6 +78,8 @@ Se o MySQL 8 local exigir a chave RSA após reiniciar, acrescente ao `.env`:
 MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
 ```
 
+Se o arquivo usado for `.env/.env`, acrescente a variável nesse arquivo.
+
 Essa opção só é aceita para hosts de loopback. Para servidores remotos, use
 chave pública confiável ou configure TLS validado, conforme o
 [guia da API](docs/CATALOGO-API.md#configurar-e-iniciar).
@@ -56,17 +87,53 @@ chave pública confiável ou configure TLS validado, conforme o
 Para executar a versão compilada:
 
 ```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env'
+$env:PORT = '3000'
 npm run build
 npm run start:prod
 ```
 
-O script usa `dist/src/main`. O build é necessário para refletir mudanças no código.
+### Ambiente de testes
+
+Para os testes, coloque a URL do banco exclusivo em `.env/.env.test.local`:
+
+```dotenv
+TEST_DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_test"
+MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
+```
+
+No PowerShell, em `apps/backend`, carregue o arquivo **antes** de iniciar
+`test-database.cjs`, pois ele verifica TEST_DATABASE_URL imediatamente:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+$env:PORT = '3000'
+node -r dotenv/config scripts/test-database.cjs prepare
+node -r dotenv/config scripts/test-database.cjs test
+node -r dotenv/config scripts/test-database.cjs api
+node -r dotenv/config scripts/test-database.cjs serve
+```
+
+No Git Bash, use `export DOTENV_CONFIG_PATH='.env/.env.test.local'` e
+`export PORT='3000'`, seguidos dos mesmos comandos Node.
+
+O modo `serve` mantém a API ligada ao banco de testes e executa
+`src/main.ts` via ts-node, sem exigir build. Somente `start:prod` usa
+`dist/src/main` e requer compilação prévia. Use um banco terminado em
+`_test`, diferente do principal. Não é necessário copiar a senha para o terminal.
+
+Quando os arquivos estiverem na raiz do backend, os comandos npm de teste
+continuam disponíveis. Com a pasta `.env/`, use o prefixo
+`node -r dotenv/config scripts/test-database.cjs` e o modo correspondente:
+`prepare`, `test`, `api`, `demo`, `api-demo`, `serve` ou `clean UUID`.
 
 ## Requisições manuais no VS Code
 
 A pasta [http](http/README.md) contém exemplos para cadastro, busca e validação
 com REST Client. Use a API iniciada por `npm run start:demo` para gravar apenas
 no banco de testes. Os exemplos têm dados fictícios e instruções de limpeza.
+Veja o [guia de requisições HTTP](http/README.md) para criar seus próprios
+blocos `POST` e `GET`.
 
 ## Rotas disponíveis
 
@@ -74,12 +141,26 @@ no banco de testes. Os exemplos têm dados fictícios e instruções de limpeza.
 | --- | --- |
 | `POST /prestadores` | Cria Usuario, Prestador e o primeiro Servico juntos; retorna 201 |
 | `GET /servicos` | Busca pública com filtros, paginação e retorno somente de campos públicos |
+| `POST /login` | Confere email, senha scrypt e conta ativa; retorna 201 com os dados públicos do usuário ou 401 para credenciais rejeitadas |
 | `GET /` | Verificação básica já existente; retorna Hello World! |
 
-O POST exige dados pessoais, dados profissionais e o objeto `servico`.
+O POST de `/prestadores` exige dados pessoais, dados profissionais e o objeto `servico`.
 O GET aceita `texto`, `areaAtuacao`, `precoMin`, `precoMax`, `prestadorId`,
 `pagina` e `limite`. O [contrato da API](docs/CATALOGO-API.md) detalha os campos,
 limites, exemplos JSON e respostas 400, 409, 503 e 500.
+
+## Login integrado ao frontend
+
+Crie primeiro a conta com `POST /prestadores` no mesmo banco usado pela API.
+O [guia do frontend](../frontend/README.md#criar-a-conta-antes-do-login) contém
+um POST fictício e o roteiro para abrir a tela e confirmar o redirecionamento.
+O login recebe `{"email":"...","senha":"..."}` e retorna `idUsuario`,
+`nome`, `email` e `tipoUsuario`, sem retornar o hash.
+
+A verificação de senha usa scrypt com salt e comparação com timingSafeEqual.
+O fluxo atual não emite token nem cookie de sessão: o redirecionamento para
+Home comprova a integração, mas ainda não protege essa página. O corpo de
+login usa um tipo inline, sem DTO validado como o do cadastro.
 
 ## Arquitetura e motivos das mudanças
 
@@ -89,10 +170,11 @@ limites, exemplos JSON e respostas 400, 409, 503 e 500.
 | `src/catalog/catalogo.dto.ts` | Valida formatos, limites e campos extras antes de executar regras ou acessar o banco |
 | `src/catalog/servico.service.ts` | Coordena o cadastro e a busca, verifica intervalo de preços e traduz erros para HTTP |
 | `src/catalog/servico.repository.ts` | Define consultas e projeções públicas; evita expor senha, documentos e contato |
+| `src/auth/` | Recebe o login, busca a conta e verifica status e senha |
 | `src/models/` | Mantém as classes Prestador/Servico e demais regras de domínio já utilizadas nos testes |
 | `src/persistence/` | Reutiliza transações, gravação das classes, conexão e adaptador do banco |
 
-`AppModule` registra `CatalogoModule` e um `ValidationPipe` global com transformação,
+`AppModule` registra `CatalogoModule`, `AuthModule` e um `ValidationPipe` global com transformação,
 whitelist e rejeição de campos desconhecidos. `class-validator` e
 `class-transformer` fornecem a validação em tempo de execução; tipos TypeScript
 sozinhos não validam um JSON recebido pela rede.
@@ -163,7 +245,7 @@ ser implementadas antes de disponibilizar a API em produção.
 CPF/CNPJ têm validação de tamanho, não verificação fiscal. Valores monetários
 continuam como Float. Contratação, pagamento e avaliação estão nas classes e
 na persistência, mas ainda não possuem rotas. O método Usuario.autenticar não
-implementa login da API.
+é o responsável pelo login da API; essa responsabilidade está em AuthService.
 
 ## Documentação complementar
 
@@ -174,3 +256,10 @@ implementa login da API.
 
 O HIVE segue a [licença do repositório](../../LICENSE); as licenças das dependências
 continuam aplicáveis a seus respectivos códigos.
+
+## Recriar dados fictícios para apresentação
+
+O [guia do seed local](prisma/README.md#seed-local-para-apresentação) explica
+`db:seed:local` e `db:reset:local`, com contas prontas para login e oito tabelas
+populadas. O reset exige confirmação do nome do banco e substitui seus dados
+em uma transação. Aceita o banco local `hive` e bancos terminados em `_local` ou `_test`.

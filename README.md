@@ -21,7 +21,7 @@ A arquitetura organiza as regras em **classes de domínio** e o fluxo da API em 
 
 ## Integração atual
 
-O backend já oferece cadastro de prestador com seu primeiro serviço em uma transação e busca de serviços ativos com filtros e paginação, via API REST em NestJS e persistência Prisma/MySQL. Há testes automatizados com banco de testes e 90 requisições HTTP para demonstração. O frontend ainda não está integrado à API; autenticação, contratação, pagamento e avaliação pela API continuam no roadmap.
+O backend já oferece cadastro de prestador com seu primeiro serviço em uma transação e busca de serviços ativos com filtros e paginação, via API REST em NestJS e persistência Prisma/MySQL. Há testes automatizados com banco de testes e exemplos HTTP para demonstração. O frontend já realiza login via API e redireciona para a Home. Sessão/token, autorização e endpoints de contratação, pagamento e avaliação continuam no roadmap.
 
 Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
 
@@ -29,7 +29,7 @@ Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/te
 
 | Camada | Tecnologias |
 | :--- | :--- |
-| **Frontend atual** | HTML5 + CSS3; protótipo estático da tela de entrada |
+| **Frontend atual** | HTML5 + CSS3 + JavaScript (fetch); login integrado à API |
 | **Frontend planejado** | Node.js como ambiente de desenvolvimento/execução; Next.js é o framework previsto no planejamento original |
 | **Backend** | Node.js + NestJS (TypeScript) |
 | **Persistência** | MySQL + Prisma ORM |
@@ -48,10 +48,11 @@ HIVE/
 ├── apps/                          # Aplicações do projeto
 │   ├── backend/                   # API NestJS e persistência
 │   │   ├── docs/                  # Contratos e explicações técnicas
-│   │   ├── http/                  # 90 requisições para o REST Client
+│   │   ├── http/                  # Exemplos para o REST Client
 │   │   ├── prisma/                # Schema, migrations e seed
 │   │   ├── scripts/               # Preparação e limpeza do banco de testes
 │   │   ├── src/                   # Código-fonte do backend
+│   │   │   ├── auth/              # Login e verificação de senha
 │   │   │   ├── catalog/           # Cadastro de prestador e busca de serviços
 │   │   │   ├── enums/             # Enumerações auxiliares do domínio
 │   │   │   ├── models/            # Classes de domínio
@@ -61,8 +62,9 @@ HIVE/
 │   │   │   └── support/           # Limpeza seletiva de dados fictícios
 │   │   └── README.md              # Configuração e execução do backend
 │   └── frontend/                  # Protótipo estático; evolução Node.js/Next.js planejada
-│       ├── imagens/               # Logotipos e imagens
-│       ├── pages/                 # Página de entrada Hive.html
+│       ├── images/               # Logotipos e imagens
+│       ├── pages/                 # Login Hive.html e Home provisória
+│       ├── scripts/               # Integração do login com a API
 │       └── styles/                # Estilos CSS da interface
 ├── LICENSE                        # Termos de uso do código
 └── README.md                      # Visão geral do projeto
@@ -98,18 +100,88 @@ npm install
 Configure os arquivos de ambiente locais conforme o [guia do backend](apps/backend/README.md). Eles não são versionados; use um banco exclusivo de testes para as demonstrações.
 
 ### 4. Preparar o Banco de Dados
-```bash
+
+Comandos abaixo em `apps/backend` (PowerShell), após criar o banco local e
+configurar DATABASE_URL em `.env/.env`:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env'
 npm run prisma:generate
-npm run test:db:prepare
+npm run prisma:validate
+npx prisma db push
 ```
 
-### 5. Executar Demonstração da API
-Para testar cadastro e busca com os exemplos HTTP, mantenha a API ligada:
-```bash
-npm run start:demo
+Use `db push` para preparar um banco novo; em banco existente, revise as
+mudanças de estrutura e não aceite perda de dados automaticamente.
+
+### 5. Executar a API e o Frontend
+
+No mesmo terminal do backend:
+
+```powershell
+$env:PORT = '3000'
+npm run start:dev
 ```
 
-Para visualizar o frontend, abra [Hive.html](apps/frontend/pages/Hive.html) no navegador. A tela é apenas visual: login e cadastro ainda não enviam requisições à API.
+Em outro terminal, a partir da raiz do repositório (requer Python):
+
+```powershell
+cd apps/frontend
+py -m http.server 5500 --bind 127.0.0.1
+```
+
+Abra [a tela de login](http://localhost:5500/pages/Hive.html). A conta deve
+existir no mesmo banco da API, criada por POST /prestadores ou pelo seed.
+O login abre `home.html`; a Home ainda é pública, sem sessão/token.
+Cadastro na interface e login social continuam visuais. Detalhes no
+[guia do frontend](apps/frontend/README.md).
+
+### Comandos úteis
+
+Execute em `apps/backend`. Os comandos de seed/reset exigem schema preparado;
+selecione o arquivo de ambiente antes de escolher **uma** operação.
+
+| Objetivo | Comando |
+| --- | --- |
+| Popular o banco vazio hive | `npm run db:seed:local -- --confirm hive` |
+| Apagar os dados do hive e repor o seed | `npm run db:reset:local -- --confirm hive` |
+| Popular o banco vazio de testes | `npm run db:seed:test -- --confirm hive_pi_20260915_test` |
+| Apagar dados de testes e repor o seed | `npm run db:reset:test -- --confirm hive_pi_20260915_test` |
+| Testes unitários | `npm test -- --runInBand` |
+| Teste E2E básico | `npm run test:e2e -- --runInBand` |
+| Proteções do seed | `npm run test:seed` |
+| Verificar lint e tipos | `npm run lint:check` e `npx tsc --project test/tsconfig.json` |
+| Compilar e executar o build | `npm run build`, depois `npm run start:prod` |
+
+**Reset apaga os dados das oito tabelas e repõe os exemplos; não é apenas
+limpeza.** Pare a API antes. Os comandos locais usam DATABASE_URL; os comandos
+`:test` usam TEST_DATABASE_URL. Para estes últimos, configure
+`$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'`. O nome após `--confirm`
+deve coincidir com o banco configurado. Nenhum desses comandos recria o schema.
+
+O seed oferece três contas, incluindo `ana@hive.example.invalid`, com a senha
+fictícia `HiveDemo!2026`. Veja os dados, proteções e testes de integração
+opt-in no [guia do seed](apps/backend/prisma/README.md#seed-local-para-apresentação).
+
+### Demonstração e integração no banco de testes
+
+Com os arquivos dentro de `.env/`, carregue as variáveis antes do script:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+$env:PORT = '3000'
+node -r dotenv/config scripts/test-database.cjs prepare
+node -r dotenv/config scripts/test-database.cjs test
+node -r dotenv/config scripts/test-database.cjs api
+node -r dotenv/config scripts/test-database.cjs serve
+```
+
+Os modos correspondem a `test:db:prepare`, `test:persistencia`,
+`test:catalogo` e `start:demo`. O último mantém a API ligada ao banco de testes,
+sem build; não o execute junto com outra API na porta 3000. Quando os arquivos
+estão na raiz do backend, os scripts npm fazem o carregamento automaticamente.
+Limpeza seletiva por UUID e roteiro de apresentação estão no
+[README dos testes](apps/backend/test/README.md).
 
 ## 📈 Roadmap
 
@@ -118,8 +190,8 @@ Para visualizar o frontend, abra [Hive.html](apps/frontend/pages/Hive.html) no n
 - [ ] Implementação de Autenticação JWT e RBAC (Role-Based Access Control).
 - [x] Endpoints REST de cadastro de prestador e busca de serviços no NestJS.
 - [ ] Endpoints de contratação, pagamento e avaliação.
-- [x] Tela estática de entrada em HTML/CSS.
-- [ ] Integração do frontend com a API e desenvolvimento das demais telas.
+- [x] Tela de entrada em HTML/CSS com login por JavaScript integrado à API.
+- [ ] Ampliar a integração do frontend com a API e desenvolver as demais telas.
 - [ ] Interface Administrativa e Dashboard do Cliente (Next.js, conforme planejamento original).
 - [ ] Configuração do ambiente com Docker.
 

@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+
 import { Usuario } from '../models/Usuario';
 import { Prestador } from '../models/Prestador';
 import { Servico } from '../models/Servico';
@@ -22,8 +23,10 @@ export class RepositorioDominio {
 
   private id(entidade: object, nome: string): number {
     const id = this.ids.get(entidade);
+
     if (id === undefined)
       throw new Error(`${nome} ainda não foi persistido nesta transação.`);
+
     return id;
   }
 
@@ -50,19 +53,24 @@ export class RepositorioDominio {
 
   async criarUsuario(usuario: Usuario) {
     this.novo(usuario);
+
     if (usuario instanceof Prestador)
       throw new Error(
         'Use criarPrestador para salvar o usuário e seu perfil juntos.',
       );
+
     const registro = await this.db.usuario.create({
       data: await this.dadosUsuario(usuario),
     });
+
     this.ids.set(usuario, registro.idUsuario);
+
     return registro;
   }
 
   async criarPrestador(prestador: Prestador) {
     this.novo(prestador);
+
     // Nested write mantém o vínculo 1:1 com a PK gerada para Usuario.
     const usuario = await this.db.usuario.create({
       data: {
@@ -79,16 +87,21 @@ export class RepositorioDominio {
       },
       include: { prestadorPerfil: true },
     });
+
     this.ids.set(prestador, usuario.idUsuario);
     this.prestadores.add(prestador);
+
     return usuario.prestadorPerfil!;
   }
 
   async criarServico(servico: Servico) {
     this.novo(servico);
+
     const prestadorId = this.id(servico.getPrestador, 'Prestador');
+
     if (!this.prestadores.has(servico.getPrestador))
       throw new Error('Perfil de prestador não persistido.');
+
     const registro = await this.db.servico.create({
       data: {
         titulo: servico.getTitulo,
@@ -99,12 +112,15 @@ export class RepositorioDominio {
         prestador: { connect: { idPrestador: prestadorId } },
       },
     });
+
     this.ids.set(servico, registro.idServico);
+
     return registro;
   }
 
   async criarIndicacao(indicacao: Indicacao) {
     this.novo(indicacao);
+
     const registro = await this.db.indicacao.create({
       data: {
         meioIndicado: indicacao.getMeioIndicado,
@@ -112,7 +128,9 @@ export class RepositorioDominio {
         statusIndicacao: indicacao.getStatusIndicacao,
         observacao: indicacao.getObservacao,
         indicador: {
-          connect: { idUsuario: this.id(indicacao.getIndicador, 'Indicador') },
+          connect: {
+            idUsuario: this.id(indicacao.getIndicador, 'Indicador'),
+          },
         },
         indicado: {
           connect: {
@@ -121,13 +139,17 @@ export class RepositorioDominio {
         },
       },
     });
+
     this.ids.set(indicacao, registro.idIndicacao);
+
     return registro;
   }
 
   async criarContratacao(contratacao: Contratacao) {
     this.novo(contratacao);
+
     const indicacao = contratacao.getIndicacao;
+
     if (
       indicacao &&
       indicacao.getIndicado !== contratacao.getServico.getPrestador
@@ -136,6 +158,7 @@ export class RepositorioDominio {
         'A indicação deve apontar para o prestador do serviço contratado.',
       );
     }
+
     const registro = await this.db.contratacao.create({
       data: {
         dataContratacao: contratacao.getDataContratacao,
@@ -144,7 +167,9 @@ export class RepositorioDominio {
         formaPagamento: contratacao.getFormaPagamento,
         dataVencimento: contratacao.getDataVencimento ?? null,
         servico: {
-          connect: { idServico: this.id(contratacao.getServico, 'Serviço') },
+          connect: {
+            idServico: this.id(contratacao.getServico, 'Serviço'),
+          },
         },
         contratante: {
           connect: {
@@ -154,21 +179,27 @@ export class RepositorioDominio {
         ...(indicacao
           ? {
               indicacao: {
-                connect: { idIndicacao: this.id(indicacao, 'Indicação') },
+                connect: {
+                  idIndicacao: this.id(indicacao, 'Indicação'),
+                },
               },
             }
           : {}),
       },
     });
+
     this.ids.set(contratacao, registro.idContratacao);
+
     return registro;
   }
 
   async criarFatura(fatura: Fatura) {
     this.novo(fatura);
+
     if (fatura.getUsuario !== fatura.getContratacao.getContratante) {
       throw new Error('O usuário da fatura deve ser o contratante.');
     }
+
     const registro = await this.db.fatura.create({
       data: {
         dataEmissao: fatura.getDataEmissao,
@@ -176,7 +207,9 @@ export class RepositorioDominio {
         statusPagamento: fatura.getStatusPagamento,
         dataPagamento: fatura.getDataPagamento,
         usuario: {
-          connect: { idUsuario: this.id(fatura.getUsuario, 'Usuário') },
+          connect: {
+            idUsuario: this.id(fatura.getUsuario, 'Usuário'),
+          },
         },
         contratacao: {
           connect: {
@@ -185,12 +218,15 @@ export class RepositorioDominio {
         },
       },
     });
+
     this.ids.set(fatura, registro.idFatura);
+
     return registro;
   }
 
   async criarAvaliacao(avaliacao: Avaliacao) {
     this.novo(avaliacao);
+
     const registro = await this.db.avaliacao.create({
       data: {
         nota: avaliacao.getNota,
@@ -203,18 +239,23 @@ export class RepositorioDominio {
         },
       },
     });
+
     this.ids.set(avaliacao, registro.idAvaliacao);
+
     return registro;
   }
 
   async criarFinanceiro(financeiro: Financeiro) {
     this.novo(financeiro);
+
     const fatura = financeiro.getFatura;
+
     if (fatura && fatura.getContratacao !== financeiro.getContratacao) {
       throw new Error(
         'A fatura e o lançamento financeiro devem pertencer à mesma contratação.',
       );
     }
+
     const registro = await this.db.financeiro.create({
       data: {
         tipoRegistro: financeiro.getTipoRegistro,
@@ -227,11 +268,27 @@ export class RepositorioDominio {
           },
         },
         ...(fatura
-          ? { fatura: { connect: { idFatura: this.id(fatura, 'Fatura') } } }
+          ? {
+              fatura: {
+                connect: {
+                  idFatura: this.id(fatura, 'Fatura'),
+                },
+              },
+            }
           : {}),
       },
     });
+
     this.ids.set(financeiro, registro.idFinanceiro);
+
     return registro;
+  }
+
+  async buscarUsuarioPorEmail(email: string) {
+    return this.db.usuario.findUnique({
+      where: {
+        email: email.toLowerCase().trim(),
+      },
+    });
   }
 }

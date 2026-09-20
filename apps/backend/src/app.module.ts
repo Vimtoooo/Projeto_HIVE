@@ -1,13 +1,18 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
 import { PersistenciaModule } from './persistence/persistencia.module';
 import { CatalogoModule } from './catalog/catalogo.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [PersistenciaModule, CatalogoModule],
+  imports: [PersistenciaModule, CatalogoModule, AuthModule],
+
   controllers: [AppController],
+
   providers: [
     AppService,
     {
@@ -17,7 +22,10 @@ import { CatalogoModule } from './catalog/catalogo.module';
           transform: true,
           whitelist: true,
           forbidNonWhitelisted: true,
-          validationError: { target: false, value: false },
+          validationError: {
+            target: false,
+            value: false,
+          },
         }),
     },
   ],
