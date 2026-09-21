@@ -1,13 +1,13 @@
 # Backend do HIVE
 
-API NestJS com Prisma 7 e MySQL. Esta etapa conecta as classes de domínio à
+API NestJS com Prisma 7 e PostgreSQL. Esta etapa conecta as classes de domínio à
 aplicação HTTP: cadastro de prestador com serviço inicial e busca de serviços.
 O frontend estático ainda não está conectado a essas rotas.
 
 ## Preparar o ambiente
 
 Execute os comandos desta página em `apps/backend`. O ambiente usado na
-validação foi Node.js 24.13, npm 11 e MySQL 8.0; as versões de dependências
+validação inicial foi Node.js 24.13, npm 11 e MySQL 8.0. Nesta branch, o banco é PostgreSQL; as versões de dependências
 resolvidas estão em `package-lock.json`.
 
 ```powershell
@@ -28,7 +28,7 @@ evitar poluir a raiz do backend. Uma organização possível é:
 Crie `.env/.env` manualmente, com suas credenciais locais:
 
 ```dotenv
-DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive"
+DATABASE_URL="postgresql://SEU_USUARIO:SUA_SENHA@localhost:5432/hive"
 PORT=3000
 ```
 
@@ -54,7 +54,7 @@ export PORT='3000'
 Essas variáveis permanecem somente no terminal atual. Se abrir outro terminal,
 repita os comandos.
 
-Crie o banco da aplicação no MySQL e gere o client:
+Crie o banco da aplicação no PostgreSQL e gere o client:
 
 ```powershell
 npm run prisma:generate
@@ -72,17 +72,9 @@ Em um banco com dados, revise a mudança antes de aplicar. Não aceite perda de
 dados. Para carga fictícia, use o seed local protegido abaixo. Veja o
 [README do Prisma](prisma/README.md) para distinguir client, schema e inserções.
 
-Se o MySQL 8 local exigir a chave RSA após reiniciar, acrescente ao `.env`:
-
-```dotenv
-MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
-```
-
-Se o arquivo usado for `.env/.env`, acrescente a variável nesse arquivo.
-
-Essa opção só é aceita para hosts de loopback. Para servidores remotos, use
-chave pública confiável ou configure TLS validado, conforme o
-[guia da API](docs/CATALOGO-API.md#configurar-e-iniciar).
+A conexão atual usa PostgreSQL via `@prisma/adapter-pg`, normalmente na porta 5432.
+As opções `MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL` e `MYSQL_SERVER_PUBLIC_KEY` pertencem
+à implementação anterior e não são usadas por este adaptador.
 
 Para executar a versão compilada:
 
@@ -98,8 +90,7 @@ npm run start:prod
 Para os testes, coloque a URL do banco exclusivo em `.env/.env.test.local`:
 
 ```dotenv
-TEST_DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_test"
-MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
+TEST_DATABASE_URL="postgresql://SEU_USUARIO:SUA_SENHA@localhost:5432/hive_test"
 ```
 
 No PowerShell, em `apps/backend`, carregue o arquivo **antes** de iniciar
@@ -187,8 +178,8 @@ A senha é transformada em hash scrypt com salt. A busca seleciona explicitament
 os campos públicos, retorna somente serviços e contas ativos e ordena por ID.
 A lista e sua contagem são consultadas na mesma transação com RepeatableRead.
 
-A fábrica do client concentra o driver MySQL, permitindo planejar a troca para
-PostgreSQL sem espalhar configuração de conexão pelos controllers. Isso não
+A fábrica do client agora concentra o driver PostgreSQL, sem espalhar
+configuração de conexão pelos controllers. A troca do adaptador não
 elimina a necessidade de migrar schema, SQL e dados; veja [Prisma](prisma/README.md).
 
 ## Correções do editor e qualidade

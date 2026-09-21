@@ -1,7 +1,7 @@
 # Cadastro e busca no backend real
 
 O AppModule carrega CatalogoModule. O fluxo segue o diagrama:
-`ServicoController → ServicoService → ServicoRepository → Prisma → MySQL`.
+`ServicoController → ServicoService → ServicoRepository → Prisma → PostgreSQL`.
 O retorno percorre o caminho inverso em JSON. O cadastro usa as classes
 Prestador e Servico, com a transação de PersistenciaService já existente.
 
@@ -12,10 +12,10 @@ e autenticação não são endpoints desta entrega.
 ## Configurar e iniciar
 
 Execute na pasta `apps/backend`: `npm ci` e `npm run prisma:generate`.
-Crie manualmente `.env` com os valores locais:
+Crie manualmente `.env/.env` com os valores locais:
 
 ```dotenv
-DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive"
+DATABASE_URL="postgresql://SEU_USUARIO:SUA_SENHA@localhost:5432/hive"
 PORT=3000
 ```
 
@@ -23,22 +23,12 @@ Os arquivos `.env`, `.env.test.local` e os modelos `.env.*.example` não são
 distribuídos no Git. Use os exemplos fictícios desta documentação. Codifique
 caracteres especiais da senha na URL; nunca inclua credenciais reais em commits.
 
-No MySQL 8 local, se ocorrer `ER_CANNOT_RETRIEVE_RSA_KEY` ou timeout do pool
-depois de reiniciar o banco, acrescente ao arquivo de ambiente usado:
-
-```dotenv
-MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
-```
-
-A fábrica aceita essa opção somente com `localhost`, `127.0.0.1` ou `[::1]`.
-Ela permite obter a chave RSA do servidor local para autenticação. Para um
-servidor remoto, configure uma chave pública confiável pelo caminho em
-`MYSQL_SERVER_PUBLIC_KEY`, ou configure TLS validado no adaptador. Nunca
-publique a chave privada do servidor.
+O adaptador atual é `@prisma/adapter-pg`; as configurações RSA do MySQL não se aplicam.
+Defina `DOTENV_CONFIG_PATH=.env/.env` no terminal conforme o README do backend.
 
 Para a API normal, prepare o schema do banco `DATABASE_URL` revisando as
 alterações (`npx prisma db push`, sem aceitar perda de dados) e execute
-`npm run start:dev`. As rotas leem e gravam nesse banco. Não execute o seed legado.
+`npm run start:dev`. As rotas leem e gravam nesse banco. Para demonstrações, use o seed local protegido descrito no README do Prisma.
 
 ## POST /prestadores
 
@@ -110,7 +100,7 @@ npm run test:db:prepare
 npm run test:catalogo
 ```
 
-Esperado: **10 testes aprovados**, usando HTTP e MySQL reais. Os dados da execução
+Esperado: **10 testes aprovados**, usando HTTP e PostgreSQL reais. Os dados da execução
 são removidos ao terminar. O arquivo é
 [`catalogo.integration-spec.ts`](../test/catalogo.integration-spec.ts).
 

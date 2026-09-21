@@ -49,7 +49,7 @@ void main().catch((erro: unknown) => {
     return;
   }
   console.error(
-    'Seed não concluído. Confira conexão, schema e --confirm NOME_EXATO de um banco local hive, _local ou _test. Carga simples exige banco vazio; reset exige NODE_ENV diferente de production.',
+    'Seed não concluído. Confira conexão PostgreSQL, schema e --confirm NOME_EXATO de um banco local hive, _local ou _test. Carga simples exige banco vazio; reset exige NODE_ENV diferente de production.',
   );
   process.exitCode = 1;
 });

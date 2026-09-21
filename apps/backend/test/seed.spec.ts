@@ -10,7 +10,7 @@ describe('proteção do seed local', () => {
     (banco) => {
       expect(
         validarDestinoSeed(
-          'mysql://u:s@localhost/' + banco,
+          'postgresql://u:s@localhost/' + banco,
           banco,
           'development',
         ),
@@ -22,7 +22,7 @@ describe('proteção do seed local', () => {
     (host) => {
       expect(
         validarDestinoSeed(
-          'mysql://usuario:senha@' + host + '/hive_local',
+          'postgresql://usuario:senha@' + host + '/hive_local',
           'hive_local',
           'development',
         ),
@@ -30,12 +30,11 @@ describe('proteção do seed local', () => {
     },
   );
   it.each([
-    ['mysql://u:s@servidor/hive_local', 'hive_local', 'development'],
-    ['mysql://u:s@localhost/outro', 'outro', 'development'],
-    ['mysql://u:s@localhost/hive_test', 'outro_test', 'development'],
-    ['mysql://u:s@localhost/hive_test', 'hive_test', 'production'],
-    ['postgresql://u:s@localhost/hive_test', 'hive_test', 'development'],
-    ['mysql://u:s@localhost/hive_test?x=1', 'hive_test', 'development'],
+    ['postgresql://u:s@servidor/hive_local', 'hive_local', 'development'],
+    ['postgresql://u:s@localhost/outro', 'outro', 'development'],
+    ['postgresql://u:s@localhost/hive_test', 'outro_test', 'development'],
+    ['postgresql://u:s@localhost/hive_test', 'hive_test', 'production'],
+    ['postgresql://u:s@localhost/hive_test?x=1', 'hive_test', 'development'],
     ['inválida', 'hive_test', 'development'],
   ])('recusa destino ou confirmação inválidos (%s)', (url, nome, ambiente) => {
     expect(() => validarDestinoSeed(url, nome, ambiente)).toThrow();
@@ -45,7 +44,7 @@ describe('proteção do seed local', () => {
 // Opt-in: SOMENTE banco descartável novo. Nunca usar o banco compartilhado do grupo.
 const url = process.env.SEED_TEST_DATABASE_URL;
 const suite = url ? describe : describe.skip;
-suite('seed no MySQL descartável', () => {
+suite('seed no PostgreSQL descartável', () => {
   const prisma = url ? criarPrismaClient(url) : undefined;
   beforeAll(async () => {
     if (

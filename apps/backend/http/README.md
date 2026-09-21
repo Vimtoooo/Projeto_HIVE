@@ -2,7 +2,7 @@
 
 Exemplos para a extensão REST Client (Huachao Mao) do VS Code. Contêm apenas
 valores fictícios e podem ser versionados. A senha dos exemplos é da conta
-fictícia do prestador, não a senha de conexão com o MySQL.
+fictícia do prestador, não a senha de conexão com o PostgreSQL.
 
 ## Executar
 
@@ -11,7 +11,7 @@ fictícia do prestador, não a senha de conexão com o MySQL.
 
    ```powershell
    $env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
-   $env:TEST_DATABASE_URL = 'mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_test'
+   $env:TEST_DATABASE_URL = 'postgresql://SEU_USUARIO:SUA_SENHA@localhost:5432/hive_test'
    $env:PORT = '3000'
    npm run prisma:generate
    npm run test:db:prepare
@@ -109,7 +109,7 @@ que verifica automaticamente os resultados e as regras da API.
 
 A API é a interface HTTP do backend: recebe pedidos do frontend ou do REST
 Client, valida entradas, executa regras e acessa o banco pelo Prisma. O cliente
-não precisa consultar o MySQL diretamente.
+não precisa consultar o PostgreSQL diretamente.
 
 É uma **API HTTP no estilo REST**, com rotas como POST /prestadores e GET
 /servicos e dados em JSON. O endpoint básico GET / retorna texto. Ela foi
