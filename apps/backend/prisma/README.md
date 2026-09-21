@@ -19,7 +19,8 @@ a API chama as operações de persistência dentro de uma transação.
 ## Arquivos e configuração
 
 - [schema.prisma](schema.prisma): oito entidades, enums, PKs, FKs e restrições únicas.
-- [migrations/](migrations/): histórico SQL antigo, específico do MySQL; não o aplique no PostgreSQL.
+- [migrations/](migrations/): histórico ativo PostgreSQL, com migration inicial completa.
+- [legacy-mysql-migrations/](legacy-mysql-migrations/): SQL original MySQL arquivado e excluído do deploy.
 - [seed.ts](seed.ts): comando de carga local com confirmação de destino.
 - [seed-data.ts](seed-data.ts): nomes, contas, serviços e senha fictícia para editar e apresentar.
 - [seed-local.ts](seed-local.ts): proteção de ambiente e carga transacional das oito entidades.
@@ -104,25 +105,77 @@ para evitar ignorar silenciosamente opções de conexão.
 
 ## Preparação para PostgreSQL
 
-Esta branch usa PostgreSQL no schema, no adapter e nas URLs. Como as migrations
-existentes foram geradas para MySQL, prepare um banco PostgreSQL novo com:
+O histórico ativo agora contém `20260921000000_init_postgresql`, gerado a
+partir do schema atual: oito tabelas, enums, índices únicos, relações, sequências
+e certificações como array de texto. O SQL MySQL foi preservado em
+`legacy-mysql-migrations/`, fora do caminho de deploy.
+
+### Banco PostgreSQL novo
+
+Crie o banco no PostgreSQL e execute em `apps/backend`:
 
 ```powershell
 $env:DOTENV_CONFIG_PATH = '.env/.env'
 npm run prisma:generate
 npm run prisma:validate
-npx prisma db push
+npm run db:migrate:deploy
+npm run db:migrate:status
+npm run db:seed:local -- --confirm hive
 ```
 
-O `migration_lock.toml` já declara PostgreSQL, mas os arquivos SQL antigos continuam MySQL; essa mudança não os converte.
-Não execute `prisma migrate deploy` com as migrations MySQL antigas. Para
-produção, gere e revise um novo histórico de migrations PostgreSQL depois de
-validar o schema e a transferência de dados.
+Use o nome real após --confirm. O deploy não insere dados e pode ser repetido:
+migrations já aplicadas não são executadas novamente. Para próximas alterações,
+crie migrations com `prisma migrate dev` no ambiente de desenvolvimento e
+revise o SQL antes de compartilhar. Não edite a migration inicial após aplicá-la.
 
-A busca mantém os filtros do Prisma; diferenças de maiúsculas e acentos entre PostgreSQL e MySQL precisam ser avaliadas.
-Valores monetários continuam Float; adotar Decimal é uma mudança adicional de
-schema e regras. PostgreSQL ainda requer validação das suítes de integração e da
-transferência de dados antes de ser usado em produção.
+### Banco PostgreSQL existente, criado por db push
+
+Não execute reset. Faça backup e confirme o destino em DATABASE_URL. Primeiro
+verifique se o schema existente corresponde ao schema desta branch:
+
+```powershell
+npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+```
+
+Prossiga **somente** se a saída disser que não há diferenças e o código for zero.
+Código 2 indica divergência; corrija-a por uma alteração revisada, sem marcar
+artificialmente a migration como aplicada. Código 1 indica erro de execução.
+Se não existir histórico anterior e o schema for equivalente, registre o baseline:
+
+```powershell
+npx prisma migrate resolve --applied 20260921000000_init_postgresql
+npm run db:migrate:deploy
+npm run db:migrate:status
+```
+
+O baseline registra o estado existente sem recriar tabelas nem apagar registros.
+Se houver migrations anteriores registradas, revise esse histórico antes; não
+apague _prisma_migrations de um banco existente para forçar este procedimento.
+A configuração respeita variáveis já definidas no processo, permitindo selecionar
+um banco descartável sem que o arquivo .env sobrescreva a URL.
+
+### Dados legados e verificação
+
+O grupo confirmou que os dados antigos são fictícios: a estratégia adotada é
+recriá-los com o seed no PostgreSQL, sem importar registros do MySQL. A migração
+não copia dados automaticamente. Preserve o banco original até conferir o destino.
+Se surgirem dados reais, planeje uma transferência separada com backup, mapeamento
+de IDs/FKs, conversão de certificações JSON para String[] e ajuste de sequências.
+
+```powershell
+npm run test:migrations
+```
+
+Esse teste usa credenciais de TEST_DATABASE_URL em PostgreSQL local com permissão
+CREATEDB. Cria um banco descartável de nome aleatório, verifica deploy repetido,
+comparação sem diferenças, seed completo, rollback, persistência, catálogo e o SQL
+de consulta. Simula um baseline no próprio banco descartável e confirma que os
+usuários existentes foram preservados. Ao final remove somente o banco que criou.
+Não executa reset dos bancos hive ou do banco de testes já configurado.
+
+Valores monetários permanecem Float. A busca mantém a semântica atual dos filtros
+Prisma/PostgreSQL; normalização de acentos e busca sem distinção de maiúsculas
+não fazem parte desta correção de migrations.
 
 ## Seed local para apresentação
 
@@ -139,7 +192,7 @@ Crie `hive_demo_local` no seu PostgreSQL e prepare o schema uma vez:
 ```powershell
 $env:DOTENV_CONFIG_PATH = '.env/.env.demo.local'
 npm run prisma:generate
-npx prisma db push
+npm run db:migrate:deploy
 npm run db:seed:local -- --confirm hive_demo_local
 ```
 

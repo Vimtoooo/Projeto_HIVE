@@ -35,6 +35,7 @@ describe('proteção do seed local', () => {
     ['postgresql://u:s@localhost/hive_test', 'outro_test', 'development'],
     ['postgresql://u:s@localhost/hive_test', 'hive_test', 'production'],
     ['postgresql://u:s@localhost/hive_test?x=1', 'hive_test', 'development'],
+    ['mysql://u:s@localhost/hive_test', 'hive_test', 'development'],
     ['inválida', 'hive_test', 'development'],
   ])('recusa destino ou confirmação inválidos (%s)', (url, nome, ambiente) => {
     expect(() => validarDestinoSeed(url, nome, ambiente)).toThrow();

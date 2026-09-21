@@ -254,3 +254,11 @@ O [guia do seed local](prisma/README.md#seed-local-para-apresentação) explica
 `db:seed:local` e `db:reset:local`, com contas prontas para login e oito tabelas
 populadas. O reset exige confirmação do nome do banco e substitui seus dados
 em uma transação. Aceita o banco local `hive` e bancos terminados em `_local` ou `_test`.
+
+## Histórico de migrations PostgreSQL
+
+Para bancos novos, use `npm run db:migrate:deploy` e confira
+`npm run db:migrate:status`. Bancos preparados anteriormente com `db push`
+precisam da conferência de schema e do baseline descritos no
+[guia do Prisma](prisma/README.md#preparação-para-postgresql), sem reset.
+O SQL MySQL está arquivado; os dados fictícios podem ser recriados com o seed.

@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 process.chdir(resolve(__dirname, '..'));
 dotenv.config({
   path: process.env.DOTENV_CONFIG_PATH || '.env/.env.test.local',
-  override: true,
+  override: false,
   quiet: true,
 });
 dotenv.config({ quiet: true });

@@ -25,7 +25,7 @@ O backend já oferece cadastro de prestador com seu primeiro serviço em uma tra
 
 Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
 
-A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrão 5432). Os bancos locais devem ser preparados no PostgreSQL; o histórico SQL do MySQL não foi convertido e os dados antigos não são transferidos automaticamente. Consulte o [guia do Prisma](apps/backend/prisma/README.md#preparação-para-postgresql).
+A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrão 5432). Os bancos locais devem ser preparados no PostgreSQL; há uma migration inicial PostgreSQL validada, e o SQL MySQL foi arquivado. Como os dados legados são fictícios, serão recriados pelo seed; não há cópia automática. Consulte o [guia do Prisma](apps/backend/prisma/README.md#preparação-para-postgresql).
 
 ## 🛠️ Stack Tecnológica
 
@@ -153,6 +153,8 @@ selecione o arquivo de ambiente antes de escolher **uma** operação.
 | Teste E2E básico | `npm run test:e2e -- --runInBand` |
 | Proteções do seed | `npm run test:seed` |
 | Verificar lint e tipos | `npm run lint:check` e `npx tsc --project test/tsconfig.json` |
+| Aplicar migrations / consultar situação | `npm run db:migrate:deploy` / `npm run db:migrate:status` |
+| Validar migrations em banco descartável | `npm run test:migrations` |
 | Compilar e executar o build | `npm run build`, depois `npm run start:prod` |
 
 **Reset apaga os dados das oito tabelas e repõe os exemplos; não é apenas
@@ -190,7 +192,8 @@ Limpeza seletiva por UUID e roteiro de apresentação estão no
 - [x] Modelagem de Domínio e Validações de Integridade.
 - [x] Integração inicial com Prisma ORM e MySQL (histórico).
 - [x] Migração do provider e do adaptador da aplicação para PostgreSQL.
-- [ ] Consolidar migrations PostgreSQL e planejar transferência dos dados legados.
+- [x] Consolidar migrations PostgreSQL e validar baseline para bancos existentes.
+- [x] Definir recriação dos dados fictícios legados pelo seed.
 - [ ] Implementação de Autenticação JWT e RBAC (Role-Based Access Control).
 - [x] Endpoints REST de cadastro de prestador e busca de serviços no NestJS.
 - [ ] Endpoints de contratação, pagamento e avaliação.

@@ -209,8 +209,7 @@ DELETE FROM "Usuario";
 
 A limpeza preserva estrutura e sequências. Não desative FKs. Diferentemente
 do MySQL, TRUNCATE é transacional no PostgreSQL, mas não é usado neste roteiro.
-O arquivo consultar-persistencia.sql e as seções MySQL abaixo são históricos;
-não execute sua sintaxe no PostgreSQL.
+O arquivo [consultar-persistencia.sql](consultar-persistencia.sql) agora usa PostgreSQL: substitua o UUID e execute as consultas na mesma conexão. Apenas as seções MySQL recolhidas abaixo são históricas.
 
 <details>
 <summary>Referência histórica: consultas e limpeza no MySQL</summary>
@@ -402,3 +401,9 @@ A carga fixa para apresentação e seus testes estão documentados no
 `npm run test:seed` verifica as proteções sem banco; a integração exige
 SEED_TEST_DATABASE_URL apontando para um banco descartável exclusivo.
 O comando de reset local não faz parte da limpeza automática destas suítes.
+
+## Validar migrations PostgreSQL
+
+`npm run test:migrations` valida deploy, seed, integração e baseline em banco
+descartável, removido no final. Exige PostgreSQL local e permissão CREATEDB.
+Veja os [procedimentos para banco novo e existente](../prisma/README.md#preparação-para-postgresql).
