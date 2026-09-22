@@ -1,6 +1,6 @@
 # Prisma e banco de dados do HIVE
 
-O schema usa MySQL e Prisma Client 7. Execute todos os comandos desta página
+O schema usa PostgreSQL e Prisma Client 7. Execute todos os comandos desta página
 na pasta `apps/backend`, não dentro de `prisma`.
 
 ## Estrutura não é inserção de dados
@@ -19,15 +19,16 @@ a API chama as operações de persistência dentro de uma transação.
 ## Arquivos e configuração
 
 - [schema.prisma](schema.prisma): oito entidades, enums, PKs, FKs e restrições únicas.
-- [migrations/](migrations/): histórico SQL existente, específico do MySQL.
+- [migrations/](migrations/): histórico ativo PostgreSQL, com migration inicial completa.
+- [legacy-mysql-migrations/](legacy-mysql-migrations/): SQL original MySQL arquivado e excluído do deploy.
 - [seed.ts](seed.ts): comando de carga local com confirmação de destino.
 - [seed-data.ts](seed-data.ts): nomes, contas, serviços e senha fictícia para editar e apresentar.
 - [seed-local.ts](seed-local.ts): proteção de ambiente e carga transacional das oito entidades.
-- [prisma.config.ts](../prisma.config.ts): define schema, caminho das migrations, seed e DATABASE_URL para a CLI.
-- [prisma-client.factory.ts](../src/persistence/prisma-client.factory.ts): configura o adaptador MariaDB compatível com MySQL para o Prisma 7.
+- [prisma.config.ts](../prisma.config.ts): carrega o arquivo de ambiente e define DATABASE_URL para a CLI; use os scripts npm para o seed.
+- [prisma-client.factory.ts](../src/persistence/prisma-client.factory.ts): configura o adapter `@prisma/adapter-pg` para o Prisma 7.
 
-Crie `.env` local com DATABASE_URL conforme o [README do backend](../README.md).
-Para testes, use `.env.test.local` com TEST_DATABASE_URL conforme o
+Crie `.env/.env` local com uma URL `postgresql://` conforme o [README do backend](../README.md).
+Para testes, use `.env/.env.test.local` com uma URL `postgresql://` em TEST_DATABASE_URL conforme o
 [README dos testes](../test/README.md). Ambos são ignorados pelo Git.
 
 A CLI usa DATABASE_URL; os comandos `test:db:prepare` e `start:demo` trocam esse
@@ -88,7 +89,9 @@ Não misture db push e migrations sem verificar o estado do banco: alterações
 feitas por db push não ficam registradas como migrations aplicadas. Não execute
 reset para resolver divergências em um banco com dados que precisam ser mantidos.
 
-## Conexão MySQL 8
+## Conexão MySQL 8 — referência histórica
+
+> Não se aplica ao adaptador PostgreSQL desta branch. As opções abaixo eram utilizadas na versão MySQL.
 
 O erro `ER_CANNOT_RETRIEVE_RSA_KEY` pode aparecer após reiniciar o servidor,
 quando o cache de autenticação deixa de atender o driver. A fábrica aceita
@@ -102,15 +105,77 @@ para evitar ignorar silenciosamente opções de conexão.
 
 ## Preparação para PostgreSQL
 
-As operações de negócio usam o Prisma, sem SQL MySQL nos endpoints. A migração
-ainda exige alterar o provider, substituir o adaptador por um compatível com
-PostgreSQL, revisar tipos nativos e criar migrations próprias para esse banco.
-Também será preciso transferir os dados, ajustar sequências, URLs e validação
-de ambiente, e executar novamente as suítes de persistência e catálogo.
+O histórico ativo agora contém `20260921000000_init_postgresql`, gerado a
+partir do schema atual: oito tabelas, enums, índices únicos, relações, sequências
+e certificações como array de texto. O SQL MySQL foi preservado em
+`legacy-mysql-migrations/`, fora do caminho de deploy.
 
-A busca segue a collation do banco; maiúsculas e acentos precisam de revisão.
-Valores monetários continuam Float; adotar Decimal é uma mudança adicional de
-schema e regras. PostgreSQL ainda não foi implementado nem validado nesta etapa.
+### Banco PostgreSQL novo
+
+Crie o banco no PostgreSQL e execute em `apps/backend`:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env'
+npm run prisma:generate
+npm run prisma:validate
+npm run db:migrate:deploy
+npm run db:migrate:status
+npm run db:seed:local -- --confirm hive
+```
+
+Use o nome real após --confirm. O deploy não insere dados e pode ser repetido:
+migrations já aplicadas não são executadas novamente. Para próximas alterações,
+crie migrations com `prisma migrate dev` no ambiente de desenvolvimento e
+revise o SQL antes de compartilhar. Não edite a migration inicial após aplicá-la.
+
+### Banco PostgreSQL existente, criado por db push
+
+Não execute reset. Faça backup e confirme o destino em DATABASE_URL. Primeiro
+verifique se o schema existente corresponde ao schema desta branch:
+
+```powershell
+npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
+```
+
+Prossiga **somente** se a saída disser que não há diferenças e o código for zero.
+Código 2 indica divergência; corrija-a por uma alteração revisada, sem marcar
+artificialmente a migration como aplicada. Código 1 indica erro de execução.
+Se não existir histórico anterior e o schema for equivalente, registre o baseline:
+
+```powershell
+npx prisma migrate resolve --applied 20260921000000_init_postgresql
+npm run db:migrate:deploy
+npm run db:migrate:status
+```
+
+O baseline registra o estado existente sem recriar tabelas nem apagar registros.
+Se houver migrations anteriores registradas, revise esse histórico antes; não
+apague _prisma_migrations de um banco existente para forçar este procedimento.
+A configuração respeita variáveis já definidas no processo, permitindo selecionar
+um banco descartável sem que o arquivo .env sobrescreva a URL.
+
+### Dados legados e verificação
+
+O grupo confirmou que os dados antigos são fictícios: a estratégia adotada é
+recriá-los com o seed no PostgreSQL, sem importar registros do MySQL. A migração
+não copia dados automaticamente. Preserve o banco original até conferir o destino.
+Se surgirem dados reais, planeje uma transferência separada com backup, mapeamento
+de IDs/FKs, conversão de certificações JSON para String[] e ajuste de sequências.
+
+```powershell
+npm run test:migrations
+```
+
+Esse teste usa credenciais de TEST_DATABASE_URL em PostgreSQL local com permissão
+CREATEDB. Cria um banco descartável de nome aleatório, verifica deploy repetido,
+comparação sem diferenças, seed completo, rollback, persistência, catálogo e o SQL
+de consulta. Simula um baseline no próprio banco descartável e confirma que os
+usuários existentes foram preservados. Ao final remove somente o banco que criou.
+Não executa reset dos bancos hive ou do banco de testes já configurado.
+
+Valores monetários permanecem Float. A busca mantém a semântica atual dos filtros
+Prisma/PostgreSQL; normalização de acentos e busca sem distinção de maiúsculas
+não fazem parte desta correção de migrations.
 
 ## Seed local para apresentação
 
@@ -118,17 +183,16 @@ Execute em `apps/backend`. Os comandos `:local` usam **DATABASE_URL**; os comand
 **TEST_DATABASE_URL** e exigem sufixo `_test`. Configure um arquivo local, por exemplo `.env/.env.demo.local`:
 
 ```dotenv
-DATABASE_URL="mysql://USUARIO:SENHA@localhost:3306/hive_demo_local"
-MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
+DATABASE_URL="postgresql://USUARIO:SENHA@localhost:5432/hive_demo_local"
 PORT=3000
 ```
 
-Crie `hive_demo_local` no seu MySQL e prepare o schema uma vez:
+Crie `hive_demo_local` no seu PostgreSQL e prepare o schema uma vez:
 
 ```powershell
 $env:DOTENV_CONFIG_PATH = '.env/.env.demo.local'
 npm run prisma:generate
-npx prisma db push
+npm run db:migrate:deploy
 npm run db:seed:local -- --confirm hive_demo_local
 ```
 
@@ -163,7 +227,7 @@ scrypt com salt pela mesma classe Usuario usada na aplicação.
 
 1. Entre com Ana no formulário e confirme o redirecionamento à Home.
 2. Consulte GET /servicos: aparecem montagem de estante (150) e manutenção de jardim (120).
-3. Confira no MySQL a restauração de mesa (250), inativa e ausente da busca pública.
+3. Confira no PostgreSQL a restauração de mesa (250), inativa e ausente da busca pública.
 4. Mostre a contratação concluída de Ana com Carlos: fatura paga de 150, receita vinculada e avaliação 5.
 5. Compare com a contratação pendente de jardinagem: fatura pendente de 120, sem receita nem avaliação.
 
@@ -175,7 +239,7 @@ example.invalid. As entidades sem endpoints são demonstradas pelo banco.
 
 ### Proteções e repetição
 
-- Somente MySQL em localhost, 127.0.0.1 ou ::1, com nome hive ou terminado em _local ou _test.
+- Somente PostgreSQL em localhost, 127.0.0.1 ou ::1, com nome hive ou terminado em _local ou _test.
 - Exige `--confirm NOME_EXATO` e recusa NODE_ENV=production antes de conectar.
 - A carga simples recusa banco já populado; o reset pode ser repetido sem duplicar os exemplos.
 - Limpeza em ordem de FKs e inserções compartilham uma transação. Falhas desfazem os dados; os contadores de IDs podem avançar.
@@ -194,7 +258,7 @@ vazio** chamado `hive_seed_verificacao_IDENTIFICADOR_test` (identificador com le
 minúsculas/números), sincronize o schema e forneça sua URL:
 
 ```powershell
-$env:SEED_TEST_DATABASE_URL = 'mysql://USUARIO:SENHA@localhost:3306/hive_seed_verificacao_manual_test'
+$env:SEED_TEST_DATABASE_URL = 'postgresql://USUARIO:SENHA@localhost:5432/hive_seed_verificacao_manual_test'
 $env:DATABASE_URL = $env:SEED_TEST_DATABASE_URL
 npx prisma db push
 npm run test:seed
@@ -210,7 +274,7 @@ falha simulada. Nunca aponte essa variável para o banco do grupo.
 Não é necessário renomear o banco `hive`. Configure sua URL em
 `.env/.env` (DATABASE_URL) e a URL do banco de testes em
 `.env/.env.test.local` (TEST_DATABASE_URL). Informe o nome que realmente
-existe no seu MySQL; o comando recusa confirmação diferente da URL.
+existe no seu PostgreSQL; o comando recusa confirmação diferente da URL.
 
 Execute em `apps/backend`, com schema já preparado e API parada para reset:
 

@@ -1,5 +1,8 @@
 # Plano: cadastro e busca de serviços
 
+> Atualização PostgreSQL: este documento preserva o planejamento e os exemplos da implementação MySQL original. O provider e o adaptador atuais são PostgreSQL; para comandos de conexão, testes, seed e consultas compatíveis, use os [guias do Prisma](../prisma/README.md) e de [testes](../test/README.md). O histórico PostgreSQL está implementado e testado; o SQL MySQL foi arquivado. Os dados legados fictícios serão recriados com seed, conforme decisão do grupo.
+
+
 Escopo confirmado: cadastro de prestador com seu primeiro serviço e busca de
 serviços. Contratação, pagamento, avaliação, autenticação e telas ficam para
 etapas seguintes.

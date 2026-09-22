@@ -1,5 +1,8 @@
 # Persistência do HIVE com Prisma
 
+> Atualização PostgreSQL: este documento preserva o planejamento e os exemplos da implementação MySQL original. O provider e o adaptador atuais são PostgreSQL; para comandos de conexão, testes, seed e consultas compatíveis, use os [guias do Prisma](../prisma/README.md) e de [testes](../test/README.md). O histórico PostgreSQL está implementado e testado; o SQL MySQL foi arquivado. Os dados legados fictícios serão recriados com seed, conforme decisão do grupo.
+
+
 Implementado em 15 de setembro de 2026. O fluxo desta entrega é:
 
 ```text

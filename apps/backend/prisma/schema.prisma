@@ -1,11 +1,10 @@
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
 }
 
 generator client {
   provider = "prisma-client-js"
 }
-
 // ==========================================
 // ENUMERADORES (ENUMS)
 // ==========================================
@@ -77,40 +76,40 @@ enum TipoUsuario {
 // ==========================================
 
 model Usuario {
-  idUsuario       Int           @id @default(autoincrement())
-  nome            String
-  email           String        @unique
-  senha           String
-  telefone        String
-  cpf             String        @unique
-  endereco        String
-  tipoUsuario     TipoUsuario
-  dataCadastro    DateTime      @default(now())
-  statusConta     StatusConta   @default(PENDENTE)
+  idUsuario        Int          @id @default(autoincrement())
+  nome             String
+  email            String       @unique
+  senha            String
+  telefone         String
+  cpf              String       @unique
+  endereco         String
+  tipoUsuario      TipoUsuario
+  dataCadastro     DateTime     @default(now())
+  statusConta      StatusConta  @default(PENDENTE)
 
   // Extensão de herança para Prestador
   prestadorPerfil Prestador?
 
   // Relacionamentos
-  contratacoes    Contratacao[] @relation("UsuarioContratacoes")
-  indicacoesFeitas Indicacao[]   @relation("Indicador") // Usuário que fez a indicação
-  faturas         Fatura[]
+  contratacoes     Contratacao[] @relation("UsuarioContratacoes")
+  indicacoesFeitas Indicacao[]   @relation("Indicador")
+  faturas          Fatura[]
 }
 
 model Prestador {
-  idPrestador     Int       @id
+  idPrestador     Int      @id
   areaAtuacao     String
   experiencia     String
-  certificacoes   Json      // Armazena a lista de strings (string[]) no MySQL
-  avaliacaoMedia  Float     @default(0.0)
-  cnpj            String    @unique
+  certificacoes   String[]
+  avaliacaoMedia  Float    @default(0.0)
+  cnpj            String   @unique
 
   // Vínculo 1:1 simulando a Herança de Usuario
-  usuario         Usuario   @relation(fields: [idPrestador], references: [idUsuario], onDelete: Cascade)
+  usuario         Usuario  @relation(fields: [idPrestador], references: [idUsuario], onDelete: Cascade)
 
   // Relacionamentos
-  servicos        Servico[]
-  indicacoesRecebidas Indicacao[] @relation("Indicado") // Indicações que este Prestador recebeu
+  servicos            Servico[]
+  indicacoesRecebidas Indicacao[] @relation("Indicado")
 }
 
 model Servico {
@@ -120,7 +119,7 @@ model Servico {
   precoBase    Float
   dataCadastro DateTime      @default(now())
   status       StatusServico @default(ATIVO)
-  
+
   // Relacionamentos
   prestadorId  Int
   prestador    Prestador     @relation(fields: [prestadorId], references: [idPrestador], onDelete: Cascade)
@@ -128,43 +127,43 @@ model Servico {
 }
 
 model Contratacao {
-  idContratacao  Int               @id @default(autoincrement())
+  idContratacao   Int               @id @default(autoincrement())
   dataContratacao DateTime          @default(now())
-  status         StatusContratacao @default(PENDENTE)
-  valor          Float
-  formaPagamento FormaPagamento
-  dataVencimento DateTime?
+  status          StatusContratacao @default(PENDENTE)
+  valor           Float
+  formaPagamento  FormaPagamento
+  dataVencimento  DateTime?
 
   // Relacionamentos
   indicacaoId    Int?
   indicacao      Indicacao?        @relation(fields: [indicacaoId], references: [idIndicacao])
-  
+
   servicoId      Int
   servico        Servico           @relation(fields: [servicoId], references: [idServico])
-  
+
   contratanteId  Int
   contratante    Usuario           @relation("UsuarioContratacoes", fields: [contratanteId], references: [idUsuario])
-  
+
   fatura         Fatura?
   avaliacao      Avaliacao?
   financeiros    Financeiro[]
 }
 
 model Indicacao {
-  idIndicacao    Int             @id @default(autoincrement())
-  meioIndicado   MeioIndicado    @map("meioIndicacao")
-  dataIndicado   DateTime        @default(now()) @map("dataIndicacao")
-  statusIndicacao StatusIndicado  @default(PENDENTE)
-  observacao     String          @db.Text
+  idIndicacao     Int            @id @default(autoincrement())
+  meioIndicado    MeioIndicado   @map("meioIndicacao")
+  dataIndicado    DateTime       @default(now()) @map("dataIndicacao")
+  statusIndicacao StatusIndicado @default(PENDENTE)
+  observacao      String         @db.Text
 
-  // Relacionamentos baseados no auto-relacionamento implícito de Usuário
-  indicadorId    Int
-  indicador      Usuario         @relation("Indicador", fields: [indicadorId], references: [idUsuario])
-  
-  indicadoId     Int
-  indicado       Prestador       @relation("Indicado", fields: [indicadoId], references: [idPrestador])
-  
-  contratacoes   Contratacao[]
+  // Relacionamentos
+  indicadorId     Int
+  indicador       Usuario        @relation("Indicador", fields: [indicadorId], references: [idUsuario])
+
+  indicadoId      Int
+  indicado        Prestador      @relation("Indicado", fields: [indicadoId], references: [idPrestador])
+
+  contratacoes    Contratacao[]
 }
 
 model Avaliacao {
@@ -188,10 +187,10 @@ model Fatura {
   // Relacionamentos
   usuarioId       Int
   usuario         Usuario         @relation(fields: [usuarioId], references: [idUsuario])
-  
+
   contratacaoId   Int             @unique
   contratacao     Contratacao     @relation(fields: [contratacaoId], references: [idContratacao], onDelete: Cascade)
-  
+
   financeiros     Financeiro[]
 }
 
@@ -205,7 +204,7 @@ model Financeiro {
   // Relacionamentos
   faturaId      Int?
   fatura        Fatura?      @relation(fields: [faturaId], references: [idFatura])
-  
+
   contratacaoId Int
   contratacao   Contratacao  @relation(fields: [contratacaoId], references: [idContratacao])
 }

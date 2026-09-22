@@ -1,7 +1,7 @@
 # Como executar os testes de persistência do HIVE
 
 Este guia mostra como testar a transferência dos objetos de `src/models` para
-o MySQL pelo Prisma, consultar os dados fictícios e removê-los depois.
+o PostgreSQL pelo Prisma, consultar os dados fictícios e removê-los depois.
 
 ## Por que existem suítes diferentes
 
@@ -14,9 +14,9 @@ não mascara uma rota ausente, uma entrada inválida aceita ou dados privados na
 | --- | --- |
 | `npm test -- --runInBand` | Dois testes unitários: comportamento básico e mensagem segura em falha do banco |
 | `npm run test:e2e -- --runInBand` | Um teste HTTP básico de GET /, com conexão substituída por mock |
-| `npm run test:persistencia` | Cinco testes das classes e transações, usando MySQL real |
+| `npm run test:persistencia` | Cinco testes das classes e transações, usando PostgreSQL real |
 | `npm run test:catalogo` | Dez testes HTTP de cadastro, busca, filtros, paginação, validação e proteção dos dados |
-| `npx ts-node test/manual-test.ts` | Demonstração das classes em memória, sem gravar no MySQL |
+| `npx ts-node test/manual-test.ts` | Demonstração das classes em memória, sem gravar no PostgreSQL |
 
 As contagens descrevem a entrega atual. `npm test` sozinho não executa as suítes
 de integração, pois cada uma possui sua configuração Jest e seu comando próprio.
@@ -33,7 +33,7 @@ Execute os comandos na pasta `apps/backend`, não dentro de `test`.
 | `npm run prisma:generate` | Gerar o Prisma Client a partir do schema |
 | `npm run test:db:prepare` | Preparar as tabelas no banco exclusivo de testes |
 | `npm run test:persistencia` | Executar os cinco testes e limpar os dados da execução |
-| `npm run test:catalogo` | Executar dez testes HTTP de cadastro e busca com MySQL real |
+| `npm run test:catalogo` | Executar dez testes HTTP de cadastro e busca com PostgreSQL real |
 | `npm run test:catalogo:visualizar` | Preservar um cadastro feito pela API para apresentação |
 | `npm run start:demo` | Iniciar a aplicação real no banco exclusivo de testes |
 | `npm run test:persistencia:visualizar` | Executar um cenário completo e preservar os dados para consulta |
@@ -55,7 +55,7 @@ do HIVE. Em uma nova instalação ou após mudanças nas dependências, execute:
 npm ci
 ```
 
-É necessário ter Node.js, npm e um servidor MySQL disponível. Não é necessário
+É necessário ter Node.js, npm e um servidor PostgreSQL disponível. Não é necessário
 iniciar a API NestJS: os testes acessam a camada de persistência diretamente.
 
 ## 2. Configurar um banco exclusivo para os testes
@@ -66,30 +66,23 @@ mas não é enviado ao GitHub por conter credenciais.
 
 Em uma nova instalação:
 
-1. Inicie o MySQL e conecte-se pelo MySQL Workbench.
+1. Inicie o PostgreSQL e conecte-se pelo pgAdmin ou psql.
 2. Crie um banco separado, por exemplo:
 
    ```sql
-   CREATE DATABASE IF NOT EXISTS hive_pi_20260915_test CHARACTER SET utf8mb4;
+   CREATE DATABASE hive_pi_20260915_test;
    ```
 
 3. Se `.env/.env.test.local` ainda não existir, crie esse arquivo dentro da pasta `.env/` do backend.
    Os arquivos de ambiente e seus modelos não são distribuídos pelo Git.
 
-4. Edite `.env/.env.test.local` com as credenciais do seu MySQL:
+4. Edite `.env/.env.test.local` com as credenciais do seu PostgreSQL:
 
    ```dotenv
-   TEST_DATABASE_URL="mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_pi_20260915_test"
+   TEST_DATABASE_URL="postgresql://SEU_USUARIO:SUA_SENHA@localhost:5432/hive_pi_20260915_test"
    ```
 
-   Para MySQL 8 local com autenticação RSA, acrescente:
-
-   ```dotenv
-   MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
-   ```
-
-   Essa opção só funciona com host local. A configuração para servidores remotos
-   está no [guia da API](../docs/CATALOGO-API.md).
+   A configuração RSA do antigo driver MySQL não é necessária no PostgreSQL.
 
 Substitua usuário e senha. Caracteres especiais nas credenciais precisam estar
 codificados para URL. O usuário do banco precisa de permissões para preparar as
@@ -100,14 +93,14 @@ PowerShell:
 
 ```powershell
 $env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
-$env:TEST_DATABASE_URL = 'mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_pi_20260915_test'
+$env:TEST_DATABASE_URL = 'postgresql://SEU_USUARIO:SUA_SENHA@localhost:5432/hive_pi_20260915_test'
 ```
 
 No Git Bash:
 
 ```bash
 export DOTENV_CONFIG_PATH='.env/.env.test.local'
-export TEST_DATABASE_URL='mysql://SEU_USUARIO:SUA_SENHA@localhost:3306/hive_pi_20260915_test'
+export TEST_DATABASE_URL='postgresql://SEU_USUARIO:SUA_SENHA@localhost:5432/hive_pi_20260915_test'
 ```
 
 O nome do banco deve terminar em `_test` e seu destino deve ser diferente do
@@ -183,6 +176,43 @@ Para limpar: npm run test:persistencia:limpar -- <UUID>
 
 Guarde esse UUID. Cada execução gera outro identificador e novos registros.
 Executar a suíte normal não apaga dados de demonstrações anteriores.
+
+## 6. Consultar e limpar no PostgreSQL
+
+Conecte o pgAdmin ou psql diretamente ao banco indicado em TEST_DATABASE_URL.
+PostgreSQL não usa USE nem variáveis SET @nome. Os identificadores do Prisma
+com maiúsculas exigem aspas duplas:
+
+```sql
+SELECT current_database();
+SELECT "idUsuario", nome, email FROM "Usuario"
+WHERE email LIKE '%@example.invalid' ORDER BY "idUsuario" DESC;
+```
+
+Para apagar somente uma execução, use
+`npm run test:persistencia:limpar -- UUID_DA_EXECUCAO`.
+Para limpar todas as oito tabelas sem repor o seed, exclusivamente no banco de
+testes e com API parada, confira current_database() e execute:
+
+```sql
+BEGIN;
+DELETE FROM "Financeiro";
+DELETE FROM "Avaliacao";
+DELETE FROM "Fatura";
+DELETE FROM "Contratacao";
+DELETE FROM "Indicacao";
+DELETE FROM "Servico";
+DELETE FROM "Prestador";
+DELETE FROM "Usuario";
+-- Confira os resultados; execute COMMIT para confirmar OU ROLLBACK para desfazer.
+```
+
+A limpeza preserva estrutura e sequências. Não desative FKs. Diferentemente
+do MySQL, TRUNCATE é transacional no PostgreSQL, mas não é usado neste roteiro.
+O arquivo [consultar-persistencia.sql](consultar-persistencia.sql) agora usa PostgreSQL: substitua o UUID e execute as consultas na mesma conexão. Apenas as seções MySQL recolhidas abaixo são históricas.
+
+<details>
+<summary>Referência histórica: consultas e limpeza no MySQL</summary>
 
 ## 6. Consultar os dados no MySQL Workbench
 
@@ -314,6 +344,8 @@ chaves geradas pelo banco e não dependem de os IDs começarem em 1. A tabela
 
 Referência: [restrições do TRUNCATE no MySQL](https://dev.mysql.com/doc/refman/8.0/en/truncate-table.html).
 
+</details>
+
 ## 8. Resolver avisos de tipos no VS Code
 
 O projeto já declara `@types/jest` nas dependências de desenvolvimento.
@@ -369,3 +401,9 @@ A carga fixa para apresentação e seus testes estão documentados no
 `npm run test:seed` verifica as proteções sem banco; a integração exige
 SEED_TEST_DATABASE_URL apontando para um banco descartável exclusivo.
 O comando de reset local não faz parte da limpeza automática destas suítes.
+
+## Validar migrations PostgreSQL
+
+`npm run test:migrations` valida deploy, seed, integração e baseline em banco
+descartável, removido no final. Exige PostgreSQL local e permissão CREATEDB.
+Veja os [procedimentos para banco novo e existente](../prisma/README.md#preparação-para-postgresql).

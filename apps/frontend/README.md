@@ -36,7 +36,7 @@ Arquivos principais:
 ## Pré-requisitos
 
 - Node.js e npm instalados.
-- MySQL em execução.
+- PostgreSQL em execução.
 - Dependências do backend instaladas.
 - Banco configurado no backend; para demonstrações, use um banco exclusivo terminado em `_test`.
 - Python instalado para o servidor HTTP do exemplo (ou um servidor local equivalente).
@@ -50,14 +50,13 @@ backend, em `apps/backend/.env/.env`, e nunca deve ser publicada no GitHub.
 Dentro do arquivo local `apps/backend/.env/.env`, use este formato:
 
 ```dotenv
-DATABASE_URL="mysql://USUARIO:SENHA@localhost:3306/hive"
-MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL=true
+DATABASE_URL="postgresql://USUARIO:SENHA@localhost:5432/hive"
 ```
 
-Substitua `USUARIO` e `SENHA` pelos dados do seu MySQL. Se a senha tiver
+Substitua `USUARIO` e `SENHA` pelos dados do seu PostgreSQL. Se a senha tiver
 caracteres especiais, codifique-os para URL. Por exemplo, `@` vira `%40`.
 
-Para um banco novo, crie o banco pelo MySQL Workbench ou pelo cliente MySQL:
+Para um banco novo, crie o banco pelo pgAdmin ou pelo cliente psql:
 
 ```sql
 CREATE DATABASE hive;

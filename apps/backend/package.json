@@ -32,18 +32,22 @@
     "db:reset:local": "ts-node prisma/seed.ts --reset",
     "test:seed": "jest --config test/jest-seed.json --runInBand",
     "db:seed:test": "ts-node prisma/seed.ts --test",
-    "db:reset:test": "ts-node prisma/seed.ts --test --reset"
+    "db:reset:test": "ts-node prisma/seed.ts --test --reset",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:status": "prisma migrate status",
+    "test:migrations": "node scripts/verify-postgres-migrations.cjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
-    "@prisma/adapter-mariadb": "^7.10.0",
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "@prisma/config": "^7.10.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "dotenv": "^17.2.3",
+    "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
@@ -56,6 +60,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.12.4",
+    "@types/pg": "^8.23.1",
     "@types/supertest": "^7.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",

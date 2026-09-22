@@ -1,8 +1,16 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
 import { PrismaClient } from '@prisma/client';
-import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-/** Único ponto dependente do driver MySQL. Não contém regras de negócio. */
+config({
+  path: process.env.DOTENV_CONFIG_PATH || '.env/.env',
+  quiet: true,
+});
+if (!process.env.DATABASE_URL) {
+  config({ path: '.env/.env', quiet: true });
+}
+
+/** Único ponto dependente do driver PostgreSQL. Não contém regras de negócio. */
 export function criarPrismaClient(
   url = process.env.DATABASE_URL,
 ): PrismaClient {
@@ -11,42 +19,14 @@ export function criarPrismaClient(
   try {
     conexao = new URL(url);
   } catch {
-    throw new Error('DATABASE_URL deve ser uma URL MySQL válida.');
+    throw new Error('DATABASE_URL deve ser uma URL PostgreSQL válida.');
   }
-  if (conexao.protocol !== 'mysql:' || conexao.pathname.length < 2) {
-    throw new Error('Configure uma URL mysql:// com o nome do banco.');
-  }
-  // Parâmetros de URL Prisma não são automaticamente opções do driver MariaDB.
-  // Recusar evita ignorar silenciosamente opções de TLS ou timeouts.
-  if (conexao.search) {
-    throw new Error(
-      'Configure opções adicionais (como TLS) na fábrica do adaptador; parâmetros de URL não são suportados aqui.',
-    );
-  }
-  const recuperarChaveLocal =
-    process.env.MYSQL_LOCAL_PUBLIC_KEY_RETRIEVAL === 'true';
   if (
-    recuperarChaveLocal &&
-    !['localhost', '127.0.0.1', '[::1]'].includes(conexao.hostname)
+    !['postgres:', 'postgresql:'].includes(conexao.protocol) ||
+    conexao.pathname.length < 2
   ) {
-    throw new Error(
-      'Recuperação de chave pública permitida somente no MySQL local.',
-    );
+    throw new Error('Configure uma URL postgresql:// com o nome do banco.');
   }
-  const adapter = new PrismaMariaDb({
-    host: conexao.hostname,
-    port: Number(conexao.port || 3306),
-    user: decodeURIComponent(conexao.username),
-    password: decodeURIComponent(conexao.password),
-    database: decodeURIComponent(conexao.pathname.slice(1)),
-    // MySQL 8 pode exigir RSA após reiniciar o servidor e esvaziar o cache de autenticação.
-    // Remotamente, configure a chave pública confiável; não aceite uma chave da rede.
-    cachingRsaPublicKey: process.env.MYSQL_SERVER_PUBLIC_KEY,
-    rsaPublicKey: process.env.MYSQL_SERVER_PUBLIC_KEY,
-    allowPublicKeyRetrieval: recuperarChaveLocal,
-    connectionLimit: 5,
-    connectTimeout: 5000,
-    acquireTimeout: 10000,
-  });
+  const adapter = new PrismaPg(url);
   return new PrismaClient({ adapter });
 }

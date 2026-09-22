@@ -28,14 +28,14 @@ export function validarDestinoSeed(
   }
   const banco = destino.pathname.slice(1);
   if (
-    destino.protocol !== 'mysql:' ||
+    !['postgres:', 'postgresql:'].includes(destino.protocol) ||
     !['localhost', '127.0.0.1', '[::1]'].includes(destino.hostname) ||
     destino.search ||
     destino.hash ||
     !(banco === 'hive' || /^[a-zA-Z0-9_]+_(local|test)$/.test(banco))
   ) {
     throw new SeedConfiguracaoError(
-      'Use MySQL em loopback, sem parâmetros, com banco hive ou nome terminado em _local ou _test.',
+      'Use PostgreSQL em loopback, sem parâmetros, com banco hive ou nome terminado em _local ou _test.',
     );
   }
   if (confirmacao !== banco)

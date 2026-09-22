@@ -3,7 +3,11 @@ const { spawnSync } = require('node:child_process');
 const { resolve } = require('node:path');
 const dotenv = require('dotenv');
 process.chdir(resolve(__dirname, '..'));
-dotenv.config({ path: '.env.test.local', quiet: true });
+dotenv.config({
+  path: process.env.DOTENV_CONFIG_PATH || '.env/.env.test.local',
+  override: false,
+  quiet: true,
+});
 dotenv.config({ quiet: true });
 
 function destino(value) {
@@ -11,14 +15,14 @@ function destino(value) {
   const host = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)
     ? 'local'
     : url.hostname;
-  return `${host}:${url.port || '3306'}${decodeURIComponent(url.pathname)}`;
+  return `${host}:${url.port || '5432'}${decodeURIComponent(url.pathname)}`;
 }
 
 function main() {
   const url = process.env.TEST_DATABASE_URL;
   if (!url || !/^\/[a-zA-Z0-9_]+_test$/.test(new URL(url).pathname)) {
     throw new Error(
-      'Defina TEST_DATABASE_URL em .env.test.local com um banco exclusivo terminado em _test.',
+      'Defina TEST_DATABASE_URL em .env/.env.test.local com um banco exclusivo terminado em _test.',
     );
   }
   if (

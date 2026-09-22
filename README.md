@@ -11,19 +11,21 @@ O **HIVE** é uma plataforma robusta de intermediação de serviços, desenvolvi
 
 ## 🚀 Destaques da Arquitetura
 
-A arquitetura organiza as regras em **classes de domínio** e o fluxo da API em Controller → Service → Repositório → Prisma/MySQL. As classes ainda utilizam tipos e enums do Prisma. A orientação a Domain-Driven Design (DDD) e a independência das regras em relação à infraestrutura permanecem como direção arquitetural.
+A arquitetura organiza as regras em **classes de domínio** e o fluxo da API em Controller → Service → Repositório → Prisma/PostgreSQL. As classes ainda utilizam tipos e enums do Prisma. A orientação a Domain-Driven Design (DDD) e a independência das regras em relação à infraestrutura permanecem como direção arquitetural.
 
 *   **Encapsulamento Rigoroso**: Atributos privados protegidos por lógica de validação em *setters*.
 *   **Princípio Fail-Fast**: DTOs e classes validam campos antes da persistência. CPF e CNPJ são verificados por formato e comprimento, sem cálculo de dígitos verificadores.
 *   **Modelagem de Herança**: Implementação de especialização de classes onde `Prestador` estende `Usuario`, compartilhando atributos base e estendendo funcionalidades específicas.
-*   **Persistência com Prisma**: Mapeamento objeto-relacional (ORM) otimizado para MySQL, garantindo consistência entre as classes TypeScript e o schema do banco.
+*   **Persistência com Prisma**: Mapeamento objeto-relacional (ORM) configurado para PostgreSQL, garantindo consistência entre as classes TypeScript e o schema do banco.
 *   **Regras de Domínio**: Classes modelam faturamento, indicação e financeiro; esses fluxos ainda não possuem endpoints na API.
 
 ## Integração atual
 
-O backend já oferece cadastro de prestador com seu primeiro serviço em uma transação e busca de serviços ativos com filtros e paginação, via API REST em NestJS e persistência Prisma/MySQL. Há testes automatizados com banco de testes e exemplos HTTP para demonstração. O frontend já realiza login via API e redireciona para a Home. Sessão/token, autorização e endpoints de contratação, pagamento e avaliação continuam no roadmap.
+O backend já oferece cadastro de prestador com seu primeiro serviço em uma transação e busca de serviços ativos com filtros e paginação, via API REST em NestJS e persistência Prisma/PostgreSQL. Há testes automatizados com banco de testes e exemplos HTTP para demonstração. O frontend já realiza login via API e redireciona para a Home. Sessão/token, autorização e endpoints de contratação, pagamento e avaliação continuam no roadmap.
 
 Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
+
+A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrão 5432). Os bancos locais devem ser preparados no PostgreSQL; há uma migration inicial PostgreSQL validada, e o SQL MySQL foi arquivado. Como os dados legados são fictícios, serão recriados pelo seed; não há cópia automática. Consulte o [guia do Prisma](apps/backend/prisma/README.md#preparação-para-postgresql).
 
 ## 🛠️ Stack Tecnológica
 
@@ -32,8 +34,8 @@ Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/te
 | **Frontend atual** | HTML5 + CSS3 + JavaScript (fetch); login integrado à API |
 | **Frontend planejado** | Node.js como ambiente de desenvolvimento/execução; Next.js é o framework previsto no planejamento original |
 | **Backend** | Node.js + NestJS (TypeScript) |
-| **Persistência** | MySQL + Prisma ORM |
-| **Testes** | Jest, integração com MySQL e exemplos HTTP |
+| **Persistência** | PostgreSQL + Prisma ORM |
+| **Testes** | Jest, integração com PostgreSQL e exemplos HTTP |
 | **Qualidade de código** | TypeScript, ESLint e Prettier |
 | **Ambiente planejado** | Docker; configuração ainda a implementar |
 
@@ -151,6 +153,8 @@ selecione o arquivo de ambiente antes de escolher **uma** operação.
 | Teste E2E básico | `npm run test:e2e -- --runInBand` |
 | Proteções do seed | `npm run test:seed` |
 | Verificar lint e tipos | `npm run lint:check` e `npx tsc --project test/tsconfig.json` |
+| Aplicar migrations / consultar situação | `npm run db:migrate:deploy` / `npm run db:migrate:status` |
+| Validar migrations em banco descartável | `npm run test:migrations` |
 | Compilar e executar o build | `npm run build`, depois `npm run start:prod` |
 
 **Reset apaga os dados das oito tabelas e repõe os exemplos; não é apenas
@@ -178,15 +182,18 @@ node -r dotenv/config scripts/test-database.cjs serve
 
 Os modos correspondem a `test:db:prepare`, `test:persistencia`,
 `test:catalogo` e `start:demo`. O último mantém a API ligada ao banco de testes,
-sem build; não o execute junto com outra API na porta 3000. Quando os arquivos
-estão na raiz do backend, os scripts npm fazem o carregamento automaticamente.
+sem build; não o execute junto com outra API na porta 3000. Se usar arquivos na raiz do backend, informe explicitamente seu caminho em
+`DOTENV_CONFIG_PATH`; nesta branch, o padrão fica dentro de `.env/`.
 Limpeza seletiva por UUID e roteiro de apresentação estão no
 [README dos testes](apps/backend/test/README.md).
 
 ## 📈 Roadmap
 
 - [x] Modelagem de Domínio e Validações de Integridade.
-- [x] Integração com Prisma ORM e MySQL.
+- [x] Integração inicial com Prisma ORM e MySQL (histórico).
+- [x] Migração do provider e do adaptador da aplicação para PostgreSQL.
+- [x] Consolidar migrations PostgreSQL e validar baseline para bancos existentes.
+- [x] Definir recriação dos dados fictícios legados pelo seed.
 - [ ] Implementação de Autenticação JWT e RBAC (Role-Based Access Control).
 - [x] Endpoints REST de cadastro de prestador e busca de serviços no NestJS.
 - [ ] Endpoints de contratação, pagamento e avaliação.
