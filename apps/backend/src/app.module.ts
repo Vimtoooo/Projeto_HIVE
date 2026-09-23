@@ -7,9 +7,10 @@ import { AppService } from './app.service';
 import { PersistenciaModule } from './persistence/persistencia.module';
 import { CatalogoModule } from './catalog/catalogo.module';
 import { AuthModule } from './auth/auth.module';
+import { ClienteModule } from './cliente/cliente.module';
 
 @Module({
-  imports: [PersistenciaModule, CatalogoModule, AuthModule],
+  imports: [PersistenciaModule, CatalogoModule, AuthModule, ClienteModule],
 
   controllers: [AppController],
 
