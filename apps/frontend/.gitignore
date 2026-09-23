@@ -1,0 +1,38 @@
+# Dependencias, builds e caches
+node_modules/
+.next/
+out/
+dist/
+coverage/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
+# Copias geradas por assets:sync (fontes em src/legacy)
+/public/pages/
+/public/images/
+/public/styles/
+/public/scripts/
+
+# Configuracao local e credenciais
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+.npmrc
+
+# Logs, backups e relatorios locais
+*.log
+*.bak
+*.sql
+*.dump
+*.zip
+*.7z
+*.tar
+*.gz
+playwright-report/
+test-results/
+.DS_Store
+Thumbs.db

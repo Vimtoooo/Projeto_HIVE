@@ -63,11 +63,11 @@ HIVE/
 │   │   ├── test/                  # Integração, E2E e demonstrações
 │   │   │   └── support/           # Limpeza seletiva de dados fictícios
 │   │   └── README.md              # Configuração e execução do backend
-│   └── frontend/                  # Protótipo estático; evolução Node.js/Next.js planejada
-│       ├── images/               # Logotipos e imagens
-│       ├── pages/                 # Login Hive.html e Home provisória
-│       ├── scripts/               # Integração do login com a API
-│       └── styles/                # Estilos CSS da interface
+│   └── frontend/                  # Next.js com telas HTML preservadas na transição
+│       ├── src/app/               # Layout e rotas React
+│       ├── src/legacy/            # pages, styles, scripts e images originais
+│       ├── docs/                  # Guia do cadastro de cliente
+│       └── tooling/               # Sincronização das telas para public
 ├── LICENSE                        # Termos de uso do código
 └── README.md                      # Visão geral do projeto
 ```
@@ -125,17 +125,18 @@ $env:PORT = '3000'
 npm run start:dev
 ```
 
-Em outro terminal, a partir da raiz do repositório (requer Python):
+Para executar com Next.js, siga o [guia do frontend](apps/frontend/README.md#executar-agora).
+A alternativa estática abaixo requer Python; execute em outro terminal, a partir da raiz:
 
 ```powershell
 cd apps/frontend
-py -m http.server 5500 --bind 127.0.0.1
+py -m http.server 5500 --bind 127.0.0.1 --directory src/legacy
 ```
 
 Abra [a tela de login](http://localhost:5500/pages/Hive.html). A conta deve
 existir no mesmo banco da API, criada por POST /prestadores ou pelo seed.
 O login abre `home.html`; a Home ainda é pública, sem sessão/token.
-Cadastro na interface e login social continuam visuais. Detalhes no
+O cadastro na interface já usa POST /clientes; o login social continua visual. Detalhes no
 [guia do frontend](apps/frontend/README.md).
 
 ### Comandos úteis

@@ -1,0 +1,31 @@
+{
+  "name": "hive-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "assets:sync": "node tooling/sync-legacy.mjs",
+    "predev": "npm run assets:sync",
+    "dev": "node tooling/dev.mjs",
+    "prebuild": "npm run assets:sync",
+    "build": "next build",
+    "start": "next start --port 3001",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "16.3.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.6"
+  }
+}

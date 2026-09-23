@@ -48,11 +48,11 @@ Contas que não estejam com status ATIVO também não podem realizar login.
 
 A página de login está localizada em:
 
-apps/frontend/pages/Hive.html
+apps/frontend/src/legacy/pages/Hive.html
 
 O código responsável por realizar a autenticação está localizado em:
 
-apps/frontend/scripts/login.js
+apps/frontend/src/legacy/scripts/login.js
 
 O frontend envia uma requisição POST para:
 

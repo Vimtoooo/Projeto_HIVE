@@ -1,0 +1,3 @@
+/* Base para as futuras rotas React. As telas HTML mantêm seus próprios estilos. */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; }
