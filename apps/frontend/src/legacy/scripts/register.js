@@ -60,7 +60,7 @@ form.addEventListener('submit', async (e) => {
     btnSubmit.textContent = 'Cadastrando...';
 
     try {
-        const resposta = await fetch('http://localhost:3000/clientes', {
+        const resposta = await fetch((window.HIVE_API_BASE_URL || 'http://localhost:3000') + '/clientes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nome, email, senha, telefone, cpf, endereco })
