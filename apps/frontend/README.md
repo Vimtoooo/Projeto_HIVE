@@ -78,7 +78,8 @@ Nunca copie DATABASE_URL para o frontend. O navegador chama /api/login e
 frontend/
 ├── src/
 │   ├── app/              # page.tsx e layout.tsx: rotas e layout do Next.js
-│   ├── components/       # LoginForm.tsx e RegistrationForm.tsx
+│   ├── components/       # Formulários e componentes da Home em home/
+│   ├── data/             # Catálogo fictício da demonstração
 │   ├── services/         # ApiClient.ts: HTTP e validação das respostas
 │   ├── types/            # ApiTypes.ts: contratos públicos
 │   ├── lib/              # FormValidation.ts: máscaras e validações
@@ -284,8 +285,7 @@ No terminal da API e no terminal do frontend, pressione `Ctrl+C`.
 - O login ainda não cria sessão/token. A Home é pública e pode ser aberta diretamente.
 - O navegador usa o proxy /api na mesma origem. O frontend não acessa o banco diretamente.
 - O cadastro de cliente já chama POST /clientes; os botões de login social ainda são visuais.
-- O destino `/home` é provisório e poderá ser substituído pela página
-  inicial definitiva do HIVE.
+- A Home apresenta catálogo fictício com busca, categorias, favoritos e detalhes; contratação e mensagens continuam como etapas futuras.
 - Nunca versione `.env`, senhas, tokens ou chaves privadas.
 
 
@@ -318,3 +318,23 @@ Iniciar o frontend não executa seed. Não resete o banco para corrigir login.
 Se .next ainda apontar para a estrutura antiga, encerre o Next.js e, somente
 em apps/frontend, execute Remove-Item -LiteralPath .next -Recurse -Force.
 Depois rode npm run dev. O comando remove apenas cache gerado.
+
+## Home para demonstração
+
+Acesse /home após entrar para ver seu primeiro nome. Sem login, a saudação
+é de visitante. O login guarda somente ID e nome em sessionStorage para
+apresentação; isso não é sessão autenticada nem proteção de rota.
+
+A busca aceita nomes, profissões e serviços, sem diferenciar acentos. Categorias
+e favoritos podem ser combinados com a busca. As três seções ordenam os perfis
+por distância ilustrativa, nota/avaliações e quantidade fictícia de serviços.
+Detalhes abrem em uma janela na própria Home; não são criadas outras páginas.
+
+Favoritos ficam nesta aba, separados por usuário, e podem ser removidos. Ao
+sair, nome e favoritos do usuário atual são limpos. Se o armazenamento estiver
+bloqueado, a apresentação usa memória e não persiste após recarregar.
+
+Os menus de mensagens, solicitações e notificações informam que são recursos
+futuros. Não há geolocalização, contratação, pagamento nem envio de mensagens.
+Osasco, distâncias, preços e avaliações são dados fictícios. Veja o
+[guia da Home](docs/home.md) e o [roteiro de testes](test/README.md).

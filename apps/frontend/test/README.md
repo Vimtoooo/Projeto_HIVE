@@ -39,3 +39,12 @@ senha, corpo do cadastro e erros do NestJS.
 As requisições /api são interceptadas com dados fictícios. Nenhum usuário é
 criado no banco. Essa suíte verifica o frontend; para integração real, inicie
 backend e PostgreSQL e use o roteiro manual do README principal do frontend.
+
+## Testes da Home
+
+HomeTest.ts verifica busca, ordenação, nomes e leitura defensiva de preferências.
+HomeSpec.ts cobre saudação, filtros, favoritos persistentes na aba, detalhes,
+retorno de foco, recursos futuros, saída, menu móvel e largura de 320/390 pixels.
+AuthenticationSpec.ts também confere o nome retornado pelo login após recarregar.
+As capturas desktop e móvel são geradas em test-results (ignorado pelo Git).
+Todos os perfis são fictícios e os testes não criam registros no banco.

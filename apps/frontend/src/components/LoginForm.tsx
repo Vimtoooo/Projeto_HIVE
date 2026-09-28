@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "../styles/auth-page.module.css";
 import { login } from "../services/ApiClient";
+import { rememberViewer } from "../lib/ViewerStore";
 export default function LoginForm() {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -25,7 +26,8 @@ export default function LoginForm() {
     setPending(true);
     setError("");
     try {
-      await login({ email, senha });
+      const user = await login({ email, senha });
+      rememberViewer(user);
       router.push("/home");
     } catch (cause: unknown) {
       setError(

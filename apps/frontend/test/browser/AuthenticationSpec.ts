@@ -31,7 +31,9 @@ test("URLs antigas redirecionam, imagens carregam e Home local é preservada", a
     await page.goto(old);
     await expect(page).toHaveURL(new RegExp(current + "$"));
   }
-  await expect(page.getByText("Barra de busca aqui.")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Olá, visitante!" }),
+  ).toBeVisible();
   await page.goto("/login");
   await expect(page.getByRole("heading", { name: "Olá!" })).toBeVisible();
   await expect
@@ -72,6 +74,9 @@ test("login aceita Enter e navega para Home somente com resposta válida", async
   await credentials(page);
   await page.getByLabel("Senha", { exact: true }).press("Enter");
   await expect(page).toHaveURL(/home$/);
+  await expect(page.getByRole("heading", { name: "Olá, Ana!" })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Olá, Ana!" })).toBeVisible();
 });
 test("401 aparece na tela e permite tentar novamente", async ({ page }) => {
   await page.route("**/api/login", (route) =>
