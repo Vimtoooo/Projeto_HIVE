@@ -2,27 +2,30 @@
 
 ## O que essa funcionalidade faz
 
-A tela de registro (`register.html`) permite que um novo cliente crie uma conta no HIVE.
+A tela de registro (`/cadastro`, componente RegistrationForm.tsx) permite que um novo cliente crie uma conta no HIVE.
 
 **Fluxo completo:**
 1. O usuário preenche o formulário de cadastro (nome, CPF, telefone, endereço, e-mail, senha e confirmação de senha).
 2. O front-end valida os dados (CPF com 11 dígitos, telefone com 10 ou 11 dígitos, senha com no mínimo 8 caracteres e senhas iguais).
 3. Os dados são enviados para o backend (`POST /clientes`), que salva o novo usuário no banco de dados.
-4. Se o cadastro der certo, o usuário é redirecionado para a **tela de login** (`Hive.html`).
-5. Ao fazer login com o e-mail e senha recém-criados, o sistema (fluxo que já existia antes) redireciona o usuário para a **home page** (`home.html`).
+4. Se o cadastro der certo, o usuário é redirecionado para a **tela de login** (`/login`).
+5. Ao fazer login com o e-mail e senha recém-criados, o sistema (fluxo que já existia antes) redireciona o usuário para a **home page** (`/home`).
 
 Ou seja: **registro → login → home**, como foi pedido.
 
 ## Linha do tempo das modificações
 
 ### 1. Criação da tela de registro (front-end)
+
+Registro histórico: a primeira versão era HTML/JavaScript. Nesta etapa foi
+substituída por RegistrationForm.tsx, ApiClient.ts e FormValidation.ts.
 - Foi criado o arquivo `apps/frontend/src/legacy/pages/register.html`, reaproveitando o mesmo layout visual e o mesmo CSS (`Loguin.css`) já usado na tela de login, pra manter a identidade visual do HIVE.
 - Foi criado `apps/frontend/src/legacy/scripts/register.js`, responsável por:
   - Aplicar máscara de CPF e telefone enquanto o usuário digita.
   - Validar os campos antes de enviar.
   - Fazer a requisição `POST` para o backend.
   - Mostrar mensagem de erro na tela se algo falhar (ex: e-mail já cadastrado).
-  - Redirecionar para a tela de login (`Hive.html`) quando o cadastro é concluído com sucesso.
+  - Redirecionar para a tela de login (`/login`) quando o cadastro é concluído com sucesso.
 
 ### 2. Identificação de que faltava uma rota no backend
 Ao revisar o backend, percebemos que só existiam as rotas `POST /login` (login) e `POST /prestadores` (cadastro de prestador de serviço). **Não existia nenhuma rota para cadastrar um cliente.**
@@ -49,26 +52,17 @@ Foi confirmado que o backend permite requisições vindas do front-end mesmo rod
 
 ## Caminhos dos arquivos (para referência)
 
+```text
+apps/frontend/src/
+├── app/cadastro/page.tsx
+├── components/RegistrationForm.tsx
+├── services/ApiClient.ts
+├── lib/FormValidation.ts
+├── types/ApiTypes.ts
+└── styles/auth-page.module.css
 ```
-apps/
-├── frontend/
-│   ├── src/
-│   │   ├── app/                      ← rotas React
-│   │   └── legacy/
-│   │       ├── pages/register.html   ← tela de cadastro
-│   │       ├── scripts/register.js   ← validação e envio
-│   │       └── styles/Loguin.css     ← CSS compartilhado
-│   └── docs/registration.md          ← este guia
-│
-└── backend/
-    └── src/
-        ├── cliente/                       ← pasta nova
-        │   ├── cliente.dto.ts             ← novo
-        │   ├── cliente.service.ts         ← novo
-        │   ├── cliente.controller.ts      ← novo
-        │   └── cliente.module.ts          ← novo
-        └── app.module.ts                  ← modificado (adicionado ClienteModule)
-```
+
+O backend mantém src/cliente com DTO, serviço, controller e módulo descritos acima.
 
 ## Como testar depois do `git pull`
 
@@ -91,7 +85,7 @@ Como cada integrante tem o próprio banco de dados local (o `.env` não é versi
    npm ci
    npm run dev
    ```
-7. Acessar `http://localhost:3001/pages/register.html` e testar o cadastro.
+7. Acessar `http://localhost:3001/cadastro` e testar o cadastro.
 8. Fazer login com o e-mail e senha cadastrados e confirmar o redirecionamento até a home.
 
 ## Observações
@@ -101,10 +95,10 @@ Como cada integrante tem o próprio banco de dados local (o `.env` não é versi
 - Qualquer erro de CORS ou de conexão aparece no console do navegador (F12 → aba Console ou Network) e ajuda a identificar se o problema é no front ou no backend.
 ## Organização e integração com Next.js
 
-As fontes desta tela ficam em src/legacy, preservando seus caminhos relativos.
-O comando npm run dev sincroniza HTML/CSS/JS/imagens para public e observa
-alterações; atualize o navegador após editar. Não edite as cópias geradas.
-O navegador envia POST /api/clientes e POST /api/login; Next.js encaminha ao
-NestJS. As validações e o armazenamento continuam no backend.
-Consulte o [README do frontend](../README.md) para comandos de build, configuração
-de API_URL, alternativa estática e plano de migração das telas para React.
+O formulário é um Client Component em src/components/RegistrationForm.tsx.
+React controla eventos e estado; FormValidation.ts aplica máscaras e validações.
+ApiClient.ts envia POST /api/clientes e valida a resposta em execução. O proxy
+encaminha ao NestJS; confirmação de senha não é enviada. CSS Modules preservam
+o visual com escopo por tela. Não existe mais cópia de HTML para public.
+
+Veja o [README](../README.md) e os [testes](../test/README.md).

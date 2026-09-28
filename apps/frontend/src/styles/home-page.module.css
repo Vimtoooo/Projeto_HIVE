@@ -1,0 +1,49 @@
+.screen {
+  --color1: #00ff40;
+}
+
+.screen {
+  /* display: grid;
+    grid-template-columns: 5fr 1fr 5fr;
+    grid-template-rows: 20fr 1fr;
+    grid-template-areas:
+        "logo barra-busca botoes"
+        "barra-lateral painel painel-adicional" */
+}
+
+.logo {
+  /* position: relative;
+    left: 3rem; */
+  width: 10rem;
+  height: 2rem;
+  background-color: aqua;
+}
+
+.barra-busca {
+  width: 25rem;
+  height: 2rem;
+  background-color: blue;
+}
+
+.botoes {
+  width: 10rem;
+  height: 2rem;
+  background-color: brown;
+}
+
+.barra-lateral {
+  width: 10em;
+  height: 30em;
+  background-color: #ff0000;
+
+  /* grid-area: barra-lateral; */
+}
+
+.painel {
+  width: 25rem;
+  height: 30rem;
+  background-color: cadetblue;
+}
+
+.painel-adicional {
+}

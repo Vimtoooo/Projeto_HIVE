@@ -1,0 +1,3 @@
+/* Base compartilhada. As telas usam estilos isolados com CSS Modules. */
+* { box-sizing: border-box; }
+body { margin: 0; }

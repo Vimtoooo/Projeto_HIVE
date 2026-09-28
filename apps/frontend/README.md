@@ -1,35 +1,29 @@
 # HIVE - Frontend
 
-## Adoção gradual do Next.js
+## React e TypeScript com Next.js
 
-Esta branch inicia a base **Next.js + React + TypeScript com App Router**.
-As telas HTML/CSS existentes continuam como fonte durante a transição: login,
-cadastro de cliente e Home são servidos pelo Next.js, sem reescrever o trabalho
-da equipe. O backend NestJS e o PostgreSQL continuam separados.
+Login, cadastro e Home agora são rotas React/TypeScript. O código dos formulários
+foi migrado para componentes, e o Next.js gera o JavaScript executado pelo
+navegador. O backend NestJS continua responsável por regras de negócio, senhas e
+persistência no PostgreSQL; não houve alteração de schema nesta etapa.
 
 ### Plano de adoção
 
-1. **Concluído — estrutura e execução:** package.json, lockfile, TypeScript,
-   ESLint, layout e rota inicial no App Router; frontend na porta 3001.
-2. **Concluído — compatibilidade:** copiar automaticamente as pastas de src/legacy para public e encaminhar /api ao backend. Preservar os
-   formulários e a navegação existentes.
-3. **Próxima etapa — migrar uma tela por vez:** transformar login, cadastro e
-   Home em componentes React; manter o mesmo contrato JSON com o NestJS.
-   Comparar comportamento e visual antes de substituir cada tela antiga.
-4. **Próxima etapa — componentes compartilhados:** extrair campos, botões e
-   navegação; usar CSS Modules para isolar estilos por tela. As telas atuais
-   mantêm seus CSS, sem introduzir Tailwind nesta etapa.
-5. **Próxima etapa — testes e sessão:** automatizar cadastro/login/erros nas
-   rotas React e implementar sessão/autorização em conjunto com o backend.
-   Next.js sozinho não torna a Home protegida.
+1. **Concluído:** base Next.js, App Router, TypeScript estrito e proxy /api.
+2. **Concluído:** migração do login, cadastro e Home para React; retirada da cópia
+   automática de HTML/JavaScript legado e preservação do visual e da Home em andamento.
+3. **Concluído:** contratos tipados, validação de respostas em execução, testes
+   unitários e testes de navegador, CSS Modules para evitar conflitos entre telas.
+4. **Próximas etapas:** extrair componentes compartilhados conforme surgirem novas
+   telas e implementar sessão/autorização junto ao backend. A Home ainda é pública.
 
 ### Executar agora
 
-Pré-requisito: Node.js >= 20.9 (Node 24 já usado pelo projeto), npm e backend
-configurado conforme seu [README](../backend/README.md). Não copie DATABASE_URL
-para o frontend. Python é necessário apenas para a alternativa estática legada.
+Use Node.js **22.18 ou superior** (Node 24 usado na validação) e npm. O executor
+nativo dos testes TypeScript exige essa base; Python não é mais usado no frontend.
+Mantenha PostgreSQL e os dois servidores em execução. Na raiz do repositório:
 
-**Terminal 1 — API**, a partir da raiz do repositório:
+**Terminal 1 — backend** (dependências e banco previamente preparados):
 
 ```powershell
 cd apps/backend
@@ -38,7 +32,7 @@ $env:PORT = '3000'
 npm run start:dev
 ```
 
-**Terminal 2 — frontend**, a partir da raiz do repositório:
+**Terminal 2 — frontend**, também partindo da raiz:
 
 ```powershell
 cd apps/frontend
@@ -46,117 +40,89 @@ npm ci
 npm run dev
 ```
 
-Abra **http://localhost:3001**. A rota inicial redireciona para
-/pages/Hive.html. Cadastro: /pages/register.html; Home: /pages/home.html.
-O cadastro atual usa POST /clientes, já implementado nesta branch.
-As portas diferentes evitam conflito com a API em 3000.
+Abra http://localhost:3001. A raiz vai para /login; cadastro em /cadastro e Home
+em /home. Os antigos /pages/Hive.html, /pages/register.html e /pages/home.html
+redirecionam para essas rotas. Não há mais arquivos HTML executáveis independentes
+nem sincronização para public; o Next.js gera o HTML. Não use o servidor Python.
 
-| Comando em apps/frontend | Uso |
+| Comando em apps/frontend | Finalidade |
 | --- | --- |
-| npm run dev | Servidor Next.js e sincronização das telas legadas |
-| npm run assets:sync | Recriar manualmente os arquivos públicos das telas |
-| npm run lint | Conferir o código novo Next.js e as ferramentas de execução |
-| npm run typecheck | Verificar os tipos TypeScript |
-| npm run build | Sincronizar telas e gerar o build de produção |
+| npm run dev | Iniciar Next.js na porta 3001, com atualização das telas |
+| npm run lint | Conferir componentes, serviços e testes |
+| npm run typecheck | Gerar tipos das rotas e verificar TypeScript, sem emitir JS |
+| npm test | Testar validações e cliente HTTP com dados fictícios |
+| npm run test:e2e | Testar telas no navegador, com API simulada |
+| npm run build | Gerar aplicação de produção |
 | npm start | Servir o build pronto na porta 3001 |
 
-Para trocar a porta do servidor de desenvolvimento: `npm run dev -- --port 3002`.
-Encerre com Ctrl+C. O servidor observa as quatro pastas-fonte durante o
-`dev`; após editar HTML/CSS/JS, atualize a página no navegador. As futuras
-rotas React usam a atualização automática do Next.js. Em produção, alterações
-exigem um novo build.
+Para trocar a porta: npm run dev -- --port 3002. Não execute build e dev na mesma
+pasta ao mesmo tempo; ambos usam .next. Os detalhes de testes estão no
+[guia de testes](test/README.md).
 
 ### Configuração da API
 
-O padrão é http://localhost:3000. Para alterá-lo, crie **.env.local** na raiz
-do frontend (arquivo ignorado pelo Git):
+O padrão é http://localhost:3000. Para trocar, crie .env.local na raiz do frontend:
 
 ```dotenv
 API_URL=http://localhost:3000
 ```
 
-API_URL deve conter somente a origem HTTP(S), sem caminho ou credenciais.
-Reinicie o dev ou refaça o build após alterar essa variável. É uma variável
-usada pelo servidor Next.js, sem prefixo NEXT_PUBLIC_. O navegador envia
-requisições a /api/login e /api/clientes na mesma origem; o rewrite encaminha
-para /login e /clientes do NestJS. Validações, senhas e acesso ao banco
-continuam no backend. O proxy não acrescenta autenticação.
+Use somente a origem HTTP(S), sem caminho ou credenciais. Reinicie dev ou refaça
+o build após alterar a variável. API_URL é usada no servidor, sem NEXT_PUBLIC_.
+Nunca copie DATABASE_URL para o frontend. O navegador chama /api/login e
+/api/clientes, encaminhados ao NestJS. Esse proxy não acrescenta autenticação.
 
-Os scripts-fonte mantêm localhost:3000 como alternativa para execução pelo
-servidor estático antigo. Somente as cópias geradas recebem a configuração
-/api; assim os dois modos continuam disponíveis.
-
-### Organização durante a transição
+### Organização
 
 ```text
 frontend/
 ├── src/
-│   ├── app/               # Layout, CSS global e rotas React do App Router
-│   └── legacy/            # Fontes das telas existentes durante a transição
-│       ├── pages/         # Hive.html, register.html e home.html
-│       ├── styles/        # CSS das telas HTML
-│       ├── scripts/       # Login e cadastro em JavaScript
-│       └── images/        # Imagens usadas pelas telas
-├── docs/                  # Guia de cadastro e integração
-├── public/                # Cópias geradas para servir as telas; não editar
-├── tooling/               # Sincronização e execução de desenvolvimento
-├── next.config.mjs        # Proxy da API e raiz do projeto
-├── eslint.config.mjs      # Verificação do código Next.js e tooling
-├── tsconfig.json          # Configuração TypeScript para src/
-├── package.json           # Comandos e dependências
-└── package-lock.json      # Versões reproduzíveis para o grupo
+│   ├── app/              # page.tsx e layout.tsx: rotas e layout do Next.js
+│   ├── components/       # LoginForm.tsx e RegistrationForm.tsx
+│   ├── services/         # ApiClient.ts: HTTP e validação das respostas
+│   ├── types/            # ApiTypes.ts: contratos públicos
+│   ├── lib/              # FormValidation.ts: máscaras e validações
+│   └── styles/           # auth-page.module.css e home-page.module.css
+├── public/images/       # Imagens originais versionadas em kebab-case
+├── test/                # Testes unitários e cenários de navegador
+├── docs/                # Cadastro e explicação técnica da migração
+├── PlaywrightConfig.ts  # Configuração dos testes de navegador
+├── next.config.mjs      # Proxy e redirecionamentos de compatibilidade
+├── tsconfig.json        # TypeScript estrito
+└── package.json         # Comandos e dependências
 ```
 
-Edite as telas originais em src/legacy, nunca as cópias em public/pages, public/styles,
-public/scripts e public/images: esses quatro diretórios são recriados. Não
-coloque segredos nessas pastas. Eles, node_modules e .next são ignorados pelo
-Git; package.json e package-lock.json devem ser versionados. Não crie arquivos
-React em src/legacy/pages/: use src/app/ para não misturar os dois sistemas de rotas.
+### Nomenclatura
 
-### Roteiro de verificação
+Arquivos .ts e componentes .tsx próprios usam PascalCase: ApiClient.ts,
+FormValidation.ts, LoginForm.tsx, FrontendTest.ts. CSS e imagens usam kebab-case,
+com sufixo .module.css para isolamento. Novos exemplos HTML, se necessários,
+devem usar nomes como pagina-home.html; as telas atuais são .tsx.
 
-- Abra a raiz, confira as imagens e navegue até o cadastro.
-- Use conta fictícia ativa criada pela API ou pelo seed no mesmo banco do backend.
-- Verifique senha incorreta (erro e permanência no login) e senha correta (Home).
-- No Network, confira chamadas /api/login e /api/clientes; erro de conexão pode
-  indicar API desligada ou API_URL incorreta.
-- Rode lint, typecheck e build antes de compartilhar a estrutura.
+Exceções obrigatórias: page.tsx, layout.tsx e next-env.d.ts seguem convenções do
+Next.js; package.json, tsconfig.json, next.config.mjs e eslint.config.mjs mantêm
+os nomes reconhecidos pelas ferramentas. README.md, AGENTS.md e CLAUDE.md mantêm
+suas convenções. Não renomeie arquivos reservados para PascalCase.
 
-Referência: [instalação e App Router do Next.js](https://nextjs.org/docs/app/getting-started/installation).
-As instruções abaixo preservam os detalhes do banco e a alternativa HTML estática.
+### Qualidade e limites
 
+Formulários usam eventos React tipados, estado de envio e mensagens acessíveis.
+Cliques repetidos são bloqueados enquanto a requisição está pendente; erros
+liberam nova tentativa. Máscaras preservam CPF e telefone, incluindo fixos de
+10 dígitos. O login aceita e-mail; autenticação por telefone não foi implementada.
 
-## Sobre o frontend
+O cliente trata JSON como unknown, valida o usuário retornado, interpreta erros
+NestJS em texto ou lista e trata falha de conexão/timeout (15 segundos). Tipos
+não substituem validação em execução nem autorização no backend. A confirmação
+de senha não é enviada à API. As regras de CPF conferem formato, não dígitos verificadores.
 
-O frontend do HIVE contém a tela de login e a integração com a API de
-autenticação do backend. As telas ainda são HTML/CSS/JavaScript, agora servidas pela base Next.js descrita acima. O modo estático permanece como alternativa.
-
-No Next.js, o login envia `POST /api/login`, encaminhado ao backend em `http://localhost:3000/login`. Quando
-a autenticação é concluída, o usuário é redirecionado para `home.html`.
-
-## Estrutura atual
-
-A árvore completa está em **Organização durante a transição** acima.
-As imagens preservadas são Facebook_Logo_(2019).png, Google__G__logo.svg.png e Logo1.png.
-
-Arquivos principais:
-
-- `src/legacy/pages/Hive.html`: formulário de login.
-- `src/legacy/scripts/login.js`: valida os campos, chama a API e trata a resposta.
-- `src/legacy/pages/home.html`: destino provisório após o login.
-- `src/legacy/styles/Loguin.css`: estilos da tela.
+Veja [migração técnica](docs/typescript-migration.md) e [cadastro](docs/registration.md).
 
 ## Pré-requisitos
 
-- Node.js e npm instalados.
-- PostgreSQL em execução.
-- Dependências do backend instaladas.
-- Banco configurado no backend; para demonstrações, use um banco exclusivo terminado em `_test`.
-- Python somente para o servidor estático alternativo; o Next.js usa Node.js.
-- Usuário cadastrado com status `ATIVO`.
-
-O frontend não acessa o banco diretamente. A URL do banco é configurada no
-backend, em `apps/backend/.env/.env`, e nunca deve ser publicada no GitHub.
+- Node.js 22.18+ e npm, dependências instaladas em frontend e backend.
+- PostgreSQL ativo e banco configurado; para demonstrações isoladas, use um banco _test.
+- Conta cadastrada e ATIVA no mesmo banco usado pela API.
 
 ## Configurar a URL do banco
 
@@ -190,11 +156,12 @@ Use `db push` apenas em um banco novo ou quando a alteração do schema tiver
 sido revisada. Em um banco com dados importantes, não aceite perda de dados e
 consulte a documentação do Prisma antes de sincronizar.
 
+
 ## Iniciar a API
 
 Como o arquivo local atual está em `apps/backend/.env/.env`, informe esse
 caminho ao `dotenv`. A porta `3000` precisa coincidir com a porta usada em
-`src/legacy/scripts/login.js`.
+API_URL no frontend.
 
 Em um terminal, a partir da raiz do repositório, execute:
 
@@ -227,21 +194,6 @@ npm run build
 npm run start:prod
 ```
 
-## Servir o frontend sem Next.js (alternativa legada)
-
-Não é recomendado abrir o HTML diretamente pelo Explorer usando `file://`.
-Use um servidor HTTP local. Em outro terminal, a partir da raiz do projeto:
-
-```powershell
-cd apps/frontend
-py -m http.server 5500 --bind 127.0.0.1 --directory src/legacy
-```
-
-Abra no navegador:
-
-```text
-http://localhost:5500/pages/Hive.html
-```
 
 ## Criar a conta antes do login
 
@@ -289,10 +241,11 @@ $env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
 node -r dotenv/config scripts/test-database.cjs clean 28ad074c-85a1-493b-913b-d2adc9ae6c09
 ```
 
+
 ## Testar o login
 
 1. Confirme que a API está ativa em `http://localhost:3000`.
-2. Abra `http://localhost:3001` com Next.js (ou `http://localhost:5500/pages/Hive.html` no modo estático).
+2. Abra `http://localhost:3001/login`.
 3. Informe o e-mail de um usuário cadastrado.
 4. Informe a senha correspondente.
 5. Clique em **Logar**.
@@ -311,33 +264,36 @@ ter a senha correspondente ao hash armazenado no banco.
 
 ### Resultado esperado
 
-- Login correto: `POST /login` retorna 201; confirme o alerta de boas-vindas para abrir `home.html`.
+- Login correto: `POST /login` retorna 201; o formulário navega automaticamente para `/home`.
 - E-mail ou senha incorretos: a API retorna 401, exibe erro e permanece na tela.
 - Conta inativa: a API rejeita a autenticação.
 - API desligada: o navegador informa que não foi possível conectar ao servidor.
 
-O fluxo foi verificado no Edge com cadastro por POST, rejeição de senha incorreta
-e redirecionamento após senha correta. Isso valida a integração atual; não
-representa uma suíte automatizada permanente de login.
+Os testes de navegador agora são permanentes e usam respostas simuladas. O teste
+manual com backend e banco reais continua necessário para validar a integração completa.
+
 
 ## Encerrar os servidores
 
 No terminal da API e no terminal do frontend, pressione `Ctrl+C`.
 
+
 ## Observações
 
-- Os caminhos de imagens usam `images/`; o destino do login é `home.html` em minúsculas, inclusive em sistemas que distinguem maiúsculas de minúsculas.
+- As imagens ficam em public/images e usam kebab-case; o destino do login é /home.
 - O login ainda não cria sessão/token. A Home é pública e pode ser aberta diretamente.
-- No Next.js, o navegador usa o proxy /api na mesma origem; no modo estático, usa o CORS habilitado pela API.
+- O navegador usa o proxy /api na mesma origem. O frontend não acessa o banco diretamente.
 - O cadastro de cliente já chama POST /clientes; os botões de login social ainda são visuais.
-- O destino `home.html` é provisório e poderá ser substituído pela página
+- O destino `/home` é provisório e poderá ser substituído pela página
   inicial definitiva do HIVE.
 - Nunca versione `.env`, senhas, tokens ou chaves privadas.
 
+
 ## Evolução planejada
 
-A interface atual usa HTML, CSS e JavaScript. A base Next.js foi iniciada; a conversão das telas para React segue o plano acima.
+As três telas atuais usam React e TypeScript. A evolução de sessão e novas telas segue o plano acima.
 O planejamento das demais telas permanece registrado no [README principal](../../README.md).
+
 
 ## Alternativa: contas do seed local
 
@@ -348,40 +304,17 @@ Após a carga, inicie a API com o mesmo DATABASE_URL e entre com
 Essa alternativa dispensa o POST manual; o reset substitui todos os dados
 do banco local selecionado.
 
-## Arquivos versionados e cuidados locais
 
-O .gitignore exclui dependências, builds, caches, cópias geradas em public,
-logs, relatórios de testes, arquivos .env, chaves privadas e backups compactados
-ou de banco. Imagens necessárias às telas, fontes e package-lock.json continuam
-versionados. Não salve vídeos de demonstração ou dumps dentro do código-fonte.
-O Git não aplica limite de tamanho pelo .gitignore, e arquivos já rastreados
-continuam rastreados mesmo que uma nova regra os ignore. Confira git status antes
-de cada commit; nunca coloque credenciais em HTML, JavaScript ou arquivos públicos.
+## Versionamento e diagnóstico
 
-As configurações do Next.js, TypeScript e npm permanecem na raiz por convenção
-das ferramentas. AGENTS.md e CLAUDE.md são instruções geradas pelo Next.js para
-assistentes de código; não são arquivos da interface.
+Versione fontes, imagens originais em public/images e package-lock.json. O gitignore
+exclui dependências, builds, relatórios, caches, .env, chaves, logs e backups; não
+detecta segredos escritos no código nem aplica limite de tamanho. Revise git status.
 
-Guia complementar: [cadastro de cliente](docs/registration.md).
+Se o login falhar, confira F12 → Network: 401 indica credenciais rejeitadas ou
+conta inativa; falhas de rede exigem conferir servidores, portas e API_URL.
+Iniciar o frontend não executa seed. Não resete o banco para corrigir login.
 
-## Diagnosticar a execução local
-
-Mantenha PostgreSQL, backend (3000) e frontend (3001) executando simultaneamente.
-Iniciar o Next.js não inicia o NestJS nem carrega o seed. A conta deve existir
-no banco indicado pelo DATABASE_URL do backend. No navegador, F12 → Network:
-201 no login indica sucesso; 401 indica credenciais rejeitadas ou conta inativa;
-erros 500 exigem conferir a resposta e o terminal do backend. Falhas de conexão
-exigem conferir os servidores, as portas e API_URL. Não use reset para tentar
-corrigir um erro de login: ele substitui os dados do banco.
-
-Se você já executou a estrutura anterior e aparecer erro em .next citando
-app/page.js ou app/layout.js, encerre o Next.js com Ctrl+C. Em apps/frontend,
-remova somente o cache gerado e reinicie:
-
-```powershell
-Remove-Item -LiteralPath .next -Recurse -Force
-npm run dev
-```
-
-Essa limpeza não remove código nem dados do banco. Não execute dev e build
-simultaneamente na mesma pasta, pois ambos usam .next.
+Se .next ainda apontar para a estrutura antiga, encerre o Next.js e, somente
+em apps/frontend, execute Remove-Item -LiteralPath .next -Recurse -Force.
+Depois rode npm run dev. O comando remove apenas cache gerado.

@@ -1,2 +1,4 @@
-import { redirect } from 'next/navigation';
-export default function Page() { redirect('/pages/Hive.html'); }
+import { redirect } from "next/navigation";
+export default function Page() {
+  redirect("/login");
+}

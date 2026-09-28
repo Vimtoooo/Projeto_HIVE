@@ -31,15 +31,15 @@ A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrã
 
 | Camada | Tecnologias |
 | :--- | :--- |
-| **Frontend atual** | HTML5 + CSS3 + JavaScript (fetch); login integrado à API |
-| **Frontend planejado** | Node.js como ambiente de desenvolvimento/execução; Next.js é o framework previsto no planejamento original |
+| **Frontend atual** | Next.js + React + TypeScript + CSS Modules; cadastro e login integrados à API |
+| **Planejamento do frontend** | Base Node.js/Next.js adotada; evolução das telas, sessão e componentes compartilhados |
 | **Backend** | Node.js + NestJS (TypeScript) |
 | **Persistência** | PostgreSQL + Prisma ORM |
 | **Testes** | Jest, integração com PostgreSQL e exemplos HTTP |
 | **Qualidade de código** | TypeScript, ESLint e Prettier |
 | **Ambiente planejado** | Docker; configuração ainda a implementar |
 
-Node.js é um ambiente de execução JavaScript, enquanto NestJS e Next.js são frameworks distintos. O backend já usa NestJS sobre Node.js; a estrutura Node.js/Next.js do frontend ainda não está implementada. As tecnologias planejadas não substituem a descrição do código atual.
+Node.js é um ambiente de execução JavaScript, enquanto NestJS e Next.js são frameworks distintos. O backend já usa NestJS sobre Node.js; o frontend agora usa Node.js/Next.js com React e TypeScript. Os demais itens planejados continuam como evolução futura.
 
 ## 📂 Estrutura do Projeto
 
@@ -63,11 +63,11 @@ HIVE/
 │   │   ├── test/                  # Integração, E2E e demonstrações
 │   │   │   └── support/           # Limpeza seletiva de dados fictícios
 │   │   └── README.md              # Configuração e execução do backend
-│   └── frontend/                  # Next.js com telas HTML preservadas na transição
+│   └── frontend/                  # Next.js com telas React/TypeScript
 │       ├── src/app/               # Layout e rotas React
-│       ├── src/legacy/            # pages, styles, scripts e images originais
+│       ├── src/components/        # Formulários tipados de login e cadastro
 │       ├── docs/                  # Guia do cadastro de cliente
-│       └── tooling/               # Sincronização das telas para public
+│       └── public/images/         # Imagens originais versionadas
 ├── LICENSE                        # Termos de uso do código
 └── README.md                      # Visão geral do projeto
 ```
@@ -126,16 +126,17 @@ npm run start:dev
 ```
 
 Para executar com Next.js, siga o [guia do frontend](apps/frontend/README.md#executar-agora).
-A alternativa estática abaixo requer Python; execute em outro terminal, a partir da raiz:
+Execute em outro terminal, a partir da raiz:
 
 ```powershell
 cd apps/frontend
-py -m http.server 5500 --bind 127.0.0.1 --directory src/legacy
+npm ci
+npm run dev
 ```
 
-Abra [a tela de login](http://localhost:5500/pages/Hive.html). A conta deve
+Abra [a tela de login](http://localhost:3001/login). A conta deve
 existir no mesmo banco da API, criada por POST /prestadores ou pelo seed.
-O login abre `home.html`; a Home ainda é pública, sem sessão/token.
+O login abre `/home`; a Home ainda é pública, sem sessão/token.
 O cadastro na interface já usa POST /clientes; o login social continua visual. Detalhes no
 [guia do frontend](apps/frontend/README.md).
 
@@ -198,7 +199,7 @@ Limpeza seletiva por UUID e roteiro de apresentação estão no
 - [ ] Implementação de Autenticação JWT e RBAC (Role-Based Access Control).
 - [x] Endpoints REST de cadastro de prestador e busca de serviços no NestJS.
 - [ ] Endpoints de contratação, pagamento e avaliação.
-- [x] Tela de entrada em HTML/CSS com login por JavaScript integrado à API.
+- [x] Telas de login e cadastro em React/TypeScript integradas à API.
 - [ ] Ampliar a integração do frontend com a API e desenvolver as demais telas.
 - [ ] Interface Administrativa e Dashboard do Cliente (Next.js, conforme planejamento original).
 - [ ] Configuração do ambiente com Docker.
@@ -216,4 +217,4 @@ conforme os termos da licença. Permanecem preservados os direitos previstos nos
 termos do GitHub, nas licenças de terceiros e nas versões anteriormente
 disponibilizadas sob MIT.
 
-*Mantido por @Vimtoooo e @jeflotz*
+*Mantido por @Vimtoooo, @jeflotz e @vieirat981-dev*

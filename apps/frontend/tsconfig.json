@@ -21,14 +21,17 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "allowImportingTsExtensions": true
   },
   "include": [
     "next-env.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "test/**/*.ts",
+    "PlaywrightConfig.ts"
   ],
   "exclude": [
     "node_modules"

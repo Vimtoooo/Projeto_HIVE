@@ -8,11 +8,7 @@ coverage/
 *.tsbuildinfo
 next-env.d.ts
 
-# Copias geradas por assets:sync (fontes em src/legacy)
-/public/pages/
-/public/images/
-/public/styles/
-/public/scripts/
+# Imagens originais em public/images são versionadas.
 
 # Configuracao local e credenciais
 .env
