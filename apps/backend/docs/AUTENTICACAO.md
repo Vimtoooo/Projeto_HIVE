@@ -48,13 +48,13 @@ Contas que não estejam com status ATIVO também não podem realizar login.
 
 A página de login está localizada em:
 
-apps/frontend/pages/Hive.html
+apps/frontend/src/app/login/page.tsx
 
 O código responsável por realizar a autenticação está localizado em:
 
-apps/frontend/scripts/login.js
+apps/frontend/src/components/LoginForm.tsx e src/services/ApiClient.ts
 
-O frontend envia uma requisição POST para:
+O navegador envia POST /api/login ao Next.js, que encaminha ao backend:
 
 http://localhost:3000/login
 

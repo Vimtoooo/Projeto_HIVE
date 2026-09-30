@@ -1,38 +1,41 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap");
 
 /* ── RESET ── */
-*, *::before, *::after {
+.screen,
+.screen *,
+.screen *::before,
+.screen *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
 /* ── VARIÁVEIS ── */
-:root {
-  --yellow:       #F5B800;
-  --yellow-dark:  #D9A200;
-  --yellow-light: #FFF8DC;
-  --black:        #0F0F0F;
-  --gray-dark:    #333333;
-  --gray:         #666666;
-  --gray-light:   #AAAAAA;
-  --border:       #E2E2E2;
-  --white:        #FFFFFF;
-  --bg:           #F9F7F2;
+.screen {
+  --yellow: #f5b800;
+  --yellow-dark: #d9a200;
+  --yellow-light: #fff8dc;
+  --black: #0f0f0f;
+  --gray-dark: #333333;
+  --gray: #666666;
+  --gray-light: #aaaaaa;
+  --border: #e2e2e2;
+  --white: #ffffff;
+  --bg: #f9f7f2;
 
-  --radius-md:   14px;
+  --radius-md: 14px;
   --radius-pill: 100px;
 
-  --shadow-btn: 0 6px 24px rgba(245,184,0,0.40);
+  --shadow-btn: 0 6px 24px rgba(245, 184, 0, 0.4);
 
-  --font-display: 'Syne', sans-serif;
-  --font-body:    'DM Sans', sans-serif;
+  --font-display: "Syne", sans-serif;
+  --font-body: "DM Sans", sans-serif;
 
-  --transition: .22s cubic-bezier(.4,0,.2,1);
+  --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── BASE ── */
-html, body {
+.screen {
   height: 100%;
   font-family: var(--font-body);
   background: var(--bg);
@@ -64,20 +67,32 @@ html, body {
 
 /* brilho decorativo */
 .painel-left::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: -120px; right: -120px;
-  width: 480px; height: 480px;
-  background: radial-gradient(circle, rgba(245,184,0,0.14) 0%, transparent 70%);
+  top: -120px;
+  right: -120px;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(
+    circle,
+    rgba(245, 184, 0, 0.14) 0%,
+    transparent 70%
+  );
   pointer-events: none;
 }
 
 .painel-left::after {
-  content: '';
+  content: "";
   position: absolute;
-  bottom: -80px; left: -80px;
-  width: 320px; height: 320px;
-  background: radial-gradient(circle, rgba(245,184,0,0.08) 0%, transparent 70%);
+  bottom: -80px;
+  left: -80px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(
+    circle,
+    rgba(245, 184, 0, 0.08) 0%,
+    transparent 70%
+  );
   pointer-events: none;
 }
 
@@ -129,7 +144,7 @@ html, body {
 
 .left-sub {
   font-size: 1rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   line-height: 1.75;
   max-width: 340px;
 }
@@ -138,15 +153,15 @@ html, body {
 .testimonial {
   position: relative;
   z-index: 1;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
   padding: 24px 28px;
 }
 
 .testimonial-quote {
   font-size: 0.95rem;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.7;
   margin-bottom: 16px;
   font-style: italic;
@@ -181,7 +196,7 @@ html, body {
 
 .testimonial-role {
   font-size: 0.78rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .testimonial-stars {
@@ -206,7 +221,8 @@ html, body {
 /* ── Botão Voltar ── */
 .btn-back {
   position: absolute;
-  top: 32px; left: 32px;
+  top: 32px;
+  left: 32px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -236,7 +252,8 @@ html, body {
 /* ── Link cadastro ── */
 .link-subscribe {
   position: absolute;
-  top: 40px; right: 36px;
+  top: 40px;
+  right: 36px;
   font-size: 0.85rem;
   color: var(--gray);
   text-decoration: none;
@@ -244,7 +261,9 @@ html, body {
   transition: color var(--transition);
 }
 
-.link-subscribe:hover { color: var(--black); }
+.link-subscribe:hover {
+  color: var(--black);
+}
 
 .link-subscribe span {
   color: var(--yellow-dark);
@@ -332,17 +351,22 @@ html, body {
   color: var(--black);
   background: var(--bg);
   outline: none;
-  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background var(--transition);
   appearance: none;
   -webkit-appearance: none;
 }
 
-.form-input::placeholder { color: var(--gray-light); }
+.form-input::placeholder {
+  color: var(--gray-light);
+}
 
 .form-input:focus {
   border-color: var(--yellow);
   background: var(--white);
-  box-shadow: 0 0 0 3px rgba(245,184,0,0.15);
+  box-shadow: 0 0 0 3px rgba(245, 184, 0, 0.15);
 }
 
 /* ── Esqueci senha ── */
@@ -383,14 +407,17 @@ html, body {
   text-align: center;
   text-decoration: none;
   box-shadow: var(--shadow-btn);
-  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  transition:
+    background var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
   margin-bottom: 14px;
 }
 
 .btn-login:hover {
   background: var(--yellow-dark);
   transform: translateY(-2px);
-  box-shadow: 0 10px 32px rgba(245,184,0,0.50);
+  box-shadow: 0 10px 32px rgba(245, 184, 0, 0.5);
 }
 
 /* ── Botão Cadastrar ── */
@@ -464,7 +491,7 @@ html, body {
   background: var(--bg);
   border-color: #ccc;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .google-icon,
@@ -494,40 +521,94 @@ html, body {
 
 /* ── Animações CSS ── */
 @keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.painel-left               { animation: fadeIn .6s ease both; }
-.form-greeting             { animation: fadeSlideUp .55s .10s ease both; }
-.form-group:nth-child(1)   { animation: fadeSlideUp .55s .18s ease both; }
-.form-group:nth-child(2)   { animation: fadeSlideUp .55s .26s ease both; }
-.form-row                  { animation: fadeSlideUp .55s .32s ease both; }
-.btn-login                 { animation: fadeSlideUp .55s .38s ease both; }
-.btn-register              { animation: fadeSlideUp .55s .44s ease both; }
-.divider                   { animation: fadeSlideUp .55s .50s ease both; }
-.social-btns               { animation: fadeSlideUp .55s .56s ease both; }
-.switch-account            { animation: fadeSlideUp .55s .62s ease both; }
+.painel-left {
+  animation: fadeIn 0.6s ease both;
+}
+.form-greeting {
+  animation: fadeSlideUp 0.55s 0.1s ease both;
+}
+.form-group:nth-child(1) {
+  animation: fadeSlideUp 0.55s 0.18s ease both;
+}
+.form-group:nth-child(2) {
+  animation: fadeSlideUp 0.55s 0.26s ease both;
+}
+.form-row {
+  animation: fadeSlideUp 0.55s 0.32s ease both;
+}
+.btn-login {
+  animation: fadeSlideUp 0.55s 0.38s ease both;
+}
+.btn-register {
+  animation: fadeSlideUp 0.55s 0.44s ease both;
+}
+.divider {
+  animation: fadeSlideUp 0.55s 0.5s ease both;
+}
+.social-btns {
+  animation: fadeSlideUp 0.55s 0.56s ease both;
+}
+.switch-account {
+  animation: fadeSlideUp 0.55s 0.62s ease both;
+}
 
 /* ── Responsivo ── */
 @media (max-width: 860px) {
-  .page { grid-template-columns: 1fr; }
-  .painel-left { display: none; }
+  .page {
+    grid-template-columns: 1fr;
+  }
+  .painel-left {
+    display: none;
+  }
   .panel-right {
     padding: 80px 24px 48px;
     min-height: 100vh;
     align-items: flex-start;
   }
-  .form-card { max-width: 100%; }
-  .btn-back { top: 20px; left: 20px; }
-  .link-subscribe { top: 26px; right: 20px; }
+  .form-card {
+    max-width: 100%;
+  }
+  .btn-back {
+    top: 20px;
+    left: 20px;
+  }
+  .link-subscribe {
+    top: 26px;
+    right: 20px;
+  }
 }
 
 @media (max-width: 400px) {
-  .form-title { font-size: 1.6rem; }
+  .form-title {
+    font-size: 1.6rem;
+  }
+}
+.error {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  display: block;
+  margin-bottom: 14px;
+}
+.screen button:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
