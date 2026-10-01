@@ -1,127 +1,26 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import {
   ApiError,
-  conversations,
   messages,
   sendMessage,
   session,
 } from "../../services/MessagingApi";
 import type { Conversation, Message } from "../../services/MessagingApi";
-import HomeDialog from "./HomeDialog";
-import styles from "../../styles/conversations.module.css";
+import styles from "../../styles/messages-page.module.css";
 function merge(old: Message[], rows: Message[]) {
   return [...new Map([...old, ...rows].map((m) => [m.id, m])).values()].sort(
     (a, b) => a.id - b.id,
   );
 }
-export default function MessagesPanel({
-  initial,
-  onDismiss,
-}: {
-  initial: Conversation | null;
-  onDismiss: () => void;
-}) {
-  const [list, setList] = useState<Conversation[]>(initial ? [initial] : []);
-  const [selected, setSelected] = useState<Conversation | null>(initial);
-  const [user, setUser] = useState<number | null>(null);
-  const [error, setError] = useState("");
-  const [unauthorized, setUnauthorized] = useState(false);
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    async function load() {
-      try {
-        const current = await session();
-        const rows = await conversations();
-        if (alive) {
-          setUser(current.idUsuario);
-          setList(rows);
-          setReady(true);
-          setError("");
-          setUnauthorized(false);
-        }
-      } catch (e) {
-        if (alive) {
-          setError(
-            e instanceof Error ? e.message : "Erro ao carregar conversas.",
-          );
-          setUnauthorized(e instanceof ApiError && e.status === 401);
-        }
-      }
-    }
-    void load();
-    const interval = setInterval(() => {
-      void load();
-    }, 5000);
-    return () => {
-      alive = false;
-      clearInterval(interval);
-    };
-  }, []);
-  return (
-    <HomeDialog title="Mensagens" onDismiss={onDismiss} wide>
-      <p className={styles.intro}>
-        Combine os detalhes diretamente com o profissional. As mensagens ficam
-        salvas na sua conta.
-      </p>
-      {error && (
-        <p role="alert" className={styles.error}>
-          {error} {unauthorized && <Link href="/login">Entrar novamente</Link>}
-        </p>
-      )}
-      {!ready && !error && <p role="status">Carregando suas conversas…</p>}
-      {ready && !unauthorized && (
-        <div className={styles.layout}>
-          <nav className={styles.list} aria-label="Conversas">
-            {!list.length && (
-              <p>
-                Nenhuma conversa ainda. Escolha um profissional cadastrado na
-                Home.
-              </p>
-            )}
-            {list.map((c) => {
-              const other =
-                c.cliente.idUsuario === user ? c.prestador : c.cliente;
-              return (
-                <button
-                  type="button"
-                  key={c.id}
-                  aria-pressed={selected?.id === c.id}
-                  onClick={() => setSelected(c)}
-                >
-                  <span className={styles.initial}>{other.nome.charAt(0)}</span>
-                  <span>
-                    {other.nome}
-                    <small>Abrir conversa</small>
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-          {selected && user ? (
-            <ConversationThread
-              key={selected.id + ":" + user}
-              conversation={selected}
-              user={user}
-            />
-          ) : (
-            <div className={styles.empty}>
-              Sua próxima conexão começa com um olá. Selecione uma conversa.
-            </div>
-          )}
-        </div>
-      )}
-    </HomeDialog>
-  );
-}
-function ConversationThread({
+export default function ConversationThread({
   conversation: c,
   user,
+  onBack,
 }: {
   conversation: Conversation;
   user: number;
+  onBack: () => void;
 }) {
   const [rows, setRows] = useState<Message[]>([]);
   const [older, setOlder] = useState(false);
@@ -144,7 +43,7 @@ function ConversationThread({
         const current = await session();
         if (current.idUsuario !== user)
           throw new ApiError(
-            "A conta mudou. Feche a conversa e abra novamente.",
+            "A conta mudou. Entre novamente para continuar.",
             401,
           );
         const data = await messages(c.id);
@@ -241,10 +140,18 @@ function ConversationThread({
       aria-label={"Conversa com " + other.nome}
     >
       <header>
+        <button
+          type="button"
+          className={styles.back}
+          onClick={onBack}
+          aria-label="Voltar às conversas"
+        >
+          ←
+        </button>
         <span className={styles.initial}>{other.nome.charAt(0)}</span>
         <div>
           <h3>{other.nome}</h3>
-          <small>Atualização automática a cada 5 segundos</small>
+          <small>Combine os detalhes do serviço</small>
         </div>
       </header>
       {error && (
@@ -303,7 +210,7 @@ function ConversationThread({
           onChange={(e) => setDraft(e.target.value)}
           maxLength={2000}
           disabled={sending || blocked}
-          rows={3}
+          rows={2}
         />
         <div>
           <small>{draft.length}/2000 · Enter quebra a linha</small>

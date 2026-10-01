@@ -25,6 +25,22 @@ npm run dev
 
 Abra http://localhost:3001/login e faça login novamente: uma identificação antiga em sessionStorage não é sessão válida. O proxy `/api` encaminha também o cookie de sessão; mantenha frontend na porta 3001 e backend na 3000, salvo configuração de `API_URL`.
 
+## Página de mensagens
+
+A seção agora abre em `/mensagens`, dentro da navegação do HIVE, em vez de um modal. O desktop amplo mostra lista de conversas, chat e detalhes do contato. Em telas intermediárias, o painel de detalhes é ocultado para priorizar a conversa; no celular, escolha um contato e use **Voltar às conversas** para retornar à lista.
+
+- **Buscar contato** filtra por nome, sem diferenciar acentos ou maiúsculas. A busca não consulta o conteúdo das mensagens.
+- `/mensagens?conversa=ID` mantém a seleção ao recarregar e permite usar Voltar/Avançar do navegador. IDs fora da lista exibem orientação; o backend continua verificando acesso.
+- Os botões **Enviar mensagem** e **Conversar novamente** da Home abrem a conversa na página. A navegação para Início, Profissionais e Favoritos permanece disponível.
+- O painel usa apenas nome e papel do contato retornados pela API. Não inventa foto, presença online ou confirmação de leitura.
+- O campo de texto fica separado do histórico, que tem rolagem própria. Rascunhos são temporários: sair da conversa ou recarregar descarta o texto não enviado.
+
+### Organização técnica e protótipos
+
+`HomeDashboard` compartilha a navegação e o cabeçalho entre Home e Mensagens. `MessagesWorkspace` controla a lista, o filtro e a seleção pela URL; `ConversationThread` mantém carregamento, paginação, envio e recuperação de falhas. `messages-page.module.css` concentra os estilos responsivos. A rota usa `Suspense` para a leitura de parâmetros com `useSearchParams`.
+
+A integração mantém os endpoints existentes e não exige nova migration. A primeira proposta usa duas colunas; a segunda acrescenta detalhes do contato e foi a base adotada. Ambos os [protótipos navegáveis](prototypes/README.md) funcionam localmente com dados fictícios, sem enviar mensagens ao banco.
+
 ## Demonstração com duas contas
 
 1. Use uma conta de cliente e outra de prestador ativo, com pelo menos um serviço ativo. Caso o seed já esteja instalado, use `ana@hive.example.invalid` e `carlos@hive.example.invalid`, com a senha fictícia `HiveDemo!2026`. Não é necessário executar seed novamente.

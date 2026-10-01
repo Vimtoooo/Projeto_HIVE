@@ -54,3 +54,5 @@ Todos os perfis são fictícios e os testes não criam registros no banco.
 MessagingSpec.ts cobre cards de histórico, abertura de conversa, envio, rascunho preservado em falha, repetição com a mesma chave, recarregamento, sessão expirada e layout móvel. ApiFixture.ts isola os testes antigos do backend real. As novas capturas ficam em test-results/messages-desktop.png e messages-mobile.png.
 
 Para a camada de banco real, execute `npm run test:mensagens` em apps/backend. Para conferir as duas contas na interface, siga [docs/messages.md](../docs/messages.md).
+
+A página de mensagens também é testada por URL direta e após recarregar, busca de contato, navegação Voltar, lista vazia, conversa indisponível, paginação e isolamento do histórico ao trocar contato. No celular, o teste alterna lista/chat e verifica o botão de envio no viewport. As capturas desktop e móvel registram a página completa, sem o antigo modal.

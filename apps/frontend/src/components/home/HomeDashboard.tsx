@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { Suspense, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -26,7 +26,7 @@ import HomeIcon from "./HomeIcon";
 import type { IconName } from "./HomeIcon";
 import HomeDialog from "./HomeDialog";
 import ProfessionalAvatar from "./ProfessionalAvatar";
-import MessagesPanel from "./MessagesPanel";
+import MessagesWorkspace from "../messages/MessagesWorkspace";
 import ConnectedProfessionals from "./ConnectedProfessionals";
 import { api } from "../../services/MessagingApi";
 import type { Conversation } from "../../services/MessagingApi";
@@ -83,10 +83,15 @@ const future: { label: string; icon: IconName; description: string }[] = [
       "Os avisos sobre suas solicitações aparecerão aqui quando essa funcionalidade for implementada.",
   },
 ];
-export default function HomeDashboard() {
+export default function HomeDashboard({
+  view = "home",
+  initialSection = "Início",
+}: {
+  view?: "home" | "messages";
+  initialSection?: string;
+}) {
   const router = useRouter();
-  const [inbox, setInbox] = useState(false);
-  const [conversation, setConversation] = useState<Conversation | null>(null);
+
   async function logout() {
     try {
       await api("logout", {});
@@ -101,8 +106,7 @@ export default function HomeDashboard() {
   }
   function openInbox(c: Conversation | null = null) {
     setMenu(false);
-    setConversation(c);
-    setInbox(true);
+    router.push(c ? `/mensagens?conversa=${c.id}` : "/mensagens");
   }
   function demoMessage() {
     notify(
@@ -133,8 +137,12 @@ export default function HomeDashboard() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<Profession | null>(null);
   const [allCategories, setAllCategories] = useState(false);
-  const [onlyFavorites, setOnlyFavorites] = useState(false);
-  const [active, setActive] = useState("Início");
+  const [onlyFavorites, setOnlyFavorites] = useState(
+    initialSection === "Favoritos",
+  );
+  const [active, setActive] = useState(
+    view === "messages" ? "Mensagens" : initialSection,
+  );
   const [expanded, setExpanded] = useState<SortMode | null>(null);
   const [menu, setMenu] = useState(false);
   const [detail, setDetail] = useState<Professional | null>(null);
@@ -181,6 +189,15 @@ export default function HomeDashboard() {
     setNotice({ title, text });
   }
   function nav(label: string) {
+    if (view === "messages") {
+      setMenu(false);
+      router.push(
+        label === "Início"
+          ? "/home"
+          : `/home?secao=${encodeURIComponent(label)}#professionals`,
+      );
+      return;
+    }
     setActive(label);
     setMenu(false);
     if (label === "Início") {
@@ -217,7 +234,12 @@ export default function HomeDashboard() {
               {item.label}
             </button>
           ))}
-          <button type="button" onClick={() => openInbox()}>
+          <button
+            type="button"
+            onClick={() => openInbox()}
+            className={view === "messages" ? styles.active : ""}
+            aria-current={view === "messages" ? "page" : undefined}
+          >
             <HomeIcon name="message" />
             Mensagens
           </button>
@@ -340,7 +362,7 @@ export default function HomeDashboard() {
             </button>
             <span className={styles.breadcrumb}>
               Seu espaço <HomeIcon name="chevron" size={13} />
-              <strong>Início</strong>
+              <strong>{view === "messages" ? "Mensagens" : "Início"}</strong>
             </span>
           </div>
           <div className={styles.topActions}>
@@ -382,353 +404,367 @@ export default function HomeDashboard() {
             </button>
           </div>
         </header>
-        <div className={styles.contentGrid}>
-          <main id="main-content" className={styles.main}>
-            <div className={styles.greeting}>
-              <div>
-                <span className={styles.eyebrow}>BEM-VINDO AO SEU HIVE</span>
-                <h1>
-                  Olá, {viewer ? firstName(viewer.name) : "visitante"}
-                  <span>!</span>
-                </h1>
-                <p>Deixe os pequenos desafios do dia com quem entende.</p>
-              </div>
-              <span className={styles.location}>
-                <HomeIcon name="location" size={17} />
-                <span>
-                  Osasco, SP<small>Região ilustrativa</small>
-                </span>
-              </span>
-            </div>
-            <form
-              className={styles.search}
-              role="search"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setQuery(draft.trim());
-                setActive("Profissionais");
-                setExpanded(null);
-                scrollToCatalog();
-              }}
-            >
-              <HomeIcon name="search" />
-              <input
-                id="home-search"
-                aria-label="Buscar profissionais ou serviços"
-                placeholder="De qual serviço você precisa hoje?"
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                maxLength={100}
-              />
-              <button type="submit">
-                Buscar <HomeIcon name="arrow" size={17} />
-              </button>
-            </form>
-            <section className={styles.hero} aria-labelledby="hero-title">
-              <div className={styles.heroCopy}>
-                <span className={styles.heroTag}>
-                  <HomeIcon name="sparkle" size={14} /> MAIS TEMPO PARA O QUE
-                  IMPORTA
-                </span>
-                <h2 id="hero-title">
-                  Gente que resolve.
-                  <br />
-                  Perto de você.
-                </h2>
-                <p>
-                  Encontre o profissional certo e dê vida
-                  <br className={styles.desktopBreak} /> aos seus planos.
-                </p>
-                <button
-                  type="button"
-                  className={styles.darkButton}
-                  onClick={() => nav("Profissionais")}
-                >
-                  Encontrar profissionais <HomeIcon name="arrow" size={17} />
-                </button>
-              </div>
-              <div className={styles.heroArt} aria-hidden="true">
-                <div className={styles.honeycomb} />
-                <div className={styles.artTile + " " + styles.artOne}>
-                  <HomeIcon name="wrench" size={35} />
-                </div>
-                <div className={styles.artTile + " " + styles.artTwo}>
-                  <HomeIcon name="bolt" size={37} />
-                </div>
-                <div className={styles.artTile + " " + styles.artThree}>
-                  <HomeIcon name="paint" size={29} />
-                </div>
-                <div className={styles.artCaption}>
-                  <span>
-                    <HomeIcon name="check" size={15} />
-                  </span>
-                  Uma mãozinha faz a diferença.
-                </div>
-              </div>
-            </section>
-            <section
-              className={styles.categorySection}
-              aria-labelledby="category-title"
-            >
-              <div className={styles.sectionHeading}>
+        {view === "messages" ? (
+          <main id="main-content" className={styles.messagesMain}>
+            <Suspense fallback={<p>Carregando mensagens…</p>}>
+              <MessagesWorkspace />
+            </Suspense>
+          </main>
+        ) : (
+          <div className={styles.contentGrid}>
+            <main id="main-content" className={styles.main}>
+              <div className={styles.greeting}>
                 <div>
-                  <h2 id="category-title">O que você precisa?</h2>
-                  <p>Encontre ajuda por profissão.</p>
+                  <span className={styles.eyebrow}>BEM-VINDO AO SEU HIVE</span>
+                  <h1>
+                    Olá, {viewer ? firstName(viewer.name) : "visitante"}
+                    <span>!</span>
+                  </h1>
+                  <p>Deixe os pequenos desafios do dia com quem entende.</p>
                 </div>
-                <button
-                  type="button"
-                  className={styles.textButton}
-                  aria-expanded={allCategories}
-                  onClick={() => setAllCategories(!allCategories)}
-                >
-                  {allCategories ? "Ver menos" : "Todas as categorias"}
-                  <HomeIcon name="chevron" size={15} />
-                </button>
-              </div>
-              <div className={styles.categories}>
-                {(allCategories ? categories : categories.slice(0, 6)).map(
-                  (item) => (
-                    <button
-                      type="button"
-                      key={item.label}
-                      className={
-                        category === item.label ? styles.selectedCategory : ""
-                      }
-                      aria-pressed={category === item.label}
-                      onClick={() => {
-                        setCategory(
-                          category === item.label ? null : item.label,
-                        );
-                        setActive("Profissionais");
-                        setExpanded(null);
-                      }}
-                    >
-                      <span>
-                        <HomeIcon name={item.icon} size={24} />
-                      </span>
-                      {item.label}
-                    </button>
-                  ),
-                )}
-              </div>
-            </section>
-            <ConnectedProfessionals onConversation={openInbox} />
-            <div id="professionals" className={styles.catalog}>
-              <div className={styles.catalogNote}>
-                <span>
-                  <HomeIcon name="shield" size={15} /> Perfis, valores,
-                  avaliações e distâncias fictícios para demonstração.
-                </span>
-                {filtering && (
-                  <button type="button" onClick={reset}>
-                    Limpar filtros
-                  </button>
-                )}
-              </div>
-              {filtering && (
-                <p className={styles.resultCount} role="status">
-                  {results.length}{" "}
-                  {results.length === 1
-                    ? "profissional encontrado"
-                    : "profissionais encontrados"}
-                  {query ? " para “" + query + "”" : ""}
-                  {category ? " · " + category : ""}
-                  {onlyFavorites ? " · Favoritos" : ""}
-                </p>
-              )}
-              {results.length === 0 ? (
-                <div className={styles.empty}>
+                <span className={styles.location}>
+                  <HomeIcon name="location" size={17} />
                   <span>
-                    <HomeIcon
-                      name={onlyFavorites ? "heart" : "search"}
-                      size={32}
-                    />
+                    Osasco, SP<small>Região ilustrativa</small>
                   </span>
-                  <h2>
-                    {onlyFavorites
-                      ? "Seus favoritos começam aqui"
-                      : "Nenhum profissional encontrado"}
+                </span>
+              </div>
+              <form
+                className={styles.search}
+                role="search"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  setQuery(draft.trim());
+                  setActive("Profissionais");
+                  setExpanded(null);
+                  scrollToCatalog();
+                }}
+              >
+                <HomeIcon name="search" />
+                <input
+                  id="home-search"
+                  aria-label="Buscar profissionais ou serviços"
+                  placeholder="De qual serviço você precisa hoje?"
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  maxLength={100}
+                />
+                <button type="submit">
+                  Buscar <HomeIcon name="arrow" size={17} />
+                </button>
+              </form>
+              <section className={styles.hero} aria-labelledby="hero-title">
+                <div className={styles.heroCopy}>
+                  <span className={styles.heroTag}>
+                    <HomeIcon name="sparkle" size={14} /> MAIS TEMPO PARA O QUE
+                    IMPORTA
+                  </span>
+                  <h2 id="hero-title">
+                    Gente que resolve.
+                    <br />
+                    Perto de você.
                   </h2>
                   <p>
-                    {onlyFavorites
-                      ? "Toque no coração de um perfil para encontrá-lo aqui depois."
-                      : "Tente outro nome, serviço ou profissão. Você também pode limpar os filtros."}
+                    Encontre o profissional certo e dê vida
+                    <br className={styles.desktopBreak} /> aos seus planos.
                   </p>
                   <button
                     type="button"
                     className={styles.darkButton}
-                    onClick={reset}
+                    onClick={() => nav("Profissionais")}
                   >
-                    Explorar profissionais <HomeIcon name="arrow" size={16} />
+                    Encontrar profissionais <HomeIcon name="arrow" size={17} />
                   </button>
                 </div>
-              ) : (
-                sections.map((section) => (
-                  <section
-                    className={styles.providerSection}
-                    key={section.mode}
-                    aria-labelledby={"heading-" + section.mode}
+                <div className={styles.heroArt} aria-hidden="true">
+                  <div className={styles.honeycomb} />
+                  <div className={styles.artTile + " " + styles.artOne}>
+                    <HomeIcon name="wrench" size={35} />
+                  </div>
+                  <div className={styles.artTile + " " + styles.artTwo}>
+                    <HomeIcon name="bolt" size={37} />
+                  </div>
+                  <div className={styles.artTile + " " + styles.artThree}>
+                    <HomeIcon name="paint" size={29} />
+                  </div>
+                  <div className={styles.artCaption}>
+                    <span>
+                      <HomeIcon name="check" size={15} />
+                    </span>
+                    Uma mãozinha faz a diferença.
+                  </div>
+                </div>
+              </section>
+              <section
+                className={styles.categorySection}
+                aria-labelledby="category-title"
+              >
+                <div className={styles.sectionHeading}>
+                  <div>
+                    <h2 id="category-title">O que você precisa?</h2>
+                    <p>Encontre ajuda por profissão.</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.textButton}
+                    aria-expanded={allCategories}
+                    onClick={() => setAllCategories(!allCategories)}
                   >
-                    <div className={styles.sectionHeading}>
-                      <div>
-                        <h2 id={"heading-" + section.mode}>
-                          <HomeIcon name={section.icon} size={20} />
-                          {section.title}
-                        </h2>
-                        <p>{section.subtitle}</p>
-                      </div>
+                    {allCategories ? "Ver menos" : "Todas as categorias"}
+                    <HomeIcon name="chevron" size={15} />
+                  </button>
+                </div>
+                <div className={styles.categories}>
+                  {(allCategories ? categories : categories.slice(0, 6)).map(
+                    (item) => (
                       <button
                         type="button"
-                        className={styles.textButton}
-                        aria-expanded={expanded === section.mode}
-                        aria-label={
-                          (expanded === section.mode
-                            ? "Ver menos: "
-                            : "Ver todos: ") + section.title
+                        key={item.label}
+                        className={
+                          category === item.label ? styles.selectedCategory : ""
                         }
-                        onClick={() =>
-                          setExpanded(
-                            expanded === section.mode ? null : section.mode,
-                          )
-                        }
+                        aria-pressed={category === item.label}
+                        onClick={() => {
+                          setCategory(
+                            category === item.label ? null : item.label,
+                          );
+                          setActive("Profissionais");
+                          setExpanded(null);
+                        }}
                       >
-                        {expanded === section.mode ? "Ver menos" : "Ver todos"}
-                        <HomeIcon name="arrow" size={16} />
+                        <span>
+                          <HomeIcon name={item.icon} size={24} />
+                        </span>
+                        {item.label}
                       </button>
-                    </div>
-                    <div className={styles.cards}>
-                      {sortProfessionals(results, section.mode)
-                        .slice(0, expanded === section.mode ? undefined : 3)
-                        .map((p) => (
-                          <ProfessionalCard
-                            key={p.id}
-                            professional={p}
-                            saved={favorites.includes(p.id)}
-                            onSave={() => toggleFavorite(p)}
-                            onDetails={() => setDetail(p)}
-                            onMessage={demoMessage}
-                          />
-                        ))}
-                    </div>
-                  </section>
-                ))
-              )}
-            </div>
-            <footer className={styles.mainFooter}>
-              <span>HIVE · Conexões que fazem a diferença.</span>
-              <button
-                type="button"
-                onClick={() =>
-                  notify(
-                    "Sobre esta demonstração",
-                    "Projeto interdisciplinar HIVE. Os profissionais exibidos são fictícios. Distâncias não utilizam sua localização e nenhum orçamento ou contratação é enviado.",
-                  )
-                }
-              >
-                Sobre a demonstração <HomeIcon name="arrow" size={14} />
-              </button>
-            </footer>
-          </main>
-          <aside className={styles.rightRail} aria-label="Seu espaço no HIVE">
-            <div className={styles.communityCard}>
-              <div className={styles.communityIcon}>
-                <HomeIcon name="home" size={25} />
-              </div>
-              <span className={styles.eyebrow}>BOM TER VOCÊ POR AQUI</span>
-              <h2>
-                Uma comunidade.
-                <br />
-                Muitas soluções.
-              </h2>
-              <p>
-                Pessoas com talentos diferentes, prontas para facilitar o seu
-                dia.
-              </p>
-              <div className={styles.stackedAvatars}>
-                <span className={styles.gold}>RM</span>
-                <span className={styles.sage}>CS</span>
-                <span className={styles.blue}>MO</span>
-                <span>+6</span>
-              </div>
-              <small>Conheça os perfis de demonstração</small>
-            </div>
-            <div className={styles.savedPanel}>
-              <div>
-                <span className={styles.outlineIcon}>
-                  <HomeIcon name="heart" />
-                </span>
-                <span>
-                  <strong>Seus favoritos</strong>
-                  <small>
-                    {favorites.length}{" "}
-                    {favorites.length === 1
-                      ? "profissional salvo"
-                      : "profissionais salvos"}
-                  </small>
-                </span>
-              </div>
-              <p>Gostou de um perfil? Salve para encontrar com facilidade.</p>
-              <button
-                type="button"
-                className={styles.textButton}
-                onClick={() => nav("Favoritos")}
-              >
-                Ver meus favoritos <HomeIcon name="arrow" size={16} />
-              </button>
-            </div>
-            <section className={styles.steps}>
-              <h3>Encontrar ajuda é simples</h3>
-              {[
-                ["Explore", "Escolha a profissão que precisa."],
-                ["Conheça", "Veja os detalhes de cada perfil."],
-                ["Salve", "Guarde seus favoritos para depois."],
-              ].map(([title, text], index) => (
-                <div key={title}>
-                  <span>{index + 1}</span>
-                  <p>
-                    <strong>{title}</strong>
-                    {text}
-                  </p>
+                    ),
+                  )}
                 </div>
-              ))}
-            </section>
-            <div className={styles.helpCard}>
-              <HomeIcon name="help" size={23} />
-              <h3>Podemos ajudar?</h3>
-              <p>Conheça o que já é possível explorar no HIVE.</p>
-              <button
-                type="button"
-                onClick={() =>
-                  notify(
-                    "Como funciona o HIVE",
-                    "Busque por profissão ou serviço, filtre as categorias, veja detalhes e salve favoritos. Abra Mensagens ou envie uma mensagem pelos cards de profissionais cadastrados.",
-                  )
-                }
-              >
-                Como funciona <HomeIcon name="arrow" size={15} />
-              </button>
-            </div>
-            <div className={styles.sessionAction}>
-              {viewer ? (
+              </section>
+              <ConnectedProfessionals onConversation={openInbox} />
+              <div id="professionals" className={styles.catalog}>
+                <div className={styles.catalogNote}>
+                  <span>
+                    <HomeIcon name="shield" size={15} /> Perfis, valores,
+                    avaliações e distâncias fictícios para demonstração.
+                  </span>
+                  {filtering && (
+                    <button type="button" onClick={reset}>
+                      Limpar filtros
+                    </button>
+                  )}
+                </div>
+                {filtering && (
+                  <p className={styles.resultCount} role="status">
+                    {results.length}{" "}
+                    {results.length === 1
+                      ? "profissional encontrado"
+                      : "profissionais encontrados"}
+                    {query ? " para “" + query + "”" : ""}
+                    {category ? " · " + category : ""}
+                    {onlyFavorites ? " · Favoritos" : ""}
+                  </p>
+                )}
+                {results.length === 0 ? (
+                  <div className={styles.empty}>
+                    <span>
+                      <HomeIcon
+                        name={onlyFavorites ? "heart" : "search"}
+                        size={32}
+                      />
+                    </span>
+                    <h2>
+                      {onlyFavorites
+                        ? "Seus favoritos começam aqui"
+                        : "Nenhum profissional encontrado"}
+                    </h2>
+                    <p>
+                      {onlyFavorites
+                        ? "Toque no coração de um perfil para encontrá-lo aqui depois."
+                        : "Tente outro nome, serviço ou profissão. Você também pode limpar os filtros."}
+                    </p>
+                    <button
+                      type="button"
+                      className={styles.darkButton}
+                      onClick={reset}
+                    >
+                      Explorar profissionais <HomeIcon name="arrow" size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  sections.map((section) => (
+                    <section
+                      className={styles.providerSection}
+                      key={section.mode}
+                      aria-labelledby={"heading-" + section.mode}
+                    >
+                      <div className={styles.sectionHeading}>
+                        <div>
+                          <h2 id={"heading-" + section.mode}>
+                            <HomeIcon name={section.icon} size={20} />
+                            {section.title}
+                          </h2>
+                          <p>{section.subtitle}</p>
+                        </div>
+                        <button
+                          type="button"
+                          className={styles.textButton}
+                          aria-expanded={expanded === section.mode}
+                          aria-label={
+                            (expanded === section.mode
+                              ? "Ver menos: "
+                              : "Ver todos: ") + section.title
+                          }
+                          onClick={() =>
+                            setExpanded(
+                              expanded === section.mode ? null : section.mode,
+                            )
+                          }
+                        >
+                          {expanded === section.mode
+                            ? "Ver menos"
+                            : "Ver todos"}
+                          <HomeIcon name="arrow" size={16} />
+                        </button>
+                      </div>
+                      <div className={styles.cards}>
+                        {sortProfessionals(results, section.mode)
+                          .slice(0, expanded === section.mode ? undefined : 3)
+                          .map((p) => (
+                            <ProfessionalCard
+                              key={p.id}
+                              professional={p}
+                              saved={favorites.includes(p.id)}
+                              onSave={() => toggleFavorite(p)}
+                              onDetails={() => setDetail(p)}
+                              onMessage={demoMessage}
+                            />
+                          ))}
+                      </div>
+                    </section>
+                  ))
+                )}
+              </div>
+              <footer className={styles.mainFooter}>
+                <span>HIVE · Conexões que fazem a diferença.</span>
                 <button
                   type="button"
-                  onClick={() => {
-                    void logout();
-                  }}
+                  onClick={() =>
+                    notify(
+                      "Sobre esta demonstração",
+                      "Projeto interdisciplinar HIVE. Os profissionais exibidos são fictícios. Distâncias não utilizam sua localização e nenhum orçamento ou contratação é enviado.",
+                    )
+                  }
                 >
-                  <HomeIcon name="exit" size={17} />
-                  Sair da conta
+                  Sobre a demonstração <HomeIcon name="arrow" size={14} />
                 </button>
-              ) : (
-                <Link href="/login">
-                  <HomeIcon name="exit" size={17} />
-                  Entrar na minha conta
-                </Link>
-              )}
-            </div>
-          </aside>
-        </div>
-        <div className={styles.mobileAccount}>
+              </footer>
+            </main>
+            <aside className={styles.rightRail} aria-label="Seu espaço no HIVE">
+              <div className={styles.communityCard}>
+                <div className={styles.communityIcon}>
+                  <HomeIcon name="home" size={25} />
+                </div>
+                <span className={styles.eyebrow}>BOM TER VOCÊ POR AQUI</span>
+                <h2>
+                  Uma comunidade.
+                  <br />
+                  Muitas soluções.
+                </h2>
+                <p>
+                  Pessoas com talentos diferentes, prontas para facilitar o seu
+                  dia.
+                </p>
+                <div className={styles.stackedAvatars}>
+                  <span className={styles.gold}>RM</span>
+                  <span className={styles.sage}>CS</span>
+                  <span className={styles.blue}>MO</span>
+                  <span>+6</span>
+                </div>
+                <small>Conheça os perfis de demonstração</small>
+              </div>
+              <div className={styles.savedPanel}>
+                <div>
+                  <span className={styles.outlineIcon}>
+                    <HomeIcon name="heart" />
+                  </span>
+                  <span>
+                    <strong>Seus favoritos</strong>
+                    <small>
+                      {favorites.length}{" "}
+                      {favorites.length === 1
+                        ? "profissional salvo"
+                        : "profissionais salvos"}
+                    </small>
+                  </span>
+                </div>
+                <p>Gostou de um perfil? Salve para encontrar com facilidade.</p>
+                <button
+                  type="button"
+                  className={styles.textButton}
+                  onClick={() => nav("Favoritos")}
+                >
+                  Ver meus favoritos <HomeIcon name="arrow" size={16} />
+                </button>
+              </div>
+              <section className={styles.steps}>
+                <h3>Encontrar ajuda é simples</h3>
+                {[
+                  ["Explore", "Escolha a profissão que precisa."],
+                  ["Conheça", "Veja os detalhes de cada perfil."],
+                  ["Salve", "Guarde seus favoritos para depois."],
+                ].map(([title, text], index) => (
+                  <div key={title}>
+                    <span>{index + 1}</span>
+                    <p>
+                      <strong>{title}</strong>
+                      {text}
+                    </p>
+                  </div>
+                ))}
+              </section>
+              <div className={styles.helpCard}>
+                <HomeIcon name="help" size={23} />
+                <h3>Podemos ajudar?</h3>
+                <p>Conheça o que já é possível explorar no HIVE.</p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    notify(
+                      "Como funciona o HIVE",
+                      "Busque por profissão ou serviço, filtre as categorias, veja detalhes e salve favoritos. Abra Mensagens ou envie uma mensagem pelos cards de profissionais cadastrados.",
+                    )
+                  }
+                >
+                  Como funciona <HomeIcon name="arrow" size={15} />
+                </button>
+              </div>
+              <div className={styles.sessionAction}>
+                {viewer ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void logout();
+                    }}
+                  >
+                    <HomeIcon name="exit" size={17} />
+                    Sair da conta
+                  </button>
+                ) : (
+                  <Link href="/login">
+                    <HomeIcon name="exit" size={17} />
+                    Entrar na minha conta
+                  </Link>
+                )}
+              </div>
+            </aside>
+          </div>
+        )}
+        <div
+          className={
+            view === "messages" ? styles.messagesAccount : styles.mobileAccount
+          }
+        >
           {viewer ? (
             <button
               type="button"
@@ -746,12 +782,6 @@ export default function HomeDashboard() {
       <span className={styles.srOnly} role="status">
         {announcement}
       </span>
-      {inbox && (
-        <MessagesPanel
-          initial={conversation}
-          onDismiss={() => setInbox(false)}
-        />
-      )}
       {menu && (
         <HomeDialog title="Navegação" onDismiss={() => setMenu(false)}>
           {navigation()}

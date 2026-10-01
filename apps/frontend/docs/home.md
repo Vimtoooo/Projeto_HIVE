@@ -55,7 +55,7 @@ Os testes automatizados usam API de login simulada e não escrevem no banco.
 - O padrão geométrico do banner foi ampliado e deslocado para cima, com máscara suave e recorte no contêiner, evitando bordas aparentes.
 - ProfessionalAvatar.tsx usa uma imagem local WebP com nove retratos fictícios (aproximadamente 66 KB); não há chamadas a serviços de fotos externos. Os usuários do banco continuam com iniciais até existir cadastro de fotografia.
 - ConnectedProfessionals.tsx carrega os prestadores disponíveis pela API e os serviços concluídos da sessão atual. “Contrate novamente” elimina prestadores repetidos e abre uma conversa; não cria contratação ou cobrança automaticamente.
-- MessagesPanel.tsx permite selecionar conversas, carregar mensagens antigas e enviar texto real. Consulta novas mensagens a cada cinco segundos, preserva o rascunho após falhas e reutiliza a chave do envio para evitar duplicação na tentativa repetida.
+- MessagesWorkspace.tsx organiza a página de conversas; ConversationThread.tsx carrega mensagens antigas e envia texto real. Consulta novas mensagens a cada cinco segundos, preserva o rascunho após falhas e reutiliza a chave do envio para evitar duplicação na tentativa repetida.
 - O botão Conversar dos perfis fictícios explica a diferença e não cria contatos no banco. Os cards “Profissionais cadastrados” enviam mensagens reais.
 - O login cria sessão HTTP-only no backend. sessionStorage guarda apenas apresentação; modificar seu ID não concede acesso. Sair revoga a sessão no servidor antes de limpar a apresentação.
 
@@ -64,3 +64,7 @@ Siga o [roteiro completo de mensagens](messages.md) para configurar a migration 
 ### Origem das imagens
 
 `public/images/demo-professionals.webp` deriva de uma imagem gerada pela ferramenta integrada image_gen, otimizada localmente para WebP. Prompt: uma grade fotográfica 3×3 de nove adultos inteiramente fictícios, homens e mulheres com aparências variadas, enquadramento de rosto e ombros, iluminação natural consistente, fundos neutros, sem texto ou marcas. Nenhum retrato foi associado a uma conta real.
+
+## Navegação para mensagens
+
+Mensagens agora abre a página `/mensagens` com a navegação compartilhada da Home. Os cards de profissionais cadastrados e de histórico direcionam para a conversa selecionada. Veja [o guia de mensagens](messages.md) para comportamento, protótipos e limites.

@@ -3,6 +3,21 @@ export const metadata = {
   title: "HIVE — Início",
   description: "Encontre o profissional ideal para o seu dia.",
 };
-export default function Page() {
-  return <HomeDashboard />;
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ secao?: string }>;
+}) {
+  const { secao } = await searchParams;
+  return (
+    <HomeDashboard
+      initialSection={
+        secao === "Favoritos"
+          ? "Favoritos"
+          : secao === "Profissionais"
+            ? "Profissionais"
+            : "Início"
+      }
+    />
+  );
 }

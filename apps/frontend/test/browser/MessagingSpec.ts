@@ -43,6 +43,7 @@ test.beforeEach(async ({ page }) => {
 test("histórico real abre conversa, envia, preserva texto na falha e recupera após recarregar", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1600, height: 1000 });
   const rows = [
     {
       id: 1,
@@ -84,18 +85,19 @@ test("histórico real abre conversa, envia, preserva texto na falha e recupera a
   await page.goto("/home");
   await expect(page.getByRole("heading", { name: "Olá, Ana!" })).toBeVisible();
   await page.getByRole("button", { name: "Conversar novamente" }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page).toHaveURL(/\/mensagens\?conversa=3/);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByText("Olá, posso ajudar?")).toBeVisible();
   const input = page.getByLabel("Sua mensagem");
   await input.fill("Pode montar outra estante?");
   await page
-    .getByRole("dialog")
     .getByRole("button", { name: "Enviar mensagem", exact: true })
     .click();
-  await expect(page.getByRole("dialog").getByRole("alert")).toContainText("Servidor indisponível");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Servidor indisponível",
+  );
   await expect(input).toHaveValue("Pode montar outra estante?");
   await page
-    .getByRole("dialog")
     .getByRole("button", { name: "Enviar mensagem", exact: true })
     .click();
   await expect(input).toHaveValue("");
@@ -104,16 +106,14 @@ test("histórico real abre conversa, envia, preserva texto na falha e recupera a
     "Pode montar outra estante?",
   );
   await page.reload();
-  await page.getByRole("button", { name: "Mensagens", exact: true }).click();
-  await page
-    .getByRole("navigation", { name: "Conversas" })
-    .getByRole("button")
-    .click();
+  await expect(page).toHaveURL(/\/mensagens\?conversa=3/);
   await expect(page.getByRole("log")).toContainText(
     "Pode montar outra estante?",
   );
-  await expect(page.getByRole("dialog").getByRole("button", {name:"Enviar mensagem", exact:true})).toBeInViewport();
-  await page.getByRole("dialog").screenshot({
+  await expect(
+    page.getByRole("button", { name: "Enviar mensagem", exact: true }),
+  ).toBeInViewport();
+  await page.screenshot({
     path: "test-results/messages-desktop.png",
     fullPage: true,
     animations: "disabled",
@@ -139,7 +139,7 @@ test("perfil fictício não abre conversa real; visitante vê acesso ao login", 
   await page.keyboard.press("Escape");
   await page.getByRole("button", { name: "Mensagens", exact: true }).click();
   await expect(
-    page.getByRole("dialog").getByRole("link", { name: "Entrar novamente" }),
+    page.getByRole("link", { name: "Entrar novamente" }),
   ).toBeVisible();
 });
 test("conversa no celular, histórico vazio, sessão expirada e retratos locais", async ({
@@ -171,8 +171,10 @@ test("conversa no celular, histórico vazio, sessão expirada e retratos locais"
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  await expect(page.getByRole("dialog").getByRole("button", {name:"Enviar mensagem", exact:true})).toBeInViewport();
-  await page.getByRole("dialog").screenshot({
+  await expect(
+    page.getByRole("button", { name: "Enviar mensagem", exact: true }),
+  ).toBeInViewport();
+  await page.screenshot({
     path: "test-results/messages-mobile.png",
     fullPage: true,
     animations: "disabled",
@@ -184,7 +186,110 @@ test("conversa no celular, histórico vazio, sessão expirada e retratos locais"
     }),
   );
   await expect(
-    page.getByRole("dialog").getByRole("link", { name: "Entrar novamente" }),
+    page.getByRole("link", { name: "Entrar novamente" }),
   ).toBeVisible({ timeout: 10000 });
   await expect(page.getByLabel("Sua mensagem")).toHaveCount(0);
+});
+
+test("busca contatos, navega pelo histórico e volta à Home", async ({
+  page,
+}) => {
+  await page.route("**/api/conversas/3/mensagens", (route) =>
+    route.fulfill({ json: { itens: [], temMais: false } }),
+  );
+  await page.goto("/mensagens");
+  await expect(
+    page.getByRole("button", { name: "Mensagens", exact: true }),
+  ).toHaveAttribute("aria-current", "page");
+  await expect(
+    page.getByRole("heading", { name: "Uma boa conversa começa aqui." }),
+  ).toBeVisible();
+  await page.getByLabel("Buscar conversa").fill("ninguém");
+  await expect(
+    page.getByText("Nenhum contato encontrado. Tente outro nome."),
+  ).toBeVisible();
+  await page.getByLabel("Buscar conversa").fill("CARLOS");
+  await page
+    .getByRole("navigation", { name: "Conversas" })
+    .getByRole("button")
+    .click();
+  await expect(page.getByLabel("Sua mensagem")).toBeVisible();
+  await page.goBack();
+  await expect(
+    page.getByRole("heading", { name: "Uma boa conversa começa aqui." }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Início", exact: true }).click();
+  await expect(page).toHaveURL(/\/home$/);
+});
+
+test("celular alterna lista e chat; conversa inválida e caixa vazia têm orientação", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/api/conversas/3/mensagens", (route) =>
+    route.fulfill({ json: { itens: [], temMais: false } }),
+  );
+  await page.goto("/mensagens?conversa=3");
+  await expect(page.getByLabel("Sua mensagem")).toBeVisible();
+  await page
+    .getByRole("button", { name: "Voltar às conversas", exact: true })
+    .click();
+  await expect(page.getByLabel("Buscar conversa")).toBeVisible();
+  await expect(page.getByLabel("Sua mensagem")).toHaveCount(0);
+  await page.goto("/mensagens?conversa=999");
+  await expect(
+    page.getByRole("heading", { name: "Conversa indisponível" }),
+  ).toBeVisible();
+  await page.route("**/api/conversas", (route) => route.fulfill({ json: [] }));
+  await page.goto("/mensagens");
+  await expect(
+    page.getByRole("link", { name: "Explorar profissionais" }),
+  ).toBeVisible();
+});
+
+test("paginação carrega mensagens anteriores sem duplicar e trocar contato isola histórico", async ({
+  page,
+}) => {
+  const second = {
+    id: 4,
+    cliente: conversation.cliente,
+    prestador: { idUsuario: 13, nome: "Beatriz Jardim" },
+  };
+  await page.route("**/api/conversas", (route) =>
+    route.fulfill({ json: [conversation, second] }),
+  );
+  const message = {
+    id: 52,
+    conversaId: 3,
+    remetenteId: 12,
+    conteudo: "Mensagem recente",
+    enviadaEm: "2026-09-30T12:00:00Z",
+  };
+  await page.route("**/api/conversas/3/mensagens*", (route) =>
+    route.fulfill({
+      json: route.request().url().includes("?")
+        ? {
+            itens: [{ ...message, id: 1, conteudo: "Mensagem antiga" }],
+            temMais: false,
+          }
+        : { itens: [message], temMais: true },
+    }),
+  );
+  await page.route("**/api/conversas/4/mensagens", (route) =>
+    route.fulfill({ json: { itens: [], temMais: false } }),
+  );
+  await page.goto("/mensagens?conversa=3");
+  await page
+    .getByRole("button", { name: "Carregar mensagens anteriores" })
+    .click();
+  await expect(page.getByRole("log")).toContainText("Mensagem antiga");
+  await expect(
+    page.getByRole("log").getByText("Mensagem recente", { exact: true }),
+  ).toHaveCount(1);
+  await page
+    .getByRole("navigation", { name: "Conversas" })
+    .getByRole("button", { name: /Beatriz Jardim/ })
+    .click();
+  await expect(page.getByRole("log")).not.toContainText("Mensagem recente");
+  await expect(page.getByRole("log")).not.toContainText("Mensagem antiga");
 });

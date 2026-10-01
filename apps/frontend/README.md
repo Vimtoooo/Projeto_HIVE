@@ -291,7 +291,7 @@ No terminal da API e no terminal do frontend, pressione `Ctrl+C`.
 
 ## Evolução planejada
 
-As três telas atuais usam React e TypeScript. A evolução das demais telas segue o plano acima.
+As telas atuais usam React e TypeScript. A evolução das demais telas segue o plano acima.
 O planejamento das demais telas permanece registrado no [README principal](../../README.md).
 
 
@@ -328,7 +328,7 @@ apresentação; a autorização usa separadamente a sessão HTTP-only emitida pe
 A busca aceita nomes, profissões e serviços, sem diferenciar acentos. Categorias
 e favoritos podem ser combinados com a busca. As três seções ordenam os perfis
 por distância ilustrativa, nota/avaliações e quantidade fictícia de serviços.
-Detalhes abrem em uma janela na própria Home; não são criadas outras páginas.
+Detalhes dos perfis ilustrativos abrem em uma janela na própria Home. Mensagens reais têm uma página própria em `/mensagens`.
 
 Favoritos ficam nesta aba, separados por usuário, e podem ser removidos. Ao
 sair, a sessão é revogada na API e nome e favoritos do usuário atual são limpos. Se o armazenamento estiver
@@ -342,3 +342,5 @@ Osasco, distâncias, preços e avaliações são dados fictícios. Veja o
 ## Mensagens reais e histórico de prestadores
 
 Aplique a migration de sessões/conversas no backend e faça login novamente. “Profissionais cadastrados” permite iniciar conversas reais; “Contrate novamente” usa exclusivamente contratações concluídas da conta. Veja [configuração, demonstração com duas contas e limites](docs/messages.md).
+
+A página `/mensagens` organiza contatos, chat e detalhes em painéis, com busca por nome e navegação adaptada ao celular. Consulte os [dois protótipos](docs/prototypes/README.md) e o [guia técnico de mensagens](docs/messages.md).
