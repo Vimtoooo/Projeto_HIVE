@@ -8,9 +8,9 @@ Cada seção será implementada, testada e registrada em um commit antes de inic
 | --- | --- |
 | Início e mensagens | Implementadas anteriormente |
 | Minhas solicitações | Fluxo completo entregue nesta etapa; ver [guia](requests.md) |
-| Notificações | Próxima etapa proposta; eventos e leitura precisam ser definidos |
+| Notificações | Planejada, ainda não implementada; ver [eventos, interface e testes](notifications-plan.md) |
 | Meu perfil | Pendente: página e edição dos dados permitidos |
 | Central de ajuda | Pendente: página de orientações |
 | Profissionais e favoritos | Funcionam na Home; páginas próprias poderão ser tratadas em etapas posteriores |
 
-Esta entrega encerra após o commit de solicitações. Notificações, perfil e ajuda não são implementados no mesmo passo.
+A seção de solicitações foi concluída. O próximo passo está descrito no [plano de notificações](notifications-plan.md); o planejamento encerra sem iniciar sua implementação. Perfil e ajuda permanecem para entregas separadas.

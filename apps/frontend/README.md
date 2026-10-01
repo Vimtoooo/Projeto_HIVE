@@ -2,10 +2,10 @@
 
 ## React e TypeScript com Next.js
 
-Login, cadastro e Home agora são rotas React/TypeScript. O código dos formulários
+Login, cadastro, Home, mensagens e solicitações são rotas React/TypeScript. O código dos formulários
 foi migrado para componentes, e o Next.js gera o JavaScript executado pelo
 navegador. O backend NestJS continua responsável por regras de negócio, senhas e
-persistência no PostgreSQL. A integração de mensagens acrescenta uma migration de sessões, conversas e mensagens (veja o guia abaixo).
+persistência no PostgreSQL. As migrations do backend incluem sessões, conversas, mensagens e a chave de idempotência das solicitações; aplique-as antes de usar esses fluxos.
 
 ### Plano de adoção
 
@@ -16,7 +16,7 @@ persistência no PostgreSQL. A integração de mensagens acrescenta uma migratio
    unitários e testes de navegador, CSS Modules para evitar conflitos entre telas.
 4. **Concluído:** sessões com cookie HTTP-only, mensagens persistentes entre contas e histórico de prestadores contratados.
 5. **Concluído:** solicitações de serviços pela interface, com aceite/recusa, conclusão e cancelamento.
-6. **Próximas etapas:** notificações e demais telas. A Home pode ser explorada publicamente; mensagens e histórico exigem sessão válida.
+6. **Próximas etapas:** notificações e demais telas. A Home pode ser explorada publicamente; mensagens, histórico e solicitações exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
 
 ### Executar agora
 
@@ -30,6 +30,8 @@ Mantenha PostgreSQL e os dois servidores em execução. Na raiz do repositório:
 cd apps/backend
 $env:DOTENV_CONFIG_PATH = '.env/.env'
 $env:PORT = '3000'
+npm run prisma:generate
+npm run db:migrate:deploy
 npm run start:dev
 ```
 
@@ -42,9 +44,8 @@ npm run dev
 ```
 
 Abra http://localhost:3001. A raiz vai para /login; cadastro em /cadastro e Home
-em /home. Os antigos /pages/Hive.html, /pages/register.html e /pages/home.html
-redirecionam para essas rotas. Não há mais arquivos HTML executáveis independentes
-nem sincronização para public; o Next.js gera o HTML. Não use o servidor Python.
+em /home. Mensagens em /mensagens e pedidos em /solicitacoes. Os antigos /pages/Hive.html, /pages/register.html e /pages/home.html
+redirecionam para essas rotas. As telas da aplicação são renderizadas pelo Next.js, sem sincronização de HTML legado para public. Os HTML em `docs/prototypes/` são apenas protótipos locais, sem acesso à API. Não use o servidor Python.
 
 | Comando em apps/frontend | Finalidade |
 | --- | --- |
@@ -53,6 +54,8 @@ nem sincronização para public; o Next.js gera o HTML. Não use o servidor Pyth
 | npm run typecheck | Gerar tipos das rotas e verificar TypeScript, sem emitir JS |
 | npm test | Testar validações e cliente HTTP com dados fictícios |
 | npm run test:e2e | Testar telas no navegador, com API simulada |
+| npm run test:e2e -- RequestsSpec | Testar o fluxo visual de solicitações |
+| npm run test:e2e -- MessagingSpec | Testar o painel de mensagens |
 | npm run build | Gerar aplicação de produção |
 | npm start | Servir o build pronto na porta 3001 |
 
@@ -70,8 +73,7 @@ API_URL=http://localhost:3000
 
 Use somente a origem HTTP(S), sem caminho ou credenciais. Reinicie dev ou refaça
 o build após alterar a variável. API_URL é usada no servidor, sem NEXT_PUBLIC_.
-Nunca copie DATABASE_URL para o frontend. O navegador chama /api/login e
-/api/clientes, encaminhados ao NestJS. Esse proxy não acrescenta autenticação.
+Nunca copie DATABASE_URL para o frontend. O navegador chama as rotas `/api/*`, encaminhadas ao NestJS na mesma origem. O proxy encaminha o cookie de sessão; a validação da sessão e a autorização ficam no backend. Login e operações autenticadas de escrita enviam `X-Hive-Request: 1`.
 
 ### Organização
 
@@ -79,15 +81,15 @@ Nunca copie DATABASE_URL para o frontend. O navegador chama /api/login e
 frontend/
 ├── src/
 │   ├── app/              # page.tsx e layout.tsx: rotas e layout do Next.js
-│   ├── components/       # Formulários e componentes da Home em home/
+│   ├── components/       # Formulários e painéis em home/, messages/ e requests/
 │   ├── data/             # Catálogo fictício da demonstração
-│   ├── services/         # ApiClient.ts: HTTP e validação das respostas
+│   ├── services/         # ApiClient, MessagingApi e RequestsApi: HTTP e validação
 │   ├── types/            # ApiTypes.ts: contratos públicos
-│   ├── lib/              # FormValidation.ts: máscaras e validações
-│   └── styles/           # auth-page.module.css e home-page.module.css
+│   ├── lib/              # Validações, preferências de exibição e formatação de valores
+│   └── styles/           # CSS Modules de autenticação, Home, mensagens e solicitações
 ├── public/images/       # Imagens originais versionadas em kebab-case
 ├── test/                # Testes unitários e cenários de navegador
-├── docs/                # Cadastro e explicação técnica da migração
+├── docs/                # Guias de cadastro, mensagens, solicitações e protótipos
 ├── PlaywrightConfig.ts  # Configuração dos testes de navegador
 ├── next.config.mjs      # Proxy e redirecionamentos de compatibilidade
 ├── tsconfig.json        # TypeScript estrito
@@ -151,12 +153,10 @@ npm ci
 $env:DOTENV_CONFIG_PATH=".env/.env"
 npm run prisma:generate
 npm run prisma:validate
-npx prisma db push
+npm run db:migrate:deploy
 ```
 
-Use `db push` apenas em um banco novo ou quando a alteração do schema tiver
-sido revisada. Em um banco com dados importantes, não aceite perda de dados e
-consulte a documentação do Prisma antes de sincronizar.
+Use as migrations versionadas. Se o banco já foi preparado por `db push`, siga a conferência e o baseline do [guia do Prisma](../backend/prisma/README.md#preparação-para-postgresql). Não é necessário resetar o banco para atualizar o schema.
 
 
 ## Iniciar a API
@@ -229,6 +229,8 @@ Content-Type: application/json
 }
 ```
 
+Esse exemplo cria uma conta de prestador. Para demonstrar pedidos feitos por um cliente, use `/cadastro` (POST /clientes) ou a conta Ana do seed.
+
 O cadastro deve retornar **201**. Repetir os mesmos dados retorna **409**;
 nesse caso, reutilize a conta já criada ou limpe este lote antes de repetir.
 Entre no formulário com o email e a senha acima, sem substituir o cadastro
@@ -266,7 +268,7 @@ ter a senha correspondente ao hash armazenado no banco.
 
 ### Resultado esperado
 
-- Login correto: `POST /login` retorna 201; o formulário navega automaticamente para `/home`.
+- Login correto: `POST /login` retorna 201 e define o cookie HTTP-only; o formulário navega para `/home`. Dados de apresentação em sessionStorage não substituem a sessão.
 - E-mail ou senha incorretos: a API retorna 401, exibe erro e permanece na tela.
 - Conta inativa: a API rejeita a autenticação.
 - API desligada: o navegador informa que não foi possível conectar ao servidor.
@@ -283,7 +285,7 @@ No terminal da API e no terminal do frontend, pressione `Ctrl+C`.
 ## Observações
 
 - As imagens ficam em public/images e usam kebab-case; o destino do login é /home.
-- O login cria sessão no backend por cookie HTTP-only. A Home é pública; conversas e histórico são privados e verificados pelo backend.
+- O login cria sessão no backend por cookie HTTP-only. A Home é pública; conversas, histórico e solicitações são privados e verificados pelo backend.
 - O navegador usa o proxy /api na mesma origem. O frontend não acessa o banco diretamente.
 - O cadastro de cliente já chama POST /clientes; os botões de login social ainda são visuais.
 - A Home combina catálogo ilustrativo, profissionais cadastrados, mensagens reais e histórico de serviços concluídos. Contratação pela interface está disponível em `/solicitacoes`.
@@ -337,7 +339,7 @@ bloqueado, a apresentação usa memória e não persiste após recarregar.
 
 Mensagens reais são acessíveis pelo menu e pelos cards de profissionais cadastrados.
 Solicitações estão disponíveis em `/solicitacoes`; notificações permanecem futuras. Não há geolocalização ou processamento de pagamentos pela interface.
-Osasco, distâncias, preços e avaliações são dados fictícios. Veja o
+Osasco, distâncias, preços e avaliações dos cards demonstrativos são fictícios. Profissionais cadastrados e valores de pedidos vêm da API. Veja o
 [guia da Home](docs/home.md) e o [roteiro de testes](test/README.md).
 
 ## Mensagens reais e histórico de prestadores
@@ -348,4 +350,11 @@ A página `/mensagens` organiza contatos, chat e detalhes em painéis, com busca
 
 ## Minhas solicitações
 
-A seção mantém a navegação lateral e mostra pedidos feitos/recebidos, filtros e detalhes. Cliente e prestador podem executar o fluxo de contratação com confirmação no painel. Antes de testar, aplique a migration aditiva no backend: `npm run db:migrate:deploy`. Veja [regras, preparação e demonstração com duas contas](docs/requests.md).
+A rota `/solicitacoes` mantém a navegação lateral e mostra pedidos feitos/recebidos, filtros e detalhes. As confirmações ficam no painel principal; no celular, lista e detalhes alternam com **Voltar à lista**.
+
+- **Cliente (CONTRATANTE ou AMBOS):** cria pedidos de serviços ativos de outros profissionais e cancela pedidos pendentes ou em andamento, respeitando os bloqueios financeiros.
+- **Prestador responsável:** aceita ou recusa pedidos pendentes; conclui ou cancela os que estão em andamento. Estados finais não podem ser reabertos.
+- **Integração:** preço definido pelo servidor e exibido com centavos, repetição de envio protegida por chave UUID e acesso à conversa dos participantes. Concluir alimenta o histórico da Home.
+- **Limites:** sem cobrança automática, geração de fatura, rastreamento ou agendamento estruturado. Endereço e horário são combinados pela conversa.
+
+Antes de testar, aplique `npm run db:migrate:deploy` no backend e reinicie a API após gerar o Prisma Client. Para cliente e prestador simultâneos, use perfis separados do navegador: abas comuns compartilham o cookie. Veja [regras, preparação e demonstração com duas contas](docs/requests.md).
