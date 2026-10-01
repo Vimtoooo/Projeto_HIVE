@@ -56,3 +56,7 @@ MessagingSpec.ts cobre cards de histórico, abertura de conversa, envio, rascunh
 Para a camada de banco real, execute `npm run test:mensagens` em apps/backend. Para conferir as duas contas na interface, siga [docs/messages.md](../docs/messages.md).
 
 A página de mensagens também é testada por URL direta e após recarregar, busca de contato, navegação Voltar, lista vazia, conversa indisponível, paginação e isolamento do histórico ao trocar contato. No celular, o teste alterna lista/chat e verifica o botão de envio no viewport. As capturas desktop e móvel registram a página completa, sem o antigo modal.
+
+## Solicitações
+
+`RequestsSpec.ts` cobre lista/detalhes sem modal, filtro, recarregamento, abertura de conversa, criação com repetição segura após erro, aceite/conclusão, cancelamento, sessão expirada e celular. Execute `npm run test:e2e -- RequestsSpec`. As respostas HTTP são simuladas. O teste real do backend é `npm run test:solicitacoes`; veja o [guia do fluxo](../docs/requests.md).

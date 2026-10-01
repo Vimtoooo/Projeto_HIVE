@@ -222,3 +222,7 @@ disponibilizadas sob MIT.
 ### Home e mensagens
 
 A Home inclui perfis ilustrativos, conversas reais com profissionais cadastrados e a seção **Contrate novamente**, baseada em serviços concluídos. Aplique a nova migration no backend com `npm run db:migrate:deploy` após gerar o Prisma Client; veja o [guia de configuração e demonstração com duas contas](apps/frontend/docs/messages.md). Os testes de banco isolado podem ser executados com `npm run test:mensagens` em `apps/backend`.
+
+### Solicitações de serviços
+
+A seção **Minhas solicitações** permite criar e acompanhar pedidos, aceitar/recusar, concluir e cancelar conforme o papel da conta. Aplique as migrations com `npm run db:migrate:deploy` no backend. Consulte o [guia de execução e demonstração](apps/frontend/docs/requests.md).

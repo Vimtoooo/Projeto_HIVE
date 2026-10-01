@@ -15,7 +15,8 @@ persistência no PostgreSQL. A integração de mensagens acrescenta uma migratio
 3. **Concluído:** contratos tipados, validação de respostas em execução, testes
    unitários e testes de navegador, CSS Modules para evitar conflitos entre telas.
 4. **Concluído:** sessões com cookie HTTP-only, mensagens persistentes entre contas e histórico de prestadores contratados.
-5. **Próximas etapas:** contratação pela interface, notificações e demais telas. A Home pode ser explorada publicamente; mensagens e histórico exigem sessão válida.
+5. **Concluído:** solicitações de serviços pela interface, com aceite/recusa, conclusão e cancelamento.
+6. **Próximas etapas:** notificações e demais telas. A Home pode ser explorada publicamente; mensagens e histórico exigem sessão válida.
 
 ### Executar agora
 
@@ -285,7 +286,7 @@ No terminal da API e no terminal do frontend, pressione `Ctrl+C`.
 - O login cria sessão no backend por cookie HTTP-only. A Home é pública; conversas e histórico são privados e verificados pelo backend.
 - O navegador usa o proxy /api na mesma origem. O frontend não acessa o banco diretamente.
 - O cadastro de cliente já chama POST /clientes; os botões de login social ainda são visuais.
-- A Home combina catálogo ilustrativo, profissionais cadastrados, mensagens reais e histórico de serviços concluídos. Contratação pela interface permanece futura.
+- A Home combina catálogo ilustrativo, profissionais cadastrados, mensagens reais e histórico de serviços concluídos. Contratação pela interface está disponível em `/solicitacoes`.
 - Nunca versione `.env`, senhas, tokens ou chaves privadas.
 
 
@@ -335,7 +336,7 @@ sair, a sessão é revogada na API e nome e favoritos do usuário atual são lim
 bloqueado, a apresentação usa memória e não persiste após recarregar.
 
 Mensagens reais são acessíveis pelo menu e pelos cards de profissionais cadastrados.
-Solicitações e notificações continuam futuras. Não há geolocalização, contratação ou pagamento pela interface.
+Solicitações estão disponíveis em `/solicitacoes`; notificações permanecem futuras. Não há geolocalização ou processamento de pagamentos pela interface.
 Osasco, distâncias, preços e avaliações são dados fictícios. Veja o
 [guia da Home](docs/home.md) e o [roteiro de testes](test/README.md).
 
@@ -344,3 +345,7 @@ Osasco, distâncias, preços e avaliações são dados fictícios. Veja o
 Aplique a migration de sessões/conversas no backend e faça login novamente. “Profissionais cadastrados” permite iniciar conversas reais; “Contrate novamente” usa exclusivamente contratações concluídas da conta. Veja [configuração, demonstração com duas contas e limites](docs/messages.md).
 
 A página `/mensagens` organiza contatos, chat e detalhes em painéis, com busca por nome e navegação adaptada ao celular. Consulte os [dois protótipos](docs/prototypes/README.md) e o [guia técnico de mensagens](docs/messages.md).
+
+## Minhas solicitações
+
+A seção mantém a navegação lateral e mostra pedidos feitos/recebidos, filtros e detalhes. Cliente e prestador podem executar o fluxo de contratação com confirmação no painel. Antes de testar, aplique a migration aditiva no backend: `npm run db:migrate:deploy`. Veja [regras, preparação e demonstração com duas contas](docs/requests.md).

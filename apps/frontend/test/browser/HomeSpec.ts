@@ -1,6 +1,8 @@
 import { mockHomeApi } from "./ApiFixture";
 import { test, expect } from "@playwright/test";
-test.beforeEach(async ({page})=>{await mockHomeApi(page);});
+test.beforeEach(async ({ page }) => {
+  await mockHomeApi(page);
+});
 const viewer = { id: 7, name: "João Martins" };
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -103,10 +105,10 @@ test("ver todos expande a seção e itens futuros não saem da Home", async ({
   await expect(page.locator("article")).toHaveCount(9);
   await page
     .getByRole("navigation")
-    .getByRole("button", { name: /Minhas solicitações/ })
+    .getByRole("button", { name: /Notificações/ })
     .click();
   await expect(page.getByRole("dialog")).toContainText(
-    "ainda não está disponível",
+    "quando essa funcionalidade for implementada",
   );
   await expect(page).toHaveURL(/home$/);
   await page.getByRole("button", { name: "Entendi" }).click();

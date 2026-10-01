@@ -278,3 +278,21 @@ Após `npm run prisma:generate`, aplique `npm run db:migrate:deploy` para criar 
 | GET /contratacoes/anteriores | Prestadores de serviços concluídos do contratante |
 
 Consulte [autenticação](docs/AUTENTICACAO.md), [exemplos HTTP](http/messages.http) e [demonstração ponta a ponta](../frontend/docs/messages.md). Execute `npm run test:mensagens` para testar com banco descartável, sem reset do banco local.
+
+## Solicitações de serviços
+
+O módulo `src/requests` implementa o fluxo autenticado de contratação. Aplique a migration `20261001000000_request_idempotency` com `npm run db:migrate:deploy` e gere o cliente com `npm run prisma:generate`. A alteração é aditiva e preserva as contratações existentes.
+
+| Endpoint | Finalidade |
+| --- | --- |
+| GET /solicitacoes | Lista paginada da sessão; filtros `papel=cliente/prestador`, `status`, `pagina`, `limite` (máximo 50) |
+| GET /solicitacoes/:id | Detalhes e ações permitidas, somente para participantes |
+| POST /solicitacoes | Cria pedido PENDENTE com `servicoId`, `formaPagamento`, `chave` UUID v4 |
+| POST /solicitacoes/:id/acao | Executa `acao`: ACEITAR, RECUSAR, CONCLUIR ou CANCELAR |
+| POST /solicitacoes/:id/conversa | Obtém/cria a conversa da dupla cliente/prestador |
+
+Mutações exigem cookie de sessão e `X-Hive-Request: 1`. O servidor determina contratante e preço. Aceite/conclusão são exclusivos do prestador responsável; cancelamento é permitido aos participantes nos estados não finais, respeitando bloqueios financeiros. Não cria cobranças ou faturas automaticamente.
+
+A chave única por contratante evita duplicações, e a transação serializável protege as mudanças concorrentes de estado. Listas usam seleção explícita de campos públicos entre participantes; CPF, senha, email e tokens não são retornados. Veja [regras e roteiro com duas contas](../frontend/docs/requests.md).
+
+Teste: `npm run test:solicitacoes` cria e remove somente seu banco PostgreSQL descartável, usando TEST_DATABASE_URL local e permissão CREATEDB. Não popula nem reseta o banco da aplicação.

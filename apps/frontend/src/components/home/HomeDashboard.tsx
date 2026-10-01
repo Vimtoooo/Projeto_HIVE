@@ -26,6 +26,7 @@ import HomeIcon from "./HomeIcon";
 import type { IconName } from "./HomeIcon";
 import HomeDialog from "./HomeDialog";
 import ProfessionalAvatar from "./ProfessionalAvatar";
+import RequestsWorkspace from "../requests/RequestsWorkspace";
 import MessagesWorkspace from "../messages/MessagesWorkspace";
 import ConnectedProfessionals from "./ConnectedProfessionals";
 import { api } from "../../services/MessagingApi";
@@ -71,12 +72,6 @@ const sections: {
 ];
 const future: { label: string; icon: IconName; description: string }[] = [
   {
-    label: "Minhas solicitações",
-    icon: "clipboard",
-    description:
-      "Aqui você poderá acompanhar seus pedidos. A contratação ainda não está disponível nesta demonstração.",
-  },
-  {
     label: "Notificações",
     icon: "bell",
     description:
@@ -87,7 +82,7 @@ export default function HomeDashboard({
   view = "home",
   initialSection = "Início",
 }: {
-  view?: "home" | "messages";
+  view?: "home" | "messages" | "requests";
   initialSection?: string;
 }) {
   const router = useRouter();
@@ -141,7 +136,11 @@ export default function HomeDashboard({
     initialSection === "Favoritos",
   );
   const [active, setActive] = useState(
-    view === "messages" ? "Mensagens" : initialSection,
+    view === "requests"
+      ? "Minhas solicitações"
+      : view === "messages"
+        ? "Mensagens"
+        : initialSection,
   );
   const [expanded, setExpanded] = useState<SortMode | null>(null);
   const [menu, setMenu] = useState(false);
@@ -189,7 +188,7 @@ export default function HomeDashboard({
     setNotice({ title, text });
   }
   function nav(label: string) {
-    if (view === "messages") {
+    if (view !== "home") {
       setMenu(false);
       router.push(
         label === "Início"
@@ -254,6 +253,18 @@ export default function HomeDashboard({
             {favorites.length > 0 && (
               <span className={styles.count}>{favorites.length}</span>
             )}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMenu(false);
+              router.push("/solicitacoes");
+            }}
+            className={view === "requests" ? styles.active : ""}
+            aria-current={view === "requests" ? "page" : undefined}
+          >
+            <HomeIcon name="clipboard" />
+            Minhas solicitações
           </button>
           {future.map((item) => (
             <button
@@ -362,7 +373,13 @@ export default function HomeDashboard({
             </button>
             <span className={styles.breadcrumb}>
               Seu espaço <HomeIcon name="chevron" size={13} />
-              <strong>{view === "messages" ? "Mensagens" : "Início"}</strong>
+              <strong>
+                {view === "requests"
+                  ? "Minhas solicitações"
+                  : view === "messages"
+                    ? "Mensagens"
+                    : "Início"}
+              </strong>
             </span>
           </div>
           <div className={styles.topActions}>
@@ -374,7 +391,7 @@ export default function HomeDashboard({
               type="button"
               className={styles.iconButton}
               aria-label="Notificações"
-              onClick={() => notify("Notificações", future[1].description)}
+              onClick={() => notify("Notificações", future[0].description)}
             >
               <HomeIcon name="bell" />
             </button>
@@ -404,10 +421,14 @@ export default function HomeDashboard({
             </button>
           </div>
         </header>
-        {view === "messages" ? (
+        {view !== "home" ? (
           <main id="main-content" className={styles.messagesMain}>
-            <Suspense fallback={<p>Carregando mensagens…</p>}>
-              <MessagesWorkspace />
+            <Suspense fallback={<p>Carregando seção…</p>}>
+              {view === "requests" ? (
+                <RequestsWorkspace />
+              ) : (
+                <MessagesWorkspace />
+              )}
             </Suspense>
           </main>
         ) : (
@@ -762,7 +783,7 @@ export default function HomeDashboard({
         )}
         <div
           className={
-            view === "messages" ? styles.messagesAccount : styles.mobileAccount
+            view !== "home" ? styles.messagesAccount : styles.mobileAccount
           }
         >
           {viewer ? (

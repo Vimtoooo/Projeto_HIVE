@@ -413,3 +413,7 @@ Veja os [procedimentos para banco novo e existente](../prisma/README.md#prepara�
 Execute `npm run test:mensagens` na pasta backend. Configure TEST_DATABASE_URL em `.env/.env.test.local` para PostgreSQL local e use um usuário com CREATEDB. O runner cria um banco `hive_messages_<uuid>_test`, aplica migrations e remove somente esse banco após os testes; não reseta o banco configurado.
 
 `messaging.integration-spec.ts` testa HTTP real com o AppModule e Prisma: cookie HTTP-only, login inválido, bloqueio de CSRF, conversa única, leitura/envio nos dois sentidos, idempotência, isolamento de terceiros, validação de texto, paginação, histórico de concluídos, logout, expiração e conta bloqueada. Todos os dados são fictícios e exclusivos do banco descartável.
+
+## Solicitações: fluxo HTTP → Prisma → PostgreSQL
+
+Execute `npm run test:solicitacoes`. A suíte `requests.integration-spec.ts` usa banco descartável `hive_requests_<uuid>_test`, aplica migrations e remove somente o banco criado pelo teste. Exige TEST_DATABASE_URL local em `.env/.env.test.local` e permissão CREATEDB. Cobre sessão/CSRF, validação, isolamento entre contas, duplicação, preço, estados, pagamentos, paginação, conversa e concorrência. Não execute o arquivo Jest diretamente contra o banco da aplicação.

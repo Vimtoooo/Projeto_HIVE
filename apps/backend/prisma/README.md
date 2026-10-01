@@ -304,3 +304,7 @@ Pare o backend, execute `npm run prisma:generate`, confira `npm run db:migrate:s
 Exclusão de Usuario remove suas sessões, conversas e mensagens por cascade. Os resets de dados já existentes também removem esses registros ao remover os usuários. A migration inicial continua preservada; a verificação de baseline agora registra todas as migrations já materializadas no banco descartável.
 
 `npm run test:mensagens` cria um banco temporário isolado e testa o fluxo HTTP/Prisma/PostgreSQL; exige TEST_DATABASE_URL local e CREATEDB. O banco original permanece intacto.
+
+## Chave de solicitação
+
+A migration `20261001000000_request_idempotency` acrescenta `Contratacao.chave` (UUID opcional) e unicidade por `contratanteId/chave`, evitando pedidos duplicados em tentativas repetidas. Linhas anteriores e seed continuam válidos com chave nula. Aplique com `npm run db:migrate:deploy`; não precisa resetar ou repopular o banco.

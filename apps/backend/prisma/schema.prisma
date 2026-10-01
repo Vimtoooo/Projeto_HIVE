@@ -131,6 +131,8 @@ model Servico {
 }
 
 model Contratacao {
+  chave String? @db.Uuid
+  @@unique([contratanteId, chave])
   idContratacao   Int               @id @default(autoincrement())
   dataContratacao DateTime          @default(now())
   status          StatusContratacao @default(PENDENTE)

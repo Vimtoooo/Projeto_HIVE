@@ -36,7 +36,8 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:status": "prisma migrate status",
     "test:migrations": "node scripts/verify-postgres-migrations.cjs",
-    "test:mensagens": "node scripts/verify-messaging.cjs"
+    "test:mensagens": "node scripts/verify-messaging.cjs",
+    "test:solicitacoes": "node scripts/verify-requests.cjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
