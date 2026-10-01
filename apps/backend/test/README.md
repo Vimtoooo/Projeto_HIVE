@@ -407,3 +407,9 @@ O comando de reset local não faz parte da limpeza automática destas suítes.
 `npm run test:migrations` valida deploy, seed, integração e baseline em banco
 descartável, removido no final. Exige PostgreSQL local e permissão CREATEDB.
 Veja os [procedimentos para banco novo e existente](../prisma/README.md#preparação-para-postgresql).
+
+## Sessões, mensagens e histórico
+
+Execute `npm run test:mensagens` na pasta backend. Configure TEST_DATABASE_URL em `.env/.env.test.local` para PostgreSQL local e use um usuário com CREATEDB. O runner cria um banco `hive_messages_<uuid>_test`, aplica migrations e remove somente esse banco após os testes; não reseta o banco configurado.
+
+`messaging.integration-spec.ts` testa HTTP real com o AppModule e Prisma: cookie HTTP-only, login inválido, bloqueio de CSRF, conversa única, leitura/envio nos dois sentidos, idempotência, isolamento de terceiros, validação de texto, paginação, histórico de concluídos, logout, expiração e conta bloqueada. Todos os dados são fictícios e exclusivos do banco descartável.

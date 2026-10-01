@@ -91,7 +91,7 @@ Como cada integrante tem o próprio banco de dados local (o `.env` não é versi
 ## Observações
 
 - O ambiente atual é 100% local (`localhost`) — ainda não há servidor externo.
-- A home page ainda é provisória; ela está sendo desenvolvida separadamente pelo líder do grupo.
+- A Home já oferece catálogo ilustrativo, mensagens com profissionais cadastrados e histórico de serviços concluídos; veja [home.md](home.md).
 - Qualquer erro de CORS ou de conexão aparece no console do navegador (F12 → aba Console ou Network) e ajuda a identificar se o problema é no front ou no backend.
 ## Organização e integração com Next.js
 

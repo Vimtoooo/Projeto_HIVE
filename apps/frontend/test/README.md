@@ -48,3 +48,9 @@ retorno de foco, recursos futuros, saída, menu móvel e largura de 320/390 pixe
 AuthenticationSpec.ts também confere o nome retornado pelo login após recarregar.
 As capturas desktop e móvel são geradas em test-results (ignorado pelo Git).
 Todos os perfis são fictícios e os testes não criam registros no banco.
+
+## Mensagens e histórico integrado
+
+MessagingSpec.ts cobre cards de histórico, abertura de conversa, envio, rascunho preservado em falha, repetição com a mesma chave, recarregamento, sessão expirada e layout móvel. ApiFixture.ts isola os testes antigos do backend real. As novas capturas ficam em test-results/messages-desktop.png e messages-mobile.png.
+
+Para a camada de banco real, execute `npm run test:mensagens` em apps/backend. Para conferir as duas contas na interface, siga [docs/messages.md](../docs/messages.md).

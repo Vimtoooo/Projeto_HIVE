@@ -15,5 +15,5 @@ export interface PublicUser {
   idUsuario: number;
   nome: string;
   email: string;
-  tipoUsuario: "CONTRATANTE" | "PRESTADOR";
+  tipoUsuario: "CONTRATANTE" | "PRESTADOR" | "AMBOS";
 }

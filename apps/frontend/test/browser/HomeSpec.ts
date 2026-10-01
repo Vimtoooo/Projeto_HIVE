@@ -1,4 +1,6 @@
+import { mockHomeApi } from "./ApiFixture";
 import { test, expect } from "@playwright/test";
+test.beforeEach(async ({page})=>{await mockHomeApi(page);});
 const viewer = { id: 7, name: "João Martins" };
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -24,6 +26,7 @@ test("home personalizada, três seções, distâncias ilustrativas e captura des
   await page.screenshot({
     path: "test-results/home-desktop.png",
     fullPage: true,
+    animations: "disabled",
   });
   expect(errors).toEqual([]);
 });
@@ -137,6 +140,7 @@ test("celular tem menu funcional, sem transbordamento horizontal e captura", asy
   await page.screenshot({
     path: "test-results/home-mobile.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page.setViewportSize({ width: 320, height: 740 });
   expect(

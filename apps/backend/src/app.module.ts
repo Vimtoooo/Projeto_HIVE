@@ -1,3 +1,4 @@
+import { MessagingModule } from './messaging/messaging.module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 
@@ -10,7 +11,13 @@ import { AuthModule } from './auth/auth.module';
 import { ClienteModule } from './cliente/cliente.module';
 
 @Module({
-  imports: [PersistenciaModule, CatalogoModule, AuthModule, ClienteModule],
+  imports: [
+    PersistenciaModule,
+    CatalogoModule,
+    AuthModule,
+    ClienteModule,
+    MessagingModule,
+  ],
 
   controllers: [AppController],
 

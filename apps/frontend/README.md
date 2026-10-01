@@ -5,7 +5,7 @@
 Login, cadastro e Home agora são rotas React/TypeScript. O código dos formulários
 foi migrado para componentes, e o Next.js gera o JavaScript executado pelo
 navegador. O backend NestJS continua responsável por regras de negócio, senhas e
-persistência no PostgreSQL; não houve alteração de schema nesta etapa.
+persistência no PostgreSQL. A integração de mensagens acrescenta uma migration de sessões, conversas e mensagens (veja o guia abaixo).
 
 ### Plano de adoção
 
@@ -14,8 +14,8 @@ persistência no PostgreSQL; não houve alteração de schema nesta etapa.
    automática de HTML/JavaScript legado e preservação do visual e da Home em andamento.
 3. **Concluído:** contratos tipados, validação de respostas em execução, testes
    unitários e testes de navegador, CSS Modules para evitar conflitos entre telas.
-4. **Próximas etapas:** extrair componentes compartilhados conforme surgirem novas
-   telas e implementar sessão/autorização junto ao backend. A Home ainda é pública.
+4. **Concluído:** sessões com cookie HTTP-only, mensagens persistentes entre contas e histórico de prestadores contratados.
+5. **Próximas etapas:** contratação pela interface, notificações e demais telas. A Home pode ser explorada publicamente; mensagens e histórico exigem sessão válida.
 
 ### Executar agora
 
@@ -282,16 +282,16 @@ No terminal da API e no terminal do frontend, pressione `Ctrl+C`.
 ## Observações
 
 - As imagens ficam em public/images e usam kebab-case; o destino do login é /home.
-- O login ainda não cria sessão/token. A Home é pública e pode ser aberta diretamente.
+- O login cria sessão no backend por cookie HTTP-only. A Home é pública; conversas e histórico são privados e verificados pelo backend.
 - O navegador usa o proxy /api na mesma origem. O frontend não acessa o banco diretamente.
 - O cadastro de cliente já chama POST /clientes; os botões de login social ainda são visuais.
-- A Home apresenta catálogo fictício com busca, categorias, favoritos e detalhes; contratação e mensagens continuam como etapas futuras.
+- A Home combina catálogo ilustrativo, profissionais cadastrados, mensagens reais e histórico de serviços concluídos. Contratação pela interface permanece futura.
 - Nunca versione `.env`, senhas, tokens ou chaves privadas.
 
 
 ## Evolução planejada
 
-As três telas atuais usam React e TypeScript. A evolução de sessão e novas telas segue o plano acima.
+As três telas atuais usam React e TypeScript. A evolução das demais telas segue o plano acima.
 O planejamento das demais telas permanece registrado no [README principal](../../README.md).
 
 
@@ -323,7 +323,7 @@ Depois rode npm run dev. O comando remove apenas cache gerado.
 
 Acesse /home após entrar para ver seu primeiro nome. Sem login, a saudação
 é de visitante. O login guarda somente ID e nome em sessionStorage para
-apresentação; isso não é sessão autenticada nem proteção de rota.
+apresentação; a autorização usa separadamente a sessão HTTP-only emitida pelo backend.
 
 A busca aceita nomes, profissões e serviços, sem diferenciar acentos. Categorias
 e favoritos podem ser combinados com a busca. As três seções ordenam os perfis
@@ -331,10 +331,14 @@ por distância ilustrativa, nota/avaliações e quantidade fictícia de serviço
 Detalhes abrem em uma janela na própria Home; não são criadas outras páginas.
 
 Favoritos ficam nesta aba, separados por usuário, e podem ser removidos. Ao
-sair, nome e favoritos do usuário atual são limpos. Se o armazenamento estiver
+sair, a sessão é revogada na API e nome e favoritos do usuário atual são limpos. Se o armazenamento estiver
 bloqueado, a apresentação usa memória e não persiste após recarregar.
 
-Os menus de mensagens, solicitações e notificações informam que são recursos
-futuros. Não há geolocalização, contratação, pagamento nem envio de mensagens.
+Mensagens reais são acessíveis pelo menu e pelos cards de profissionais cadastrados.
+Solicitações e notificações continuam futuras. Não há geolocalização, contratação ou pagamento pela interface.
 Osasco, distâncias, preços e avaliações são dados fictícios. Veja o
 [guia da Home](docs/home.md) e o [roteiro de testes](test/README.md).
+
+## Mensagens reais e histórico de prestadores
+
+Aplique a migration de sessões/conversas no backend e faça login novamente. “Profissionais cadastrados” permite iniciar conversas reais; “Contrate novamente” usa exclusivamente contratações concluídas da conta. Veja [configuração, demonstração com duas contas e limites](docs/messages.md).

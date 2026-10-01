@@ -1,5 +1,6 @@
 import type { Professional } from "../../types/HomeTypes";
 import { money } from "../../lib/HomeCatalog";
+import ProfessionalAvatar from "./ProfessionalAvatar";
 import HomeIcon from "./HomeIcon";
 import styles from "../../styles/home-page.module.css";
 export default function ProfessionalCard({
@@ -7,21 +8,18 @@ export default function ProfessionalCard({
   saved,
   onSave,
   onDetails,
+  onMessage,
 }: {
   professional: Professional;
   saved: boolean;
   onSave: () => void;
   onDetails: () => void;
+  onMessage: () => void;
 }) {
   return (
     <article className={styles.card} aria-label={p.name}>
       <div className={styles.cardTop}>
-        <div
-          className={styles.avatar + " " + styles[p.color]}
-          aria-hidden="true"
-        >
-          {p.initials}
-        </div>
+        <ProfessionalAvatar professional={p} />
         <button
           type="button"
           className={styles.favorite + (saved ? " " + styles.saved : "")}
@@ -60,6 +58,15 @@ export default function ProfessionalCard({
           Ver perfil <HomeIcon name="arrow" size={16} />
         </button>
       </div>
+      <button
+        type="button"
+        className={styles.messageButton}
+        onClick={onMessage}
+        aria-label={"Conversar com " + p.name}
+      >
+        <HomeIcon name="message" size={17} /> Conversar{" "}
+        <small>Perfil demonstrativo</small>
+      </button>
     </article>
   );
 }

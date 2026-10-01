@@ -24,7 +24,7 @@ algoritmo dos dígitos verificadores. As regras do backend continuam autoritativ
 
 CSS Modules evitam colisão entre .logo da Home e do formulário. O conteúdo e
 CSS da Home que estavam modificados localmente foram incorporados à rota /home.
-Ela evoluiu para uma Home demonstrativa funcional (ver home.md), ainda pública e sem sessão/autorização. Login social e
+Ela evoluiu para uma Home demonstrativa funcional (ver home.md), com exploração pública e mensagens/histórico protegidos por sessão no backend. Login social e
 recuperação de senha continuam sem implementação.
 
 ## Compatibilidade e nomes

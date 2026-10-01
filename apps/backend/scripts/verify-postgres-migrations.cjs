@@ -1,7 +1,7 @@
 // Cria e remove SOMENTE um banco descartável. Exige CREATEDB no PostgreSQL local.
 const { randomUUID } = require('node:crypto');
 const { spawnSync } = require('node:child_process');
-const { readFileSync } = require('node:fs');
+const { readFileSync, readdirSync } = require('node:fs');
 const { resolve } = require('node:path');
 const { Client } = require('pg');
 const assert = require('node:assert/strict');
@@ -84,13 +84,14 @@ async function main() {
     assert.equal(before.rowCount, 3);
     // Simula, APENAS neste banco descartável, a ausência de histórico após db push.
     await db.query('DROP TABLE "_prisma_migrations"');
-    run([
-      prisma,
-      'migrate',
-      'resolve',
-      '--applied',
-      '20260921000000_init_postgresql',
-    ]);
+    for (const migration of readdirSync('prisma/migrations', {
+      withFileTypes: true,
+    })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .sort()) {
+      run([prisma, 'migrate', 'resolve', '--applied', migration]);
+    }
     run([prisma, 'migrate', 'deploy']);
     run([
       prisma,

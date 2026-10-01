@@ -149,9 +149,9 @@ O login recebe `{"email":"...","senha":"..."}` e retorna `idUsuario`,
 `nome`, `email` e `tipoUsuario`, sem retornar o hash.
 
 A verificação de senha usa scrypt com salt e comparação com timingSafeEqual.
-O fluxo atual não emite token nem cookie de sessão: o redirecionamento para
-Home comprova a integração, mas ainda não protege essa página. O corpo de
-login usa um tipo inline, sem DTO validado como o do cadastro.
+O login usa DTO validado e cria sessão HTTP-only com duração de oito horas.
+Inclua `X-Hive-Request: 1` no login e em operações autenticadas de escrita.
+A Home permite exploração pública; conversas e histórico são protegidos pelo backend.
 
 ## Arquitetura e motivos das mudanças
 
@@ -262,3 +262,19 @@ Para bancos novos, use `npm run db:migrate:deploy` e confira
 precisam da conferência de schema e do baseline descritos no
 [guia do Prisma](prisma/README.md#preparação-para-postgresql), sem reset.
 O SQL MySQL está arquivado; os dados fictícios podem ser recriados com o seed.
+
+## Mensagens e histórico autenticados
+
+Após `npm run prisma:generate`, aplique `npm run db:migrate:deploy` para criar Sessao, Conversa e Mensagem. O módulo `src/messaging` usa o Prisma e verifica os participantes em cada operação. O histórico reaproveita Contratacao e inclui apenas serviços CONCLUIDOS da conta autenticada.
+
+| Endpoint | Finalidade |
+| --- | --- |
+| GET /sessao | Dados públicos da conta da sessão |
+| POST /logout | Revoga a sessão e limpa o cookie |
+| GET /conversas | Até 100 conversas recentes da conta |
+| POST /conversas | Inicia/reutiliza conversa com prestador ativo |
+| GET /conversas/:id/mensagens?antes=ID | Página de até 50 mensagens |
+| POST /conversas/:id/mensagens | Envia texto com chave UUID de idempotência |
+| GET /contratacoes/anteriores | Prestadores de serviços concluídos do contratante |
+
+Consulte [autenticação](docs/AUTENTICACAO.md), [exemplos HTTP](http/messages.http) e [demonstração ponta a ponta](../frontend/docs/messages.md). Execute `npm run test:mensagens` para testar com banco descartável, sem reset do banco local.

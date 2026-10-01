@@ -25,6 +25,11 @@ import type { Professional, Profession, SortMode } from "../../types/HomeTypes";
 import HomeIcon from "./HomeIcon";
 import type { IconName } from "./HomeIcon";
 import HomeDialog from "./HomeDialog";
+import ProfessionalAvatar from "./ProfessionalAvatar";
+import MessagesPanel from "./MessagesPanel";
+import ConnectedProfessionals from "./ConnectedProfessionals";
+import { api } from "../../services/MessagingApi";
+import type { Conversation } from "../../services/MessagingApi";
 import ProfessionalCard from "./ProfessionalCard";
 import styles from "../../styles/home-page.module.css";
 const serverSnapshot = () => "";
@@ -66,12 +71,6 @@ const sections: {
 ];
 const future: { label: string; icon: IconName; description: string }[] = [
   {
-    label: "Mensagens",
-    icon: "message",
-    description:
-      "A conversa com profissionais estará disponível em uma próxima etapa. Nenhuma mensagem foi enviada.",
-  },
-  {
     label: "Minhas solicitações",
     icon: "clipboard",
     description:
@@ -86,6 +85,31 @@ const future: { label: string; icon: IconName; description: string }[] = [
 ];
 export default function HomeDashboard() {
   const router = useRouter();
+  const [inbox, setInbox] = useState(false);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+  async function logout() {
+    try {
+      await api("logout", {});
+      forgetViewer();
+      router.push("/login");
+    } catch {
+      notify(
+        "Não foi possível sair",
+        "Confira a conexão e tente novamente para encerrar sua sessão no servidor.",
+      );
+    }
+  }
+  function openInbox(c: Conversation | null = null) {
+    setMenu(false);
+    setConversation(c);
+    setInbox(true);
+  }
+  function demoMessage() {
+    notify(
+      "Perfil demonstrativo",
+      "Este perfil é fictício. Para enviar uma mensagem real, escolha um dos Profissionais cadastrados nesta Home.",
+    );
+  }
   const rawViewer = useSyncExternalStore(
     subscribeViewer,
     viewerSnapshot,
@@ -193,17 +217,10 @@ export default function HomeDashboard() {
               {item.label}
             </button>
           ))}
-          {future.slice(0, 1).map((item) => (
-            <button
-              type="button"
-              key={item.label}
-              onClick={() => notify(item.label, item.description)}
-            >
-              <HomeIcon name={item.icon} />
-              {item.label}
-              <small>Em breve</small>
-            </button>
-          ))}
+          <button type="button" onClick={() => openInbox()}>
+            <HomeIcon name="message" />
+            Mensagens
+          </button>
           <button
             type="button"
             onClick={() => nav("Favoritos")}
@@ -216,7 +233,7 @@ export default function HomeDashboard() {
               <span className={styles.count}>{favorites.length}</span>
             )}
           </button>
-          {future.slice(1).map((item) => (
+          {future.map((item) => (
             <button
               type="button"
               key={item.label}
@@ -251,7 +268,7 @@ export default function HomeDashboard() {
             onClick={() =>
               notify(
                 "Como funciona o HIVE",
-                "Explore profissões, busque um serviço e salve seus favoritos. Os perfis desta Home são fictícios; você pode conhecer os detalhes, mas não contratar ou enviar mensagens nesta etapa.",
+                "Explore profissões, busque um serviço e salve seus favoritos. Os perfis desta Home são fictícios; você pode conhecer os detalhes, mas conversar com os profissionais cadastrados no banco.",
               )
             }
           >
@@ -274,6 +291,7 @@ export default function HomeDashboard() {
             width={44}
             height={75}
             alt=""
+            loading="eager"
             unoptimized
           />
           <span>
@@ -334,7 +352,7 @@ export default function HomeDashboard() {
               type="button"
               className={styles.iconButton}
               aria-label="Notificações"
-              onClick={() => notify("Notificações", future[2].description)}
+              onClick={() => notify("Notificações", future[1].description)}
             >
               <HomeIcon name="bell" />
             </button>
@@ -494,6 +512,7 @@ export default function HomeDashboard() {
                 )}
               </div>
             </section>
+            <ConnectedProfessionals onConversation={openInbox} />
             <div id="professionals" className={styles.catalog}>
               <div className={styles.catalogNote}>
                 <span>
@@ -587,6 +606,7 @@ export default function HomeDashboard() {
                             saved={favorites.includes(p.id)}
                             onSave={() => toggleFavorite(p)}
                             onDetails={() => setDetail(p)}
+                            onMessage={demoMessage}
                           />
                         ))}
                     </div>
@@ -681,7 +701,7 @@ export default function HomeDashboard() {
                 onClick={() =>
                   notify(
                     "Como funciona o HIVE",
-                    "Busque por profissão ou serviço, filtre as categorias, veja detalhes e salve favoritos. A contratação e as mensagens estarão disponíveis em uma próxima etapa.",
+                    "Busque por profissão ou serviço, filtre as categorias, veja detalhes e salve favoritos. Abra Mensagens ou envie uma mensagem pelos cards de profissionais cadastrados.",
                   )
                 }
               >
@@ -693,8 +713,7 @@ export default function HomeDashboard() {
                 <button
                   type="button"
                   onClick={() => {
-                    forgetViewer();
-                    router.push("/login");
+                    void logout();
                   }}
                 >
                   <HomeIcon name="exit" size={17} />
@@ -714,8 +733,7 @@ export default function HomeDashboard() {
             <button
               type="button"
               onClick={() => {
-                forgetViewer();
-                router.push("/login");
+                void logout();
               }}
             >
               <HomeIcon name="exit" size={16} /> Sair da conta
@@ -728,6 +746,12 @@ export default function HomeDashboard() {
       <span className={styles.srOnly} role="status">
         {announcement}
       </span>
+      {inbox && (
+        <MessagesPanel
+          initial={conversation}
+          onDismiss={() => setInbox(false)}
+        />
+      )}
       {menu && (
         <HomeDialog title="Navegação" onDismiss={() => setMenu(false)}>
           {navigation()}
@@ -752,9 +776,7 @@ export default function HomeDashboard() {
         >
           <span className={styles.demoPill}>Perfil fictício</span>
           <div className={styles.detailIdentity}>
-            <span className={styles.avatar + " " + styles[detail.color]}>
-              {detail.initials}
-            </span>
+            <ProfessionalAvatar professional={detail} />
             <div>
               <h3>{detail.name}</h3>
               <p>{detail.profession}</p>
@@ -792,7 +814,8 @@ export default function HomeDashboard() {
               : "Salvar nos favoritos"}
           </button>
           <p className={styles.detailNote}>
-            Contratação e mensagens estarão disponíveis em uma próxima etapa.
+            Este perfil é ilustrativo. Mensagens reais estão disponíveis nos
+            cards de profissionais cadastrados.
           </p>
         </HomeDialog>
       )}

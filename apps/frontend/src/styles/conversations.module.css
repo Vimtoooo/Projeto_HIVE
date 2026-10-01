@@ -1,0 +1,246 @@
+.intro {
+  color: #69715f;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  min-height: 0;
+  gap: 18px;
+}
+.list {
+  border-right: 1px solid #e5e8df;
+  padding-right: 15px;
+  max-height: 580px;
+  overflow-y: auto;
+}
+.list button {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  overflow-wrap: anywhere;
+}
+.list button[aria-pressed="true"] {
+  background: #fff2b9;
+}
+.list small {
+  display: block;
+  margin-top: 5px;
+  color: #69715f;
+}
+.initial {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  background: #f7e8ac;
+  color: #66541c;
+  font-weight: 700;
+  border-radius: 14px;
+}
+.thread {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.thread header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 0 0 16px;
+  border-bottom: 1px solid #e5e8df;
+}
+.thread header h3 {
+  margin: 0 0 5px;
+  overflow-wrap: anywhere;
+}
+.thread small {
+  color: #69715f;
+}
+.messages {
+  height: clamp(100px, 28dvh, 260px);
+  overflow-y: auto;
+  padding: 16px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mine,
+.theirs {
+  border-radius: 14px;
+  padding: 12px 15px;
+  max-width: 85%;
+  flex-shrink: 0;
+}
+.mine {
+  align-self: flex-end;
+  background: #fff0ad;
+  border-bottom-right-radius: 3px;
+}
+.theirs {
+  align-self: flex-start;
+  background: #f0f2ec;
+  border-bottom-left-radius: 3px;
+}
+.messages p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+  line-height: 1.5;
+}
+.messages time {
+  display: block;
+  font-size: 10px;
+  color: #69715f;
+  margin-top: 7px;
+}
+.composer {
+  border-top: 1px solid #e5e8df;
+  padding-top: 14px;
+}
+.composer label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.composer textarea {
+  width: 100%;
+  resize: vertical;
+  max-height: 150px;
+  min-height: 75px;
+  border: 1px solid #dce1d3;
+  border-radius: 10px;
+  padding: 12px;
+  font: inherit;
+  box-sizing: border-box;
+}
+.composer > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+.composer button,
+.providerGrid button {
+  background: #252c1e;
+  color: white;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.composer button:disabled,
+.providerGrid button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.empty {
+  padding: 22px;
+  color: #68715f;
+  border: 1px dashed #d8dfd0;
+  border-radius: 12px;
+  line-height: 1.6;
+  align-self: center;
+}
+.empty a,
+.error a {
+  color: #5b4810;
+  text-decoration: underline;
+}
+.error {
+  padding: 12px;
+  background: #fff2ea;
+  color: #943821;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.connected {
+  margin: 30px 0;
+}
+.connected section {
+  margin-bottom: 30px;
+}
+.connected h2 {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-size: 21px;
+  margin: 0 0 8px;
+}
+.connected h2 svg {
+  color: #bc9200;
+}
+.connected section > p {
+  color: #69715f;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.providerGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.providerGrid article {
+  background: white;
+  border: 1px solid #e3e7db;
+  border-radius: 15px;
+  padding: 18px;
+  overflow-wrap: anywhere;
+}
+.providerGrid h3 {
+  margin: 14px 0 8px;
+  font-size: 16px;
+}
+.providerGrid p,
+.providerGrid small {
+  color: #69715f;
+}
+.providerGrid small {
+  display: block;
+  line-height: 1.6;
+}
+.providerGrid button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-top: 18px;
+}
+.connected button:focus-visible,
+.layout button:focus-visible,
+.composer textarea:focus-visible {
+  outline: 2px solid #a67c00;
+  outline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .list {
+    border-right: 0;
+    border-bottom: 1px solid #e5e8df;
+    max-height: 135px;
+    padding: 0;
+  }
+  .messages {
+    height: clamp(100px, 24dvh, 220px);
+  }
+  .providerGrid {
+    grid-template-columns: 1fr;
+  }
+  .composer > div {
+    flex-wrap: wrap;
+  }
+}

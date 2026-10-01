@@ -218,3 +218,7 @@ termos do GitHub, nas licenças de terceiros e nas versões anteriormente
 disponibilizadas sob MIT.
 
 *Mantido por @Vimtoooo, @jeflotz e @vieirat981-dev*
+
+### Home e mensagens
+
+A Home inclui perfis ilustrativos, conversas reais com profissionais cadastrados e a seção **Contrate novamente**, baseada em serviços concluídos. Aplique a nova migration no backend com `npm run db:migrate:deploy` após gerar o Prisma Client; veja o [guia de configuração e demonstração com duas contas](apps/frontend/docs/messages.md). Os testes de banco isolado podem ser executados com `npm run test:mensagens` em `apps/backend`.

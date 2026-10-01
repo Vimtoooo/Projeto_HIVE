@@ -35,7 +35,8 @@
     "db:reset:test": "ts-node prisma/seed.ts --test --reset",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:status": "prisma migrate status",
-    "test:migrations": "node scripts/verify-postgres-migrations.cjs"
+    "test:migrations": "node scripts/verify-postgres-migrations.cjs",
+    "test:mensagens": "node scripts/verify-messaging.cjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

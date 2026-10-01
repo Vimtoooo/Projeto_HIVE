@@ -7,10 +7,12 @@ export default function HomeDialog({
   title,
   children,
   onDismiss,
+  wide = false,
 }: {
   title: string;
   children: ReactNode;
   onDismiss: () => void;
+  wide?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -27,7 +29,7 @@ export default function HomeDialog({
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      className={styles.dialog}
+      className={styles.dialog + (wide ? " " + styles.wideDialog : "")}
       onCancel={(event) => {
         event.preventDefault();
         onDismiss();

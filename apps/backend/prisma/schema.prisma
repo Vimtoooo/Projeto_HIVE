@@ -88,6 +88,10 @@ model Usuario {
   statusConta      StatusConta  @default(PENDENTE)
 
   // Extensão de herança para Prestador
+  sessoes Sessao[]
+  conversasCliente Conversa[] @relation("ClienteConversa")
+  conversasPrestador Conversa[] @relation("PrestadorConversa")
+  mensagens Mensagem[]
   prestadorPerfil Prestador?
 
   // Relacionamentos
@@ -207,4 +211,36 @@ model Financeiro {
 
   contratacaoId Int
   contratacao   Contratacao  @relation(fields: [contratacaoId], references: [idContratacao])
+}
+model Sessao {
+  tokenHash String @id
+  usuarioId Int
+  expiraEm DateTime
+  usuario Usuario @relation(fields: [usuarioId], references: [idUsuario], onDelete: Cascade)
+  @@index([usuarioId])
+  @@index([expiraEm])
+}
+model Conversa {
+  id Int @id @default(autoincrement())
+  clienteId Int
+  prestadorId Int
+  atualizadaEm DateTime @default(now())
+  cliente Usuario @relation("ClienteConversa", fields: [clienteId], references: [idUsuario], onDelete: Cascade)
+  prestador Usuario @relation("PrestadorConversa", fields: [prestadorId], references: [idUsuario], onDelete: Cascade)
+  mensagens Mensagem[]
+  @@unique([clienteId, prestadorId])
+  @@index([prestadorId, atualizadaEm])
+  @@index([clienteId, atualizadaEm])
+}
+model Mensagem {
+  id Int @id @default(autoincrement())
+  conversaId Int
+  remetenteId Int
+  conteudo String @db.VarChar(2000)
+  enviadaEm DateTime @default(now())
+  chave String @db.Uuid
+  conversa Conversa @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+  remetente Usuario @relation(fields: [remetenteId], references: [idUsuario], onDelete: Cascade)
+  @@unique([conversaId, remetenteId, chave])
+  @@index([conversaId, id])
 }
