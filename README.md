@@ -194,6 +194,34 @@ sem build; não o execute junto com outra API na porta 3000. Se usar arquivos na
 Limpeza seletiva por UUID e roteiro de apresentação estão no
 [README dos testes](apps/backend/test/README.md).
 
+### Home e mensagens
+
+A Home inclui perfis ilustrativos, conversas reais com profissionais cadastrados e a seção **Contrate novamente**, baseada em serviços concluídos. Aplique a nova migration no backend com `npm run db:migrate:deploy` após gerar o Prisma Client; veja o [guia de configuração e demonstração com duas contas](apps/frontend/docs/messages.md). Os testes de banco isolado podem ser executados com `npm run test:mensagens` em `apps/backend`.
+
+### Solicitações de serviços
+
+A seção **Minhas solicitações** permite criar e acompanhar pedidos, aceitar/recusar, concluir e cancelar conforme o papel da conta. Aplique as migrations com `npm run db:migrate:deploy` no backend. Consulte o [guia de execução e demonstração](apps/frontend/docs/requests.md).
+
+### Notificações
+
+A seção `/notificacoes` reúne avisos reais de mensagens e solicitações em lista e painel de detalhes, com filtros, contador e leitura individual/em lote. Aplique a migration com `npm run db:migrate:deploy` no backend antes de iniciar a API. Eventos antigos não são reconstruídos. Veja o [guia de demonstração](apps/frontend/docs/notifications.md).
+
+### Situação das funções da barra lateral
+
+| Seção | Situação | Evolução prevista |
+| --- | --- | --- |
+| Início | Implementado | Refinar a Home conforme as próximas entregas |
+| Mensagens | Implementado | Melhorias futuras conforme requisitos do grupo |
+| Minhas solicitações | Implementado | Pagamentos efetivos e avaliações em etapas próprias |
+| Notificações | Implementado | Novos tipos de aviso conforme novas funções |
+| Meu perfil | Implementado | Nome, telefone e endereço editáveis; outros dados somente para consulta |
+| Central de Ajuda | Pendente | Guias, busca e perguntas frequentes, sem chamados |
+| Profissionais | Parcial: funciona na Home | Painel próprio com catálogo real e detalhes |
+| Favoritos | Parcial: exemplos locais | Favoritos reais persistidos por conta e painel próprio |
+| Cadastro de prestador pela interface | Outro integrante | Responsabilidade do integrante, fora desta sequência |
+
+O [plano da barra lateral](apps/frontend/docs/sidebar-roadmap.md) registra a ordem e os limites. Cada seção tem testes e commit próprios; o desenvolvimento pausa antes da próxima.
+
 ## 📈 Roadmap
 
 - [x] Modelagem de Domínio e Validações de Integridade.
@@ -228,31 +256,3 @@ termos do GitHub, nas licenças de terceiros e nas versões anteriormente
 disponibilizadas sob MIT.
 
 *Mantido por @Vimtoooo, @jeflotz e @vieirat981-dev*
-
-### Home e mensagens
-
-A Home inclui perfis ilustrativos, conversas reais com profissionais cadastrados e a seção **Contrate novamente**, baseada em serviços concluídos. Aplique a nova migration no backend com `npm run db:migrate:deploy` após gerar o Prisma Client; veja o [guia de configuração e demonstração com duas contas](apps/frontend/docs/messages.md). Os testes de banco isolado podem ser executados com `npm run test:mensagens` em `apps/backend`.
-
-### Solicitações de serviços
-
-A seção **Minhas solicitações** permite criar e acompanhar pedidos, aceitar/recusar, concluir e cancelar conforme o papel da conta. Aplique as migrations com `npm run db:migrate:deploy` no backend. Consulte o [guia de execução e demonstração](apps/frontend/docs/requests.md).
-
-### Notificações
-
-A seção `/notificacoes` reúne avisos reais de mensagens e solicitações em lista e painel de detalhes, com filtros, contador e leitura individual/em lote. Aplique a migration com `npm run db:migrate:deploy` no backend antes de iniciar a API. Eventos antigos não são reconstruídos. Veja o [guia de demonstração](apps/frontend/docs/notifications.md).
-
-### Situação das funções da barra lateral
-
-| Seção | Situação | Evolução prevista |
-| --- | --- | --- |
-| Início | Implementado | Refinar a Home conforme as próximas entregas |
-| Mensagens | Implementado | Melhorias futuras conforme requisitos do grupo |
-| Minhas solicitações | Implementado | Pagamentos efetivos e avaliações em etapas próprias |
-| Notificações | Implementado | Novos tipos de aviso conforme novas funções |
-| Meu perfil | Implementado | Nome, telefone e endereço editáveis; outros dados somente para consulta |
-| Central de Ajuda | Pendente | Guias, busca e perguntas frequentes, sem chamados |
-| Profissionais | Parcial: funciona na Home | Painel próprio com catálogo real e detalhes |
-| Favoritos | Parcial: exemplos locais | Favoritos reais persistidos por conta e painel próprio |
-| Cadastro de prestador pela interface | Outro integrante | Responsabilidade do integrante, fora desta sequência |
-
-O [plano da barra lateral](apps/frontend/docs/sidebar-roadmap.md) registra a ordem e os limites. Cada seção tem testes e commit próprios; o desenvolvimento pausa antes da próxima.
