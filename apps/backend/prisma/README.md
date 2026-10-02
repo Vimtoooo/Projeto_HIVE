@@ -308,3 +308,7 @@ Exclusão de Usuario remove suas sessões, conversas e mensagens por cascade. Os
 ## Chave de solicitação
 
 A migration `20261001000000_request_idempotency` acrescenta `Contratacao.chave` (UUID opcional) e unicidade por `contratanteId/chave`, evitando pedidos duplicados em tentativas repetidas. Linhas anteriores e seed continuam válidos com chave nula. Aplique com `npm run db:migrate:deploy`; não precisa resetar ou repopular o banco.
+
+## Notificações de eventos
+
+A migration aditiva `20261001010000_notifications` cria `Notificacao`, o enum de eventos e índices por destinatário/leitura/ID. A chave `(usuarioId, chaveEvento)` é única; as relações com usuário, contratação e mensagem usam cascata na exclusão. Aplique `npm run db:migrate:deploy` e `npm run prisma:generate`, sem reset. O seed não gera histórico de notificações; eventos novos pela API geram os avisos na mesma transação da operação. `npm run test:notificacoes` valida migrations/schema e integração em banco descartável. Veja o [guia](../../frontend/docs/notifications.md).

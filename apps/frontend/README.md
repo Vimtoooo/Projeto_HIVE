@@ -2,10 +2,10 @@
 
 ## React e TypeScript com Next.js
 
-Login, cadastro, Home, mensagens e solicitações são rotas React/TypeScript. O código dos formulários
+Login, cadastro, Home, mensagens, solicitações e notificações são rotas React/TypeScript. O código dos formulários
 foi migrado para componentes, e o Next.js gera o JavaScript executado pelo
 navegador. O backend NestJS continua responsável por regras de negócio, senhas e
-persistência no PostgreSQL. As migrations do backend incluem sessões, conversas, mensagens e a chave de idempotência das solicitações; aplique-as antes de usar esses fluxos.
+persistência no PostgreSQL. As migrations do backend incluem sessões, conversas, mensagens, a chave de idempotência das solicitações e notificações; aplique-as antes de usar esses fluxos.
 
 ### Plano de adoção
 
@@ -16,7 +16,8 @@ persistência no PostgreSQL. As migrations do backend incluem sessões, conversa
    unitários e testes de navegador, CSS Modules para evitar conflitos entre telas.
 4. **Concluído:** sessões com cookie HTTP-only, mensagens persistentes entre contas e histórico de prestadores contratados.
 5. **Concluído:** solicitações de serviços pela interface, com aceite/recusa, conclusão e cancelamento.
-6. **Próximas etapas:** notificações e demais telas. A Home pode ser explorada publicamente; mensagens, histórico e solicitações exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
+6. **Concluído:** notificações persistentes de mensagens e pedidos, filtros e leitura individual/em lote.
+7. **Próximas etapas:** perfil, ajuda e demais telas. A Home pode ser explorada publicamente; mensagens, histórico, solicitações e notificações exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
 
 ### Executar agora
 
@@ -44,7 +45,7 @@ npm run dev
 ```
 
 Abra http://localhost:3001. A raiz vai para /login; cadastro em /cadastro e Home
-em /home. Mensagens em /mensagens e pedidos em /solicitacoes. Os antigos /pages/Hive.html, /pages/register.html e /pages/home.html
+em /home. Mensagens em /mensagens, pedidos em /solicitacoes e avisos em /notificacoes. Os antigos /pages/Hive.html, /pages/register.html e /pages/home.html
 redirecionam para essas rotas. As telas da aplicação são renderizadas pelo Next.js, sem sincronização de HTML legado para public. Os HTML em `docs/prototypes/` são apenas protótipos locais, sem acesso à API. Não use o servidor Python.
 
 | Comando em apps/frontend | Finalidade |
@@ -55,6 +56,7 @@ redirecionam para essas rotas. As telas da aplicação são renderizadas pelo Ne
 | npm test | Testar validações e cliente HTTP com dados fictícios |
 | npm run test:e2e | Testar telas no navegador, com API simulada |
 | npm run test:e2e -- RequestsSpec | Testar o fluxo visual de solicitações |
+| npm run test:e2e -- NotificationsSpec | Testar notificações, leitura, filtros e estados de erro |
 | npm run test:e2e -- MessagingSpec | Testar o painel de mensagens |
 | npm run build | Gerar aplicação de produção |
 | npm start | Servir o build pronto na porta 3001 |
@@ -81,15 +83,15 @@ Nunca copie DATABASE_URL para o frontend. O navegador chama as rotas `/api/*`, e
 frontend/
 ├── src/
 │   ├── app/              # page.tsx e layout.tsx: rotas e layout do Next.js
-│   ├── components/       # Formulários e painéis em home/, messages/ e requests/
+│   ├── components/       # Formulários e painéis em home/, messages/, requests/ e notifications/
 │   ├── data/             # Catálogo fictício da demonstração
-│   ├── services/         # ApiClient, MessagingApi e RequestsApi: HTTP e validação
+│   ├── services/         # ApiClient, MessagingApi, RequestsApi e NotificationsApi: HTTP e validação
 │   ├── types/            # ApiTypes.ts: contratos públicos
 │   ├── lib/              # Validações, preferências de exibição e formatação de valores
-│   └── styles/           # CSS Modules de autenticação, Home, mensagens e solicitações
+│   └── styles/           # CSS Modules de autenticação, Home, mensagens, solicitações e notificações
 ├── public/images/       # Imagens originais versionadas em kebab-case
 ├── test/                # Testes unitários e cenários de navegador
-├── docs/                # Guias de cadastro, mensagens, solicitações e protótipos
+├── docs/                # Guias de cadastro, mensagens, solicitações, notificações e protótipos
 ├── PlaywrightConfig.ts  # Configuração dos testes de navegador
 ├── next.config.mjs      # Proxy e redirecionamentos de compatibilidade
 ├── tsconfig.json        # TypeScript estrito
@@ -338,7 +340,7 @@ sair, a sessão é revogada na API e nome e favoritos do usuário atual são lim
 bloqueado, a apresentação usa memória e não persiste após recarregar.
 
 Mensagens reais são acessíveis pelo menu e pelos cards de profissionais cadastrados.
-Solicitações estão disponíveis em `/solicitacoes`; notificações permanecem futuras. Não há geolocalização ou processamento de pagamentos pela interface.
+Solicitações estão disponíveis em `/solicitacoes`; notificações estão disponíveis em `/notificacoes`. Não há geolocalização ou processamento de pagamentos pela interface.
 Osasco, distâncias, preços e avaliações dos cards demonstrativos são fictícios. Profissionais cadastrados e valores de pedidos vêm da API. Veja o
 [guia da Home](docs/home.md) e o [roteiro de testes](test/README.md).
 
@@ -358,3 +360,11 @@ A rota `/solicitacoes` mantém a navegação lateral e mostra pedidos feitos/rec
 - **Limites:** sem cobrança automática, geração de fatura, rastreamento ou agendamento estruturado. Endereço e horário são combinados pela conversa.
 
 Antes de testar, aplique `npm run db:migrate:deploy` no backend e reinicie a API após gerar o Prisma Client. Para cliente e prestador simultâneos, use perfis separados do navegador: abas comuns compartilham o cookie. Veja [regras, preparação e demonstração com duas contas](docs/requests.md).
+
+## Notificações
+
+A página `/notificacoes` mantém o shell de navegação e separa lista e detalhes; no celular alterna os painéis com **Voltar às notificações**. Os avisos vêm do backend, com filtros de categoria e não lidas, paginação, atalhos para pedidos/conversas e marcação de leitura persistente. O sino, a barra lateral e o total da seção compartilham o contador da conta.
+
+`NotificationsProvider` consulta o resumo a cada 10 segundos somente em aba visível e ao recuperar foco. A página atualiza sua lista no mesmo ciclo. Após uma leitura confirmada, consulta novamente o resumo; falhas oferecem nova tentativa. Troca de conta ou sessão expirada descarta a lista anterior. O cliente valida respostas e destinos permitidos em execução, sem armazenar avisos ou tokens no navegador.
+
+Execute `npm run test:e2e -- NotificationsSpec` para os testes com API simulada. A integração PostgreSQL roda no backend com `npm run test:notificacoes`. Preparação, eventos, limites e roteiro com duas contas: [guia de notificações](docs/notifications.md).

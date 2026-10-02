@@ -103,13 +103,8 @@ test("ver todos expande a seção e itens futuros não saem da Home", async ({
   await expect(page.locator("article")).toHaveCount(15);
   await page.getByRole("button", { name: "Ver menos: Perto de você" }).click();
   await expect(page.locator("article")).toHaveCount(9);
-  await page
-    .getByRole("navigation")
-    .getByRole("button", { name: /Notificações/ })
-    .click();
-  await expect(page.getByRole("dialog")).toContainText(
-    "quando essa funcionalidade for implementada",
-  );
+  await page.getByRole("button", { name: "Central de ajuda" }).click();
+  await expect(page.getByRole("dialog")).toContainText("Explore profissões");
   await expect(page).toHaveURL(/home$/);
   await page.getByRole("button", { name: "Entendi" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);

@@ -23,6 +23,9 @@ const base = {
   cancelamentoBloqueado: false,
 };
 test.beforeEach(async ({ page }) => {
+  await page.route("**/api/notificacoes/resumo", (r) =>
+    r.fulfill({ json: { usuarioId: 7, naoLidas: 0, ateId: 0 } }),
+  );
   await page.route("**/api/conversas", (r) => r.fulfill({ json: [] }));
   await page.route("**/api/sessao", (r) => r.fulfill({ json: user }));
   await page.route("**/api/solicitacoes?*", (r) =>

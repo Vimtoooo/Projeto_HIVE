@@ -1,3 +1,4 @@
+import { NotificationsService } from '../notifications/notifications.service';
 import {
   BadRequestException,
   Injectable,
@@ -12,7 +13,10 @@ const participants = {
 };
 @Injectable()
 export class MessagingService {
-  constructor(private readonly db: PrismaClient) {}
+  constructor(
+    private readonly db: PrismaClient,
+    private readonly notifications: NotificationsService,
+  ) {}
   async start(user: number, prestadorId: number) {
     if (user === prestadorId)
       throw new BadRequestException(
@@ -70,7 +74,11 @@ export class MessagingService {
         'Participante indisponível para receber mensagens.',
       );
     return this.db.$transaction(async (tx) => {
-      const message = await tx.mensagem.upsert({
+      const created = await tx.mensagem.createMany({
+        data: [{ conversaId: id, remetenteId: user, ...input }],
+        skipDuplicates: true,
+      });
+      const message = await tx.mensagem.findUniqueOrThrow({
         where: {
           conversaId_remetenteId_chave: {
             conversaId: id,
@@ -78,13 +86,31 @@ export class MessagingService {
             chave: input.chave,
           },
         },
-        create: { conversaId: id, remetenteId: user, ...input },
-        update: {},
       });
-      await tx.conversa.update({
-        where: { id },
-        data: { atualizadaEm: new Date() },
-      });
+      if (created.count === 1) {
+        const sender = await tx.usuario.findUniqueOrThrow({
+          where: { idUsuario: user },
+          select: { nome: true },
+        });
+        await this.notifications.emit(tx, {
+          usuarioId:
+            conversation.clienteId === user
+              ? conversation.prestadorId
+              : conversation.clienteId,
+          tipo: 'NOVA_MENSAGEM',
+          chaveEvento: `mensagem:${message.id}`,
+          titulo: 'Nova mensagem',
+          descricao: `${sender.nome} enviou uma mensagem para você.`.slice(
+            0,
+            500,
+          ),
+          mensagemId: message.id,
+        });
+        await tx.conversa.update({
+          where: { id },
+          data: { atualizadaEm: new Date() },
+        });
+      }
       return message;
     });
   }

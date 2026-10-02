@@ -417,3 +417,14 @@ Execute `npm run test:mensagens` na pasta backend. Configure TEST_DATABASE_URL e
 ## Solicitações: fluxo HTTP → Prisma → PostgreSQL
 
 Execute `npm run test:solicitacoes`. A suíte `requests.integration-spec.ts` usa banco descartável `hive_requests_<uuid>_test`, aplica migrations e remove somente o banco criado pelo teste. Exige TEST_DATABASE_URL local em `.env/.env.test.local` e permissão CREATEDB. Cobre sessão/CSRF, validação, isolamento entre contas, duplicação, preço, estados, pagamentos, paginação, conversa e concorrência. Não execute o arquivo Jest diretamente contra o banco da aplicação.
+
+## Notificações: eventos e leitura persistente
+
+Em `apps/backend`, configure `.env/.env.test.local` com TEST_DATABASE_URL PostgreSQL local terminada em `_test`; o usuário precisa de CREATEDB. Execute:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+npm run test:notificacoes
+```
+
+`notifications.integration-spec.ts` cria contas fictícias, faz login HTTP e valida eventos de mensagens/solicitações, destinatários, repetição concorrente, isolamento por sessão, CSRF, leitura individual/lote, filtros, cursor e cascata. Falhas simuladas de gravação confirmam rollback da operação de origem; seus logs de erro são esperados. O executor aplica as migrations, compara com o schema e remove apenas o banco `hive_notifications_<uuid>_test` criado por ele. Não execute o Jest diretamente contra `hive`. Para demonstrar no navegador, siga o [roteiro com duas contas](../../frontend/docs/notifications.md).

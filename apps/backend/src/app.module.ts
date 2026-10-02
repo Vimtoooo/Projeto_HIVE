@@ -1,3 +1,4 @@
+import { NotificationsModule } from './notifications/notifications.module';
 import { RequestsModule } from './requests/requests.module';
 import { MessagingModule } from './messaging/messaging.module';
 import { Module, ValidationPipe } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { ClienteModule } from './cliente/cliente.module';
     ClienteModule,
     MessagingModule,
     RequestsModule,
+    NotificationsModule,
   ],
 
   controllers: [AppController],

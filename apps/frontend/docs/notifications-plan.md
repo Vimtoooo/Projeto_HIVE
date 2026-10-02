@@ -1,12 +1,12 @@
 # Plano da seção de notificações
 
-**Estado: planejamento, sem implementação.** Branch: `feat/funcoes-barra-lateral`.
+**Estado: implementado.** Este documento preserva o plano original; veja o [guia da entrega](notifications.md). Branch: `feat/funcoes-barra-lateral`.
 
 ## Objetivo e base existente
 
 Criar `/notificacoes` com a mesma navegação lateral e cabeçalho de Home, Mensagens e Minhas solicitações. O conteúdo principal será uma lista de avisos com painel de detalhes, seguindo o protótipo do grupo; não será uma janela sobreposta com fundo borrado.
 
-O backend já possui `SessionGuard`, mensagens com chave de idempotência e solicitações com transições transacionais. O schema atual não possui notificações nem estado de leitura. Os pontos de integração serão `RequestsService.create`, `RequestsService.act` e `MessagingService.send`. O plano reaproveita esses fluxos; não introduz um serviço externo de entrega.
+O backend já possui `SessionGuard`, mensagens com chave de idempotência e solicitações com transições transacionais. No início deste plano, o schema ainda não possuía notificações nem estado de leitura. Os pontos de integração serão `RequestsService.create`, `RequestsService.act` e `MessagingService.send`. O plano reaproveita esses fluxos; não introduz um serviço externo de entrega.
 
 ## Eventos e destinatários
 
@@ -91,4 +91,4 @@ Não reconstruir notificações de eventos anteriores à migration: estados atua
 
 A entrega será de notificações **dentro do HIVE**, persistidas no PostgreSQL. Push do navegador, email, SMS, WebSocket, promoções, rastreamento do prestador, preferências de canais, recibos de leitura e avisos de recursos não implementados ficam para outras etapas. O intervalo de atualização será explicado no guia técnico, sem prometer entrega instantânea.
 
-Este documento é o planejamento para a próxima implementação. Nenhum endpoint, tabela, evento, teste ou componente de notificações foi criado nesta etapa de planejamento.
+A implementação foi concluída com migration, endpoints, integração transacional, página e testes. O guia da entrega registra comandos e limites; Perfil e Ajuda permanecem fora desta etapa.

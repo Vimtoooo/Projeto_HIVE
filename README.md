@@ -11,7 +11,7 @@ O **HIVE** é uma plataforma robusta de intermediação de serviços, desenvolvi
 
 ## 🚀 Destaques da Arquitetura
 
-A arquitetura organiza regras em **classes de domínio**; o catálogo segue Controller → Service → Repositório → Prisma/PostgreSQL. Os módulos de mensagens e solicitações usam serviços com consultas e transações Prisma. As classes ainda utilizam tipos e enums do Prisma. A orientação a Domain-Driven Design (DDD) e a independência das regras em relação à infraestrutura permanecem como direção arquitetural.
+A arquitetura organiza regras em **classes de domínio**; o catálogo segue Controller → Service → Repositório → Prisma/PostgreSQL. Os módulos de mensagens, solicitações e notificações usam serviços com consultas e transações Prisma. As classes ainda utilizam tipos e enums do Prisma. A orientação a Domain-Driven Design (DDD) e a independência das regras em relação à infraestrutura permanecem como direção arquitetural.
 
 *   **Encapsulamento Rigoroso**: Atributos privados protegidos por lógica de validação em *setters*.
 *   **Princípio Fail-Fast**: DTOs e classes validam campos antes da persistência. CPF e CNPJ são verificados por formato e comprimento, sem cálculo de dígitos verificadores.
@@ -21,7 +21,7 @@ A arquitetura organiza regras em **classes de domínio**; o catálogo segue Cont
 
 ## Integração atual
 
-A API REST NestJS/Prisma/PostgreSQL oferece cadastro de clientes e prestadores, catálogo de serviços, login com sessão HTTP-only, mensagens persistentes e fluxo de solicitações: criar, aceitar/recusar, concluir e cancelar. O frontend Next.js integra essas funções em páginas com navegação compartilhada. Pagamentos, avaliações pela API, notificações e edição de perfil continuam no planejamento; JWT/RBAC amplo permanece como evolução da autorização atual por sessão e participação.
+A API REST NestJS/Prisma/PostgreSQL oferece cadastro de clientes e prestadores, catálogo de serviços, login com sessão HTTP-only, mensagens persistentes e fluxo de solicitações: criar, aceitar/recusar, concluir e cancelar. Notificações persistentes avisam a contraparte sobre novas mensagens e alterações dos pedidos. O frontend Next.js integra essas funções em páginas com navegação compartilhada. Pagamentos, avaliações pela API e edição de perfil continuam no planejamento; JWT/RBAC amplo permanece como evolução da autorização atual por sessão e participação.
 
 Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
 
@@ -31,8 +31,8 @@ A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrã
 
 | Camada | Tecnologias |
 | :--- | :--- |
-| **Frontend atual** | Next.js + React + TypeScript + CSS Modules; Home, cadastro, login, mensagens e solicitações |
-| **Planejamento do frontend** | Base Node.js/Next.js adotada; notificações, perfil, ajuda e evolução dos componentes compartilhados |
+| **Frontend atual** | Next.js + React + TypeScript + CSS Modules; Home, cadastro, login, mensagens, solicitações e notificações |
+| **Planejamento do frontend** | Base Node.js/Next.js adotada; perfil, ajuda e evolução dos componentes compartilhados |
 | **Backend** | Node.js + NestJS (TypeScript) |
 | **Persistência** | PostgreSQL + Prisma ORM |
 | **Testes** | Jest, testes nativos Node.js, Playwright, integração com PostgreSQL e exemplos HTTP |
@@ -58,6 +58,7 @@ HIVE/
 │   │   │   ├── catalog/           # Cadastro de prestador e busca de serviços
 │   │   │   ├── cliente/           # Cadastro de contratantes
 │   │   │   ├── messaging/         # Conversas, mensagens e histórico
+│   │   │   ├── notifications/     # Avisos por conta e leitura persistente
 │   │   │   ├── requests/          # Solicitações e transições de estado
 │   │   │   ├── enums/             # Enumerações auxiliares do domínio
 │   │   │   ├── models/            # Classes de domínio
@@ -68,7 +69,7 @@ HIVE/
 │   │   └── README.md              # Configuração e execução do backend
 │   └── frontend/                  # Next.js com telas React/TypeScript
 │       ├── src/app/               # Layout e rotas React
-│       ├── src/components/        # Formulários e painéis de Home, mensagens e solicitações
+│       ├── src/components/        # Formulários e painéis de Home, mensagens, solicitações e notificações
 │       ├── src/services/          # Clientes HTTP e validação de respostas
 │       ├── test/                  # Testes unitários e de navegador
 │       ├── docs/                  # Guias técnicos, demonstrações e protótipos
@@ -140,7 +141,7 @@ npm run dev
 
 Abra [a tela de login](http://localhost:3001/login). A conta deve
 existir no mesmo banco da API, criada por POST /clientes, POST /prestadores ou pelo seed.
-O login abre `/home` e cria uma sessão por cookie HTTP-only. A Home é pública; `/mensagens` e `/solicitacoes` consultam dados protegidos pelo backend.
+O login abre `/home` e cria uma sessão por cookie HTTP-only. A Home é pública; `/mensagens`, `/solicitacoes` e `/notificacoes` consultam dados protegidos pelo backend.
 O cadastro na interface já usa POST /clientes; o login social continua visual. Detalhes no
 [guia do frontend](apps/frontend/README.md).
 
@@ -161,10 +162,10 @@ selecione o arquivo de ambiente antes de escolher **uma** operação.
 | Verificar lint e tipos | `npm run lint:check` e `npx tsc --project test/tsconfig.json` |
 | Aplicar migrations / consultar situação | `npm run db:migrate:deploy` / `npm run db:migrate:status` |
 | Validar migrations em banco descartável | `npm run test:migrations` |
-| Testar mensagens / solicitações em bancos descartáveis | `npm run test:mensagens` / `npm run test:solicitacoes` |
+| Testar mensagens / solicitações / notificações em bancos descartáveis | `npm run test:mensagens` / `npm run test:solicitacoes` / `npm run test:notificacoes` |
 | Compilar e executar o build | `npm run build`, depois `npm run start:prod` |
 
-**Reset apaga os dados de domínio e repõe os exemplos; sessões, conversas e mensagens vinculadas aos usuários também são removidas por cascata. Não é apenas limpeza.** Pare a API antes. Os comandos locais usam DATABASE_URL; os comandos
+**Reset apaga os dados de domínio e repõe os exemplos; sessões, conversas, mensagens e notificações vinculadas aos usuários também são removidas por cascata. Não é apenas limpeza.** Pare a API antes. Os comandos locais usam DATABASE_URL; os comandos
 `:test` usam TEST_DATABASE_URL. Para estes últimos, configure
 `$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'`. O nome após `--confirm`
 deve coincidir com o banco configurado. Nenhum desses comandos recria o schema.
@@ -204,7 +205,8 @@ Limpeza seletiva por UUID e roteiro de apresentação estão no
 - [x] Endpoints REST de cadastro de prestador e busca de serviços no NestJS.
 - [x] Sessões HTTP-only, autorização por participante e mensagens persistentes.
 - [x] Solicitações pela API e interface: criação, aceite/recusa, conclusão e cancelamento.
-- [ ] Endpoints de pagamento e avaliação; notificações e edição de perfil.
+- [x] Notificações de mensagens e pedidos, com filtros e leitura persistente.
+- [ ] Endpoints de pagamento e avaliação; edição de perfil.
 - [x] Telas de login e cadastro em React/TypeScript integradas à API.
 - [ ] Ampliar a integração do frontend com a API e desenvolver as demais telas.
 - [x] Home e painéis de mensagens e solicitações do cliente em Next.js.
@@ -233,3 +235,7 @@ A Home inclui perfis ilustrativos, conversas reais com profissionais cadastrados
 ### Solicitações de serviços
 
 A seção **Minhas solicitações** permite criar e acompanhar pedidos, aceitar/recusar, concluir e cancelar conforme o papel da conta. Aplique as migrations com `npm run db:migrate:deploy` no backend. Consulte o [guia de execução e demonstração](apps/frontend/docs/requests.md).
+
+### Notificações
+
+A seção `/notificacoes` reúne avisos reais de mensagens e solicitações em lista e painel de detalhes, com filtros, contador e leitura individual/em lote. Aplique a migration com `npm run db:migrate:deploy` no backend antes de iniciar a API. Eventos antigos não são reconstruídos. Veja o [guia de demonstração](apps/frontend/docs/notifications.md).

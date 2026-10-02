@@ -1,6 +1,6 @@
 # Backend do HIVE
 
-API REST NestJS com Prisma 7 e PostgreSQL, integrada ao frontend Next.js. Oferece cadastro de clientes e prestadores, catálogo, login por sessão HTTP-only, mensagens persistentes e solicitações de serviços com criação, aceite/recusa, conclusão e cancelamento.
+API REST NestJS com Prisma 7 e PostgreSQL, integrada ao frontend Next.js. Oferece cadastro de clientes e prestadores, catálogo, login por sessão HTTP-only, mensagens persistentes, solicitações de serviços com criação, aceite/recusa, conclusão e cancelamento, além de notificações por conta desses eventos.
 
 ## Preparar o ambiente
 
@@ -164,7 +164,7 @@ A Home permite exploração pública; conversas, histórico e solicitações sã
 | `src/models/` | Mantém as classes Prestador/Servico e demais regras de domínio já utilizadas nos testes |
 | `src/persistence/` | Reutiliza transações, gravação das classes, conexão e adaptador do banco |
 
-`AppModule` registra os módulos de persistência, catálogo, clientes, autenticação, mensagens e solicitações, além de um `ValidationPipe` global com transformação,
+`AppModule` registra os módulos de persistência, catálogo, clientes, autenticação, mensagens, solicitações e notificações, além de um `ValidationPipe` global com transformação,
 whitelist e rejeição de campos desconhecidos. `class-validator` e
 `class-transformer` fornecem a validação em tempo de execução; tipos TypeScript
 sozinhos não validam um JSON recebido pela rede.
@@ -307,3 +307,28 @@ npm run test:solicitacoes
 Os executores criam bancos temporários próprios, aplicam migrations, verificam o schema e executam testes HTTP com Prisma/PostgreSQL reais. Exigem PostgreSQL local e permissão CREATEDB; removem apenas os bancos criados pelo teste, sem popular ou resetar o banco da aplicação.
 
 A suíte de solicitações cobre autorização, validação, preço preservado, idempotência, transições, pagamentos, filtros, conversa e ações concorrentes. Para testar a interface, execute Playwright no frontend ou siga o roteiro com duas contas acima. Ao voltar à aplicação neste terminal, restaure `$env:DOTENV_CONFIG_PATH = '.env/.env'`.
+
+## Notificações persistentes
+
+`NotificationsModule` registra avisos de novas mensagens e de criação, aceite, recusa, conclusão e cancelamento de solicitações. O destinatário é sempre a contraparte. `RequestsService` e `MessagingService` chamam `NotificationsService.emit` com o cliente da mesma transação Prisma: uma falha no aviso reverte a operação de origem. A unicidade `(usuarioId, chaveEvento)` e a detecção de envios repetidos impedem duplicação e preservam a primeira leitura. Não existe retrocarga de eventos antigos.
+
+| Endpoint autenticado | Contrato |
+| --- | --- |
+| `GET /notificacoes` | `categoria=mensagens/solicitacoes`, `naoLidas=true/false`, `limite` (20, máximo 50), `antes` e `ateId`; retorna `usuarioId`, `itens`, `ateId` e `proximoCursor` |
+| `GET /notificacoes/resumo` | `usuarioId`, total `naoLidas` e maior `ateId`, sem restringir à página/filtro |
+| `GET /notificacoes/:id` | Aviso do destinatário com destino interno para pedido ou conversa |
+| `POST /notificacoes/:id/lida` | Primeira data de leitura persistente; repetir não a altera |
+| `POST /notificacoes/ler-todas` | Corpo `{ "ateId": 123 }`; marca a conta até esse ID, em todas as categorias; retorna `atualizadas` |
+
+A sessão determina o usuário; consultas de outra conta retornam 404. Escritas exigem `X-Hive-Request: 1`. Mensagens não são copiadas para o texto do aviso. As FKs removem avisos junto com usuário, mensagem ou contratação de origem. A paginação usa IDs decrescentes e conserva `ateId` nas páginas seguintes; ao voltar a **Mais recentes**, obtém um novo limite.
+
+Antes de executar a API, aplique a migration aditiva `20261001010000_notifications` com `npm run db:migrate:deploy` e gere o client com `npm run prisma:generate`. Não é preciso resetar nem repor o seed.
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+npm run test:notificacoes
+```
+
+O comando cria e remove apenas seu próprio banco `hive_notifications_<uuid>_test`, aplica todas as migrations e confere a ausência de divergência com o schema. Exige PostgreSQL local, TEST_DATABASE_URL terminada em `_test` e permissão CREATEDB. Os logs **Falha simulada** são esperados nos casos que verificam rollback. Ao usar novamente a aplicação, restaure `$env:DOTENV_CONFIG_PATH = '.env/.env'`.
+
+Veja o [roteiro de demonstração e limites](../frontend/docs/notifications.md). Não há push, e-mail ou recibo de leitura de conversa nesta etapa.

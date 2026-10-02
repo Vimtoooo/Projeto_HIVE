@@ -18,6 +18,9 @@ export async function mockHomeApi(page: Page) {
         account = value as typeof account;
     }
   });
+  await page.route("**/api/notificacoes/resumo", (r) =>
+    r.fulfill({ json: { usuarioId: 7, naoLidas: 0, ateId: 0 } }),
+  );
   await page.route("**/api/sessao", async (route) => {
     const stored = await page
       .evaluate(() => {

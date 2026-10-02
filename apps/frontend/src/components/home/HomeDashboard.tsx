@@ -33,6 +33,11 @@ import { api } from "../../services/MessagingApi";
 import type { Conversation } from "../../services/MessagingApi";
 import ProfessionalCard from "./ProfessionalCard";
 import styles from "../../styles/home-page.module.css";
+import NotificationsProvider, {
+  useNotifications,
+} from "../notifications/NotificationsProvider";
+import NotificationsWorkspace from "../notifications/NotificationsWorkspace";
+import notificationStyles from "../../styles/notifications-page.module.css";
 const serverSnapshot = () => "";
 const viewerSnapshot = () => readStored(VIEWER_KEY);
 const categories: { label: Profession; icon: IconName }[] = [
@@ -70,26 +75,45 @@ const sections: {
     icon: "users",
   },
 ];
-const future: { label: string; icon: IconName; description: string }[] = [
-  {
-    label: "Notificações",
-    icon: "bell",
-    description:
-      "Os avisos sobre suas solicitações aparecerão aqui quando essa funcionalidade for implementada.",
-  },
-];
-export default function HomeDashboard({
+type DashboardProps = {
+  view?: "home" | "messages" | "requests" | "notifications";
+  initialSection?: string;
+};
+export default function HomeDashboard(props: DashboardProps) {
+  return (
+    <NotificationsProvider>
+      <DashboardContent {...props} />
+    </NotificationsProvider>
+  );
+}
+function DashboardContent({
   view = "home",
   initialSection = "Início",
 }: {
-  view?: "home" | "messages" | "requests";
+  view?: "home" | "messages" | "requests" | "notifications";
   initialSection?: string;
 }) {
   const router = useRouter();
+  const notifications = useNotifications();
+  const unreadCount = notifications.summary?.naoLidas ?? 0;
+  const badge =
+    unreadCount > 0 ? (
+      <span
+        className={notificationStyles.badge}
+        aria-label={`${unreadCount} notificações não lidas`}
+      >
+        {unreadCount > 99 ? "99+" : unreadCount}
+      </span>
+    ) : null;
+  function openNotifications() {
+    setMenu(false);
+    router.push("/notificacoes");
+  }
 
   async function logout() {
     try {
       await api("logout", {});
+      notifications.clear();
       forgetViewer();
       router.push("/login");
     } catch {
@@ -136,11 +160,13 @@ export default function HomeDashboard({
     initialSection === "Favoritos",
   );
   const [active, setActive] = useState(
-    view === "requests"
-      ? "Minhas solicitações"
-      : view === "messages"
-        ? "Mensagens"
-        : initialSection,
+    view === "notifications"
+      ? "Notificações"
+      : view === "requests"
+        ? "Minhas solicitações"
+        : view === "messages"
+          ? "Mensagens"
+          : initialSection,
   );
   const [expanded, setExpanded] = useState<SortMode | null>(null);
   const [menu, setMenu] = useState(false);
@@ -266,17 +292,15 @@ export default function HomeDashboard({
             <HomeIcon name="clipboard" />
             Minhas solicitações
           </button>
-          {future.map((item) => (
-            <button
-              type="button"
-              key={item.label}
-              onClick={() => notify(item.label, item.description)}
-            >
-              <HomeIcon name={item.icon} />
-              {item.label}
-              <small>Em breve</small>
-            </button>
-          ))}
+          <button
+            type="button"
+            onClick={openNotifications}
+            className={view === "notifications" ? styles.active : ""}
+            aria-current={view === "notifications" ? "page" : undefined}
+          >
+            <HomeIcon name="bell" />
+            Notificações{badge}
+          </button>
         </nav>
         <div className={styles.navDivider} />
         <div className={styles.navigation}>
@@ -374,11 +398,13 @@ export default function HomeDashboard({
             <span className={styles.breadcrumb}>
               Seu espaço <HomeIcon name="chevron" size={13} />
               <strong>
-                {view === "requests"
-                  ? "Minhas solicitações"
-                  : view === "messages"
-                    ? "Mensagens"
-                    : "Início"}
+                {view === "notifications"
+                  ? "Notificações"
+                  : view === "requests"
+                    ? "Minhas solicitações"
+                    : view === "messages"
+                      ? "Mensagens"
+                      : "Início"}
               </strong>
             </span>
           </div>
@@ -391,9 +417,12 @@ export default function HomeDashboard({
               type="button"
               className={styles.iconButton}
               aria-label="Notificações"
-              onClick={() => notify("Notificações", future[0].description)}
+              onClick={openNotifications}
             >
-              <HomeIcon name="bell" />
+              <span className={notificationStyles.bell}>
+                <HomeIcon name="bell" />
+                {badge}
+              </span>
             </button>
             <div className={styles.topDivider} />
             <button
@@ -424,7 +453,9 @@ export default function HomeDashboard({
         {view !== "home" ? (
           <main id="main-content" className={styles.messagesMain}>
             <Suspense fallback={<p>Carregando seção…</p>}>
-              {view === "requests" ? (
+              {view === "notifications" ? (
+                <NotificationsWorkspace />
+              ) : view === "requests" ? (
                 <RequestsWorkspace />
               ) : (
                 <MessagesWorkspace />

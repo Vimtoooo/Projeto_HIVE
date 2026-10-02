@@ -76,6 +76,7 @@ enum TipoUsuario {
 // ==========================================
 
 model Usuario {
+  notificacoes Notificacao[]
   idUsuario        Int          @id @default(autoincrement())
   nome             String
   email            String       @unique
@@ -131,6 +132,7 @@ model Servico {
 }
 
 model Contratacao {
+  notificacoes Notificacao[]
   chave String? @db.Uuid
   @@unique([contratanteId, chave])
   idContratacao   Int               @id @default(autoincrement())
@@ -235,6 +237,7 @@ model Conversa {
   @@index([clienteId, atualizadaEm])
 }
 model Mensagem {
+  notificacoes Notificacao[]
   id Int @id @default(autoincrement())
   conversaId Int
   remetenteId Int
@@ -245,4 +248,33 @@ model Mensagem {
   remetente Usuario @relation(fields: [remetenteId], references: [idUsuario], onDelete: Cascade)
   @@unique([conversaId, remetenteId, chave])
   @@index([conversaId, id])
+}
+
+enum TipoNotificacao {
+  NOVA_MENSAGEM
+  SOLICITACAO_CRIADA
+  SOLICITACAO_ACEITA
+  SOLICITACAO_RECUSADA
+  SOLICITACAO_CONCLUIDA
+  SOLICITACAO_CANCELADA
+}
+
+model Notificacao {
+  id            Int             @id @default(autoincrement())
+  usuarioId     Int
+  usuario       Usuario         @relation(fields: [usuarioId], references: [idUsuario], onDelete: Cascade)
+  tipo          TipoNotificacao
+  chaveEvento   String          @db.VarChar(100)
+  titulo        String          @db.VarChar(100)
+  descricao     String          @db.VarChar(500)
+  criadaEm      DateTime        @default(now())
+  lidaEm        DateTime?
+  contratacaoId Int?
+  contratacao   Contratacao?    @relation(fields: [contratacaoId], references: [idContratacao], onDelete: Cascade)
+  mensagemId    Int?
+  mensagem      Mensagem?       @relation(fields: [mensagemId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, chaveEvento])
+  @@index([usuarioId, id])
+  @@index([usuarioId, lidaEm, id])
 }

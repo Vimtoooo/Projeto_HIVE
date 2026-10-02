@@ -16,6 +16,9 @@ const conversation = {
   prestador: { idUsuario: 12, nome: provider.nome },
 };
 test.beforeEach(async ({ page }) => {
+  await page.route("**/api/notificacoes/resumo", (r) =>
+    r.fulfill({ json: { usuarioId: 7, naoLidas: 0, ateId: 0 } }),
+  );
   await page.route("**/api/sessao", (route) => route.fulfill({ json: user }));
   await page.route("**/api/servicos?*", (route) =>
     route.fulfill({ json: { itens: [{ prestador: provider }], total: 1 } }),

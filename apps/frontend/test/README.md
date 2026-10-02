@@ -60,3 +60,7 @@ A página de mensagens também é testada por URL direta e após recarregar, bus
 ## Solicitações
 
 `RequestsSpec.ts` cobre lista/detalhes sem modal, filtro, recarregamento, abertura de conversa, criação com repetição segura após erro, aceite/conclusão, cancelamento, sessão expirada e celular. Execute `npm run test:e2e -- RequestsSpec`. As respostas HTTP são simuladas. O teste real do backend é `npm run test:solicitacoes`; veja o [guia do fluxo](../docs/requests.md).
+
+## Notificações
+
+`npm run test:e2e -- NotificationsSpec` verifica a seção sem modal, contadores, filtros combinados, leitura persistente, leitura em lote limitada, erro com retry, origem removida, troca de conta, sessão expirada e navegação por teclado. Capturas desktop e celular ficam em `test-results/notifications-*.png` (ignoradas pelo Git). A API é simulada; a suíte HTTP/Prisma/PostgreSQL real roda no backend com `npm run test:notificacoes`. Veja [preparação e demonstração](../docs/notifications.md).

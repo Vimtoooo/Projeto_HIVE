@@ -1,3 +1,4 @@
+import { NotificationsService } from '../notifications/notifications.service';
 import {
   BadRequestException,
   ConflictException,
@@ -79,7 +80,10 @@ function present(row: Row, user: number) {
 }
 @Injectable()
 export class RequestsService {
-  constructor(private readonly db: PrismaClient) {}
+  constructor(
+    private readonly db: PrismaClient,
+    private readonly notifications: NotificationsService,
+  ) {}
   private async row(db: Prisma.TransactionClient, user: number, id: number) {
     const row = await db.contratacao.findFirst({
       where: { idContratacao: id, ...access(user) },
@@ -155,20 +159,30 @@ export class RequestsService {
           );
         if (!Number.isFinite(service.precoBase) || service.precoBase < 0)
           throw new BadRequestException('Preço do serviço indisponível.');
-        return present(
-          await tx.contratacao.create({
-            data: {
-              contratanteId: user,
-              servicoId: service.idServico,
-              valor: service.precoBase,
-              formaPagamento: input.formaPagamento,
-              chave: input.chave,
-              status: 'PENDENTE',
-            },
-            select,
-          }),
-          user,
-        );
+        const created = await tx.contratacao.create({
+          data: {
+            contratanteId: user,
+            servicoId: service.idServico,
+            valor: service.precoBase,
+            formaPagamento: input.formaPagamento,
+            chave: input.chave,
+            status: 'PENDENTE',
+          },
+          select,
+        });
+        await this.notifications.emit(tx, {
+          usuarioId: service.prestadorId,
+          tipo: 'SOLICITACAO_CRIADA',
+          chaveEvento: `pedido:${created.idContratacao}:CRIADA`,
+          titulo: 'Nova solicitação de serviço',
+          descricao:
+            `${created.contratante.nome} solicitou ${service.titulo}.`.slice(
+              0,
+              500,
+            ),
+          contratacaoId: created.idContratacao,
+        });
+        return present(created, user);
       });
     } catch (e) {
       if (
@@ -225,6 +239,25 @@ export class RequestsService {
               where: { contratacaoId: id, statusPagamento: 'PENDENTE' },
               data: { statusPagamento: 'CANCELADO' },
             });
+          const events = {
+            ACEITAR: ['SOLICITACAO_ACEITA', 'Solicitação aceita'],
+            RECUSAR: ['SOLICITACAO_RECUSADA', 'Solicitação recusada'],
+            CONCLUIR: ['SOLICITACAO_CONCLUIDA', 'Serviço concluído'],
+            CANCELAR: ['SOLICITACAO_CANCELADA', 'Solicitação cancelada'],
+          } as const;
+          const [tipo, titulo] = events[acao];
+          await this.notifications.emit(tx, {
+            usuarioId: isProvider ? row.contratanteId : row.servico.prestadorId,
+            tipo,
+            titulo,
+            chaveEvento: `pedido:${id}:${acao}`,
+            descricao:
+              `${isProvider ? row.servico.prestador.usuario.nome : row.contratante.nome} atualizou o pedido de ${row.servico.titulo}.`.slice(
+                0,
+                500,
+              ),
+            contratacaoId: id,
+          });
           return present(await this.row(tx, user, id), user);
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
