@@ -65,12 +65,11 @@ function NotificationFilters({ user }: { user: number }) {
   return (
     <section className={styles.workspace} aria-labelledby="notifications-title">
       <header className={styles.heading}>
-        <span className={styles.headingIcon}>
-          <HomeIcon name="bell" size={28} />
-        </span>
         <div>
           <span className={styles.eyebrow}>SEU HIVE, EM DIA</span>
-          <h1 id="notifications-title">Notificações</h1>
+          <h1 id="notifications-title">
+            <HomeIcon name="bell" /> Notificações
+          </h1>
           <p>Acompanhe suas conversas e cada etapa dos seus serviços.</p>
         </div>
         <span className={styles.total}>

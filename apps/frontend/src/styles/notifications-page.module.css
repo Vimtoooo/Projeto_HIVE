@@ -9,7 +9,6 @@
   gap: 18px;
   margin: 8px 0 28px;
 }
-.headingIcon,
 .detailIcon {
   display: grid;
   place-items: center;
@@ -21,9 +20,14 @@
   flex-shrink: 0;
 }
 .heading h1 {
-  font-size: 30px;
-  letter-spacing: -1px;
-  margin: 4px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 28px;
+  margin: 10px 0;
+}
+.heading h1 svg {
+  flex-shrink: 0;
 }
 .heading p,
 .scope,
@@ -315,10 +319,6 @@
   .heading h1 {
     font-size: 25px;
   }
-  .headingIcon {
-    width: 44px;
-    height: 44px;
-  }
   .heading > div {
     flex: 1;
     min-width: 210px;
@@ -328,7 +328,7 @@
     line-height: 1.6;
   }
   .total {
-    margin-left: 56px;
+    margin-left: 0;
     padding: 6px 12px;
   }
   .filters {
