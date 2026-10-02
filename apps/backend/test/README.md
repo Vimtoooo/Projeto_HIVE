@@ -428,3 +428,7 @@ npm run test:notificacoes
 ```
 
 `notifications.integration-spec.ts` cria contas fictícias, faz login HTTP e valida eventos de mensagens/solicitações, destinatários, repetição concorrente, isolamento por sessão, CSRF, leitura individual/lote, filtros, cursor e cascata. Falhas simuladas de gravação confirmam rollback da operação de origem; seus logs de erro são esperados. O executor aplica as migrations, compara com o schema e remove apenas o banco `hive_notifications_<uuid>_test` criado por ele. Não execute o Jest diretamente contra `hive`. Para demonstrar no navegador, siga o [roteiro com duas contas](../../frontend/docs/notifications.md).
+
+## Perfil: consulta e edição autenticadas
+
+`npm run test:perfil` cria um banco `hive_profile_<uuid>_test`, aplica migrations e testa GET/PATCH `/perfil` com contas fictícias. Valida sessão/CSRF, resposta sem segredos, CPF mascarado, persistência, atualização parcial, campos proibidos e isolamento. Requer TEST_DATABASE_URL local em `.env/.env.test.local` e CREATEDB. Não execute a suíte diretamente no banco da aplicação. Veja o [guia](../../frontend/docs/profile.md).

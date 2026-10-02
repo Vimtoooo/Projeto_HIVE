@@ -64,3 +64,7 @@ A página de mensagens também é testada por URL direta e após recarregar, bus
 ## Notificações
 
 `npm run test:e2e -- NotificationsSpec` verifica a seção sem modal, contadores, filtros combinados, leitura persistente, leitura em lote limitada, erro com retry, origem removida, troca de conta, sessão expirada e navegação por teclado. Capturas desktop e celular ficam em `test-results/notifications-*.png` (ignoradas pelo Git). A API é simulada; a suíte HTTP/Prisma/PostgreSQL real roda no backend com `npm run test:notificacoes`. Veja [preparação e demonstração](../docs/notifications.md).
+
+## Perfil
+
+`npm run test:e2e -- ProfileSpec` testa navegação, campos permitidos, CPF mascarado, edição, persistência simulada, atualização da saudação, cancelamento, falha com retry, sessão expirada, teclado e celular. Capturas ignoradas pelo Git em `test-results/profile-*.png`. O teste real HTTP/Prisma/PostgreSQL roda no backend com `npm run test:perfil`.

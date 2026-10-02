@@ -26,6 +26,7 @@ import HomeIcon from "./HomeIcon";
 import type { IconName } from "./HomeIcon";
 import HomeDialog from "./HomeDialog";
 import ProfessionalAvatar from "./ProfessionalAvatar";
+import ProfileWorkspace from "../profile/ProfileWorkspace";
 import RequestsWorkspace from "../requests/RequestsWorkspace";
 import MessagesWorkspace from "../messages/MessagesWorkspace";
 import ConnectedProfessionals from "./ConnectedProfessionals";
@@ -76,7 +77,7 @@ const sections: {
   },
 ];
 type DashboardProps = {
-  view?: "home" | "messages" | "requests" | "notifications";
+  view?: "home" | "messages" | "requests" | "notifications" | "profile";
   initialSection?: string;
 };
 export default function HomeDashboard(props: DashboardProps) {
@@ -90,7 +91,7 @@ function DashboardContent({
   view = "home",
   initialSection = "Início",
 }: {
-  view?: "home" | "messages" | "requests" | "notifications";
+  view?: "home" | "messages" | "requests" | "notifications" | "profile";
   initialSection?: string;
 }) {
   const router = useRouter();
@@ -160,13 +161,15 @@ function DashboardContent({
     initialSection === "Favoritos",
   );
   const [active, setActive] = useState(
-    view === "notifications"
-      ? "Notificações"
-      : view === "requests"
-        ? "Minhas solicitações"
-        : view === "messages"
-          ? "Mensagens"
-          : initialSection,
+    view === "profile"
+      ? "Meu perfil"
+      : view === "notifications"
+        ? "Notificações"
+        : view === "requests"
+          ? "Minhas solicitações"
+          : view === "messages"
+            ? "Mensagens"
+            : initialSection,
   );
   const [expanded, setExpanded] = useState<SortMode | null>(null);
   const [menu, setMenu] = useState(false);
@@ -306,16 +309,12 @@ function DashboardContent({
         <div className={styles.navigation}>
           <button
             type="button"
-            onClick={() =>
-              notify(
-                "Meu perfil",
-                viewer
-                  ? "Você entrou como " +
-                      viewer.name +
-                      ". A edição de perfil será disponibilizada em uma próxima etapa."
-                  : "Entre na sua conta para ver seu nome nesta área.",
-              )
-            }
+            onClick={() => {
+              setMenu(false);
+              router.push("/perfil");
+            }}
+            className={view === "profile" ? styles.active : ""}
+            aria-current={view === "profile" ? "page" : undefined}
           >
             <HomeIcon name="users" />
             Meu perfil
@@ -398,13 +397,15 @@ function DashboardContent({
             <span className={styles.breadcrumb}>
               Seu espaço <HomeIcon name="chevron" size={13} />
               <strong>
-                {view === "notifications"
-                  ? "Notificações"
-                  : view === "requests"
-                    ? "Minhas solicitações"
-                    : view === "messages"
-                      ? "Mensagens"
-                      : "Início"}
+                {view === "profile"
+                  ? "Meu perfil"
+                  : view === "notifications"
+                    ? "Notificações"
+                    : view === "requests"
+                      ? "Minhas solicitações"
+                      : view === "messages"
+                        ? "Mensagens"
+                        : "Início"}
               </strong>
             </span>
           </div>
@@ -428,16 +429,7 @@ function DashboardContent({
             <button
               type="button"
               className={styles.profileButton}
-              onClick={() =>
-                notify(
-                  "Sua conta",
-                  viewer
-                    ? "Conta atual: " +
-                        viewer.name +
-                        ". Seus favoritos ficam salvos apenas nesta aba do navegador."
-                    : "Você está explorando como visitante. Faça login para personalizar a saudação.",
-                )
-              }
+              onClick={() => router.push("/perfil")}
             >
               <span className={styles.userAvatar}>
                 {initials(viewer?.name ?? "Visitante")}
@@ -453,7 +445,9 @@ function DashboardContent({
         {view !== "home" ? (
           <main id="main-content" className={styles.messagesMain}>
             <Suspense fallback={<p>Carregando seção…</p>}>
-              {view === "notifications" ? (
+              {view === "profile" ? (
+                <ProfileWorkspace />
+              ) : view === "notifications" ? (
                 <NotificationsWorkspace />
               ) : view === "requests" ? (
                 <RequestsWorkspace />

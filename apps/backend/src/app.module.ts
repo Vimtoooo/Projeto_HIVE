@@ -1,3 +1,4 @@
+import { ProfileModule } from './profile/profile.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { RequestsModule } from './requests/requests.module';
 import { MessagingModule } from './messaging/messaging.module';
@@ -21,6 +22,7 @@ import { ClienteModule } from './cliente/cliente.module';
     MessagingModule,
     RequestsModule,
     NotificationsModule,
+    ProfileModule,
   ],
 
   controllers: [AppController],

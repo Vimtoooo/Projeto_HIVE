@@ -87,11 +87,15 @@ function array<T>(value: unknown, check: (v: unknown) => v is T): T[] {
     throw new Error("Resposta inesperada do servidor.");
   return value;
 }
-export async function api(path: string, body?: unknown): Promise<unknown> {
+export async function api(
+  path: string,
+  body?: unknown,
+  method?: "PATCH",
+): Promise<unknown> {
   let response: Response;
   try {
     response = await fetch("/api/" + path, {
-      method: body === undefined ? "GET" : "POST",
+      method: method ?? (body === undefined ? "GET" : "POST"),
       headers: { "Content-Type": "application/json", "X-Hive-Request": "1" },
       credentials: "same-origin",
       cache: "no-store",

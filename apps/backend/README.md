@@ -332,3 +332,7 @@ npm run test:notificacoes
 O comando cria e remove apenas seu próprio banco `hive_notifications_<uuid>_test`, aplica todas as migrations e confere a ausência de divergência com o schema. Exige PostgreSQL local, TEST_DATABASE_URL terminada em `_test` e permissão CREATEDB. Os logs **Falha simulada** são esperados nos casos que verificam rollback. Ao usar novamente a aplicação, restaure `$env:DOTENV_CONFIG_PATH = '.env/.env'`.
 
 Veja o [roteiro de demonstração e limites](../frontend/docs/notifications.md). Não há push, e-mail ou recibo de leitura de conversa nesta etapa.
+
+## Perfil da conta
+
+GET `/perfil` e PATCH `/perfil` usam SessionGuard. A consulta retorna somente dados da conta atual, com CPF mascarado; a escrita permite nome, telefone e endereço e exige `X-Hive-Request: 1`. Não aceita identidade, senha, e-mail ou tipo de conta enviados pelo formulário. Reutiliza os campos existentes, sem migration. Execute `npm run test:perfil` com TEST_DATABASE_URL local e CREATEDB para validar no banco descartável. Veja o [guia de perfil](../frontend/docs/profile.md).

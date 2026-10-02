@@ -21,7 +21,7 @@ A arquitetura organiza regras em **classes de domínio**; o catálogo segue Cont
 
 ## Integração atual
 
-A API REST NestJS/Prisma/PostgreSQL oferece cadastro de clientes e prestadores, catálogo de serviços, login com sessão HTTP-only, mensagens persistentes e fluxo de solicitações: criar, aceitar/recusar, concluir e cancelar. Notificações persistentes avisam a contraparte sobre novas mensagens e alterações dos pedidos. O frontend Next.js integra essas funções em páginas com navegação compartilhada. Pagamentos, avaliações pela API e edição de perfil continuam no planejamento; JWT/RBAC amplo permanece como evolução da autorização atual por sessão e participação.
+A API REST NestJS/Prisma/PostgreSQL oferece cadastro de clientes e prestadores, catálogo de serviços, login com sessão HTTP-only, mensagens persistentes e fluxo de solicitações: criar, aceitar/recusar, concluir e cancelar. Notificações persistentes avisam a contraparte sobre novas mensagens e alterações dos pedidos. O frontend Next.js integra essas funções em páginas com navegação compartilhada. Pagamentos e avaliações pela API continuam no planejamento; JWT/RBAC amplo permanece como evolução da autorização atual por sessão e participação.
 
 Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
 
@@ -31,8 +31,8 @@ A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrã
 
 | Camada | Tecnologias |
 | :--- | :--- |
-| **Frontend atual** | Next.js + React + TypeScript + CSS Modules; Home, cadastro, login, mensagens, solicitações e notificações |
-| **Planejamento do frontend** | Base Node.js/Next.js adotada; perfil, ajuda e evolução dos componentes compartilhados |
+| **Frontend atual** | Next.js + React + TypeScript + CSS Modules; Home, cadastro, login, mensagens, solicitações, notificações e perfil |
+| **Planejamento do frontend** | Base Node.js/Next.js adotada; ajuda, catálogo/favoritos reais e evolução dos componentes compartilhados |
 | **Backend** | Node.js + NestJS (TypeScript) |
 | **Persistência** | PostgreSQL + Prisma ORM |
 | **Testes** | Jest, testes nativos Node.js, Playwright, integração com PostgreSQL e exemplos HTTP |
@@ -206,7 +206,8 @@ Limpeza seletiva por UUID e roteiro de apresentação estão no
 - [x] Sessões HTTP-only, autorização por participante e mensagens persistentes.
 - [x] Solicitações pela API e interface: criação, aceite/recusa, conclusão e cancelamento.
 - [x] Notificações de mensagens e pedidos, com filtros e leitura persistente.
-- [ ] Endpoints de pagamento e avaliação; edição de perfil.
+- [ ] Endpoints de pagamento e avaliação.
+- [x] Perfil com consulta e edição de nome, telefone e endereço.
 - [x] Telas de login e cadastro em React/TypeScript integradas à API.
 - [ ] Ampliar a integração do frontend com a API e desenvolver as demais telas.
 - [x] Home e painéis de mensagens e solicitações do cliente em Next.js.
@@ -239,3 +240,19 @@ A seção **Minhas solicitações** permite criar e acompanhar pedidos, aceitar/
 ### Notificações
 
 A seção `/notificacoes` reúne avisos reais de mensagens e solicitações em lista e painel de detalhes, com filtros, contador e leitura individual/em lote. Aplique a migration com `npm run db:migrate:deploy` no backend antes de iniciar a API. Eventos antigos não são reconstruídos. Veja o [guia de demonstração](apps/frontend/docs/notifications.md).
+
+### Situação das funções da barra lateral
+
+| Seção | Situação | Evolução prevista |
+| --- | --- | --- |
+| Início | Implementado | Refinar a Home conforme as próximas entregas |
+| Mensagens | Implementado | Melhorias futuras conforme requisitos do grupo |
+| Minhas solicitações | Implementado | Pagamentos efetivos e avaliações em etapas próprias |
+| Notificações | Implementado | Novos tipos de aviso conforme novas funções |
+| Meu perfil | Implementado | Nome, telefone e endereço editáveis; outros dados somente para consulta |
+| Central de Ajuda | Pendente | Guias, busca e perguntas frequentes, sem chamados |
+| Profissionais | Parcial: funciona na Home | Painel próprio com catálogo real e detalhes |
+| Favoritos | Parcial: exemplos locais | Favoritos reais persistidos por conta e painel próprio |
+| Cadastro de prestador pela interface | Outro integrante | Responsabilidade do integrante, fora desta sequência |
+
+O [plano da barra lateral](apps/frontend/docs/sidebar-roadmap.md) registra a ordem e os limites. Cada seção tem testes e commit próprios; o desenvolvimento pausa antes da próxima.

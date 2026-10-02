@@ -17,7 +17,8 @@ persistência no PostgreSQL. As migrations do backend incluem sessões, conversa
 4. **Concluído:** sessões com cookie HTTP-only, mensagens persistentes entre contas e histórico de prestadores contratados.
 5. **Concluído:** solicitações de serviços pela interface, com aceite/recusa, conclusão e cancelamento.
 6. **Concluído:** notificações persistentes de mensagens e pedidos, filtros e leitura individual/em lote.
-7. **Próximas etapas:** perfil, ajuda e demais telas. A Home pode ser explorada publicamente; mensagens, histórico, solicitações e notificações exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
+7. **Concluído:** perfil com edição de nome, telefone e endereço.
+8. **Próximas etapas:** ajuda, catálogo/favoritos reais e demais telas. A Home pode ser explorada publicamente; mensagens, histórico, solicitações, notificações e perfil exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
 
 ### Executar agora
 
@@ -368,3 +369,9 @@ A página `/notificacoes` mantém o shell de navegação e separa lista e detalh
 `NotificationsProvider` consulta o resumo a cada 10 segundos somente em aba visível e ao recuperar foco. A página atualiza sua lista no mesmo ciclo. Após uma leitura confirmada, consulta novamente o resumo; falhas oferecem nova tentativa. Troca de conta ou sessão expirada descarta a lista anterior. O cliente valida respostas e destinos permitidos em execução, sem armazenar avisos ou tokens no navegador.
 
 Execute `npm run test:e2e -- NotificationsSpec` para os testes com API simulada. A integração PostgreSQL roda no backend com `npm run test:notificacoes`. Preparação, eventos, limites e roteiro com duas contas: [guia de notificações](docs/notifications.md).
+
+## Meu perfil
+
+`/perfil` mostra resumo privado da conta e permite editar nome, telefone e endereço. E-mail, CPF mascarado, tipo de conta e data de cadastro são consultivos. Salvar atualiza a apresentação do nome; cancelar restaura o formulário; falhas preservam a edição. A navegação lateral e o botão da conta abrem o painel sem modal. Não há mudança de senha, e-mail, foto ou dados profissionais.
+
+Execute `npm run test:e2e -- ProfileSpec`; a integração real do backend é `npm run test:perfil`. Veja [uso, contratos e demonstração](docs/profile.md) e a [sequência da barra lateral](docs/sidebar-roadmap.md).
