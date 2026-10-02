@@ -39,7 +39,12 @@
     "test:mensagens": "node scripts/verify-messaging.cjs",
     "test:solicitacoes": "node scripts/verify-requests.cjs",
     "test:notificacoes": "node scripts/verify-notifications.cjs",
-    "test:perfil": "node scripts/verify-profile.cjs"
+    "test:perfil": "node scripts/verify-profile.cjs",
+    "prebuild": "npm run prisma:generate",
+    "prestart": "npm run prisma:generate",
+    "prestart:dev": "npm run prisma:generate",
+    "prestart:debug": "npm run prisma:generate",
+    "prestart:demo": "npm run prisma:generate"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

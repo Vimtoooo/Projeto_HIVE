@@ -336,3 +336,17 @@ Veja o [roteiro de demonstração e limites](../frontend/docs/notifications.md).
 ## Perfil da conta
 
 GET `/perfil` e PATCH `/perfil` usam SessionGuard. A consulta retorna somente dados da conta atual, com CPF mascarado; a escrita permite nome, telefone e endereço e exige `X-Hive-Request: 1`. Não aceita identidade, senha, e-mail ou tipo de conta enviados pelo formulário. Reutiliza os campos existentes, sem migration. Execute `npm run test:perfil` com TEST_DATABASE_URL local e CREATEDB para validar no banco descartável. Veja o [guia de perfil](../frontend/docs/profile.md).
+
+## Prisma Client ausente: erros TS2305 ao iniciar
+
+Se vários arquivos indicarem que `@prisma/client` não exporta `PrismaClient`, `Prisma` ou enums, o client gerado pode estar ausente ou desatualizado. O pacote instalado delega esses exports aos arquivos gerados em `node_modules/.prisma/client`; eles não são versionados.
+
+Os comandos `npm run build`, `npm start`, `npm run start:dev`, `npm run start:debug` e `npm run start:demo` agora executam `prisma:generate` automaticamente antes de compilar/iniciar. Se a geração falhar, o comando principal não inicia. Essa etapa gera código local; não aplica migrations nem altera dados do banco.
+
+Para recuperar um processo watch já aberto, pare-o com Ctrl+C e rode, em `apps/backend`:
+
+```powershell
+npm run start:dev
+```
+
+Para ferramentas executadas diretamente (Nest CLI, Jest ou ts-node), gere primeiro com `npm run prisma:generate`. `start:prod` usa o build previamente preparado: execute `npm run build` antes; não exige instalar o Prisma CLI no ambiente de produção. Após modificar `schema.prisma`, gere o client novamente e reinicie o watch. Se houver erro de tabela ausente, isso é outra etapa: consulte o guia de migrations, sem resetar o banco.
