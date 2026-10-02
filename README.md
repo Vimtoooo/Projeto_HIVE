@@ -32,7 +32,7 @@ A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrã
 | Camada | Tecnologias |
 | :--- | :--- |
 | **Frontend atual** | Next.js + React + TypeScript + CSS Modules; Home, cadastro, login, mensagens, solicitações, notificações, perfil, Central de Ajuda e catálogo de profissionais |
-| **Planejamento do frontend** | Base Node.js/Next.js adotada; favoritos reais e evolução dos componentes compartilhados |
+| **Planejamento do frontend** | Base Node.js/Next.js adotada; evolução dos componentes compartilhados |
 | **Backend** | Node.js + NestJS (TypeScript) |
 | **Persistência** | PostgreSQL + Prisma ORM |
 | **Testes** | Jest, testes nativos Node.js, Playwright, integração com PostgreSQL e exemplos HTTP |
@@ -217,12 +217,13 @@ A seção `/notificacoes` reúne avisos reais de mensagens e solicitações em l
 | Meu perfil | Implementado | Nome, telefone e endereço editáveis; outros dados somente para consulta |
 | Central de Ajuda | Implementado | Guias, busca e perguntas frequentes, sem chamados |
 | Profissionais | Implementado | Catálogo real com busca, paginação, detalhes, conversa e solicitação |
-| Favoritos | Parcial: exemplos locais | Favoritos reais persistidos por conta e painel próprio |
+| Favoritos | Implementado | Profissionais reais salvos por conta; exemplos locais separados |
 | Cadastro de prestador pela interface | Outro integrante | Responsabilidade do integrante, fora desta sequência |
 
 O [plano da barra lateral](apps/frontend/docs/sidebar-roadmap.md) registra a ordem e os limites. Cada seção tem testes e commit próprios; o desenvolvimento pausa antes da próxima.
 
 A [Central de Ajuda](apps/frontend/docs/help.md) está disponível em `/ajuda`, com pesquisa, categorias e guias locais sobre as funções atuais.
+Os [favoritos da conta](apps/frontend/docs/favorites.md) estão em `/favoritos`; aplique a migration aditiva com `npm run db:migrate:deploy` no backend.
 O [catálogo de profissionais](apps/frontend/docs/professionals.md) está em `/profissionais`, com prestadores disponíveis do banco e integração com mensagens e pedidos.
 
 ## 📈 Roadmap

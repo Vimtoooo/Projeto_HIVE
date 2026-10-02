@@ -81,11 +81,12 @@ test("favoritos persistem ao recarregar, detalhes abrem e Escape restaura o foco
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(details).toBeFocused();
   await page
-    .getByRole("navigation", { name: "Navegação principal" })
-    .getByRole("button", { name: /Favoritos/ })
+    .getByRole("button", { name: "Ver favoritos demonstrativos" })
     .click();
   await expect(
-    page.getByText("1 profissional encontrado · Favoritos"),
+    page.getByText(
+      "1 profissional encontrado · Favoritos demonstrativos (neste navegador)",
+    ),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Remover dos favoritos: Rafael Martins" })
@@ -95,9 +96,7 @@ test("favoritos persistem ao recarregar, detalhes abrem e Escape restaura o foco
     page.getByRole("heading", { name: "Seus favoritos começam aqui" }),
   ).toBeVisible();
 });
-test("ver todos expande a seção e ajuda abre seu painel", async ({
-  page,
-}) => {
+test("ver todos expande a seção e ajuda abre seu painel", async ({ page }) => {
   await page.goto("/home");
   await page.getByRole("button", { name: "Ver todos: Perto de você" }).click();
   await expect(page.locator("article")).toHaveCount(15);
@@ -105,7 +104,9 @@ test("ver todos expande a seção e ajuda abre seu painel", async ({
   await expect(page.locator("article")).toHaveCount(9);
   await page.getByRole("button", { name: "Central de ajuda" }).click();
   await expect(page).toHaveURL(/ajuda$/);
-  await expect(page.getByRole("heading", { name: "Central de Ajuda", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Central de Ajuda", exact: true }),
+  ).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 test("celular tem menu funcional, sem transbordamento horizontal e captura", async ({
@@ -121,11 +122,10 @@ test("celular tem menu funcional, sem transbordamento horizontal e captura", asy
     .click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(
-    page.getByRole("heading", { name: "Seus favoritos começam aqui" }),
+    page.getByRole("heading", { name: "Seus profissionais favoritos ficam aqui" }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Explorar profissionais", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Abrir navegação" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Início", exact: true }).click();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,

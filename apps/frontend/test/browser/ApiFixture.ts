@@ -1,5 +1,8 @@
 import type { Page } from "@playwright/test";
 export async function mockHomeApi(page: Page) {
+  await page.route("**/api/favoritos", (r) =>
+    r.fulfill({ json: { usuarioId: 7, itens: [] } }),
+  );
   let account: {
     idUsuario: number;
     nome: string;

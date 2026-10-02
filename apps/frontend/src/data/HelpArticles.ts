@@ -112,13 +112,10 @@ export const helpArticles: readonly HelpArticle[] = [
     category: "Profissionais e favoritos",
     title: "Onde ficam meus favoritos?",
     paragraphs: [
-      "Os corações dos perfis demonstrativos da Home salvam exemplos localmente no navegador. Use Favoritos na navegação para reencontrá-los.",
-      "Esses favoritos não são sincronizados entre dispositivos e podem desaparecer ao limpar os dados do navegador. Favoritos reais persistidos na conta ainda serão implementados; salvar um favorito não cria uma contratação.",
+      "Use Favoritar nos profissionais reais do catálogo ou da Home. A seção Favoritos mostra os salvos na conta conectada e mantém os vínculos após novo login ou em outro dispositivo.",
+      "Você pode remover um favorito mesmo se o profissional ficar indisponível. Salvar não cria uma contratação. Os favoritos demonstrativos da Home continuam separados, apenas no navegador; eles não são importados para sua conta.",
     ],
-    link: {
-      label: "Ver favoritos demonstrativos",
-      href: "/home?secao=Favoritos",
-    },
+    link: { label: "Abrir favoritos da conta", href: "/favoritos" },
   },
 ];
 export function searchHelp(

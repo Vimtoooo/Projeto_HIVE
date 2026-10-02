@@ -76,6 +76,7 @@ enum TipoUsuario {
 // ==========================================
 
 model Usuario {
+  favoritos Favorito[]
   notificacoes Notificacao[]
   idUsuario        Int          @id @default(autoincrement())
   nome             String
@@ -102,6 +103,7 @@ model Usuario {
 }
 
 model Prestador {
+  favoritadoPor Favorito[]
   idPrestador     Int      @id
   areaAtuacao     String
   experiencia     String
@@ -277,4 +279,14 @@ model Notificacao {
   @@unique([usuarioId, chaveEvento])
   @@index([usuarioId, id])
   @@index([usuarioId, lidaEm, id])
+}
+
+model Favorito {
+  usuarioId Int
+  prestadorId Int
+  criadoEm DateTime @default(now())
+  usuario Usuario @relation(fields: [usuarioId], references: [idUsuario], onDelete: Cascade)
+  prestador Prestador @relation(fields: [prestadorId], references: [idPrestador], onDelete: Cascade)
+  @@id([usuarioId, prestadorId])
+  @@index([prestadorId])
 }

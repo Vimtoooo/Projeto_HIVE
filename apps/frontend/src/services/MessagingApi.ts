@@ -90,7 +90,7 @@ function array<T>(value: unknown, check: (v: unknown) => v is T): T[] {
 export async function api(
   path: string,
   body?: unknown,
-  method?: "PATCH",
+  method?: "PATCH" | "PUT" | "DELETE",
 ): Promise<unknown> {
   let response: Response;
   try {

@@ -51,7 +51,7 @@ const identity = (v: unknown): v is Record<string, unknown> =>
   typeof v.nome === "string" &&
   typeof v.areaAtuacao === "string" &&
   rating(v.avaliacao);
-const summary = (v: unknown): v is ProfessionalSummary =>
+export const isProfessionalSummary = (v: unknown): v is ProfessionalSummary =>
   identity(v) && money(v.precoInicial) && id(v.quantidadeServicos);
 export function isProfessionalDetail(v: unknown): v is ProfessionalDetail {
   return (
@@ -78,7 +78,7 @@ export async function professionalsList(
   if (
     !object(data) ||
     !Array.isArray(data.itens) ||
-    !data.itens.every(summary) ||
+    !data.itens.every(isProfessionalSummary) ||
     !integer(data.total) ||
     !id(data.pagina) ||
     !id(data.limite)

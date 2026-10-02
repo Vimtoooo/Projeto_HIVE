@@ -358,3 +358,9 @@ Para ferramentas executadas diretamente (Nest CLI, Jest ou ts-node), gere primei
 Seleções explícitas impedem a exposição de senha, documentos, contato e endereço residencial. As avaliações são agregadas dos registros existentes, sem reutilizar médias fictícias; nenhuma avaliação implica média nula. O módulo é somente leitura e não modifica o cadastro de prestador. Conversar e solicitar reutilizam as validações de sessão, conta, disponibilidade e preço dos módulos existentes.
 
 Não há migration nova. Teste com `npm run test:profissionais` em PostgreSQL descartável; veja [guia técnico e demonstração](../frontend/docs/professionals.md) e `http/professionals.http`.
+
+## Favoritos persistentes
+
+A migration aditiva `20261002000000_favorites` cria `Favorito`, com chave composta `(usuarioId, prestadorId)`, data de criação e FKs com exclusão em cascata. Preserva os registros existentes. Aplique `npm run db:migrate:deploy` e gere o client com `npm run prisma:generate`; reinicie o backend, sem reset.
+
+`GET /favoritos`, `PUT /favoritos/:prestadorId` e `DELETE /favoritos/:prestadorId` exigem sessão; escritas exigem `X-Hive-Request: 1`. Não aceitam identidade enviada no corpo. PUT/DELETE são idempotentes; indisponíveis permanecem removíveis. `npm run test:favoritos` verifica migrations e integração em PostgreSQL descartável, sem limpar o banco da aplicação. O reset de dados já remove vínculos por cascata; nenhum favorito é adicionado pelo seed.

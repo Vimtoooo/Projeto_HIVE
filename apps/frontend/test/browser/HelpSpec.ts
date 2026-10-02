@@ -69,7 +69,7 @@ test("navegação desktop e celular, sem rolagem horizontal", async ({
     .filter({ hasText: "Onde ficam meus favoritos?" })
     .click();
   await expect(
-    page.getByRole("link", { name: "Ver favoritos demonstrativos" }),
+    page.getByRole("link", { name: "Abrir favoritos da conta" }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -80,10 +80,8 @@ test("navegação desktop e celular, sem rolagem horizontal", async ({
     path: "test-results/help-mobile.png",
     fullPage: true,
   });
-  await page
-    .getByRole("link", { name: "Ver favoritos demonstrativos" })
-    .click();
-  await expect(page).toHaveURL(/secao=Favoritos/);
+  await page.getByRole("link", { name: "Abrir favoritos da conta" }).click();
+  await expect(page).toHaveURL(/favoritos$/);
   await page.getByRole("button", { name: "Abrir navegação" }).click();
   await page
     .getByRole("button", { name: "Central de ajuda", exact: true })

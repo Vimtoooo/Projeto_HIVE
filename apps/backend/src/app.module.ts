@@ -1,3 +1,4 @@
+import { FavoritesModule } from './favorites/favorites.module';
 import { ProfessionalsModule } from './professionals/professionals.module';
 import { ProfileModule } from './profile/profile.module';
 import { NotificationsModule } from './notifications/notifications.module';
@@ -25,6 +26,7 @@ import { ClienteModule } from './cliente/cliente.module';
     NotificationsModule,
     ProfileModule,
     ProfessionalsModule,
+    FavoritesModule,
   ],
 
   controllers: [AppController],

@@ -1,3 +1,4 @@
+import FavoriteButton from "../favorites/FavoriteButton";
 import Link from "next/link";
 import HomeIcon from "../home/HomeIcon";
 import { initials } from "../../lib/HomeCatalog";
@@ -51,6 +52,7 @@ export default function ProfessionalCard({
           Ver detalhes <HomeIcon name="arrow" size={17} />
         </Link>
       </div>
+      <FavoriteButton id={p.idPrestador} name={p.nome} />
     </article>
   );
 }

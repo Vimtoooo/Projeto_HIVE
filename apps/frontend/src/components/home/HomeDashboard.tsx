@@ -26,6 +26,10 @@ import HomeIcon from "./HomeIcon";
 import type { IconName } from "./HomeIcon";
 import HomeDialog from "./HomeDialog";
 import ProfessionalAvatar from "./ProfessionalAvatar";
+import FavoritesProvider, {
+  useFavorites,
+} from "../favorites/FavoritesProvider";
+import FavoritesWorkspace from "../favorites/FavoritesWorkspace";
 import ProfessionalsWorkspace from "../professionals/ProfessionalsWorkspace";
 import HelpWorkspace from "../help/HelpWorkspace";
 import ProfileWorkspace from "../profile/ProfileWorkspace";
@@ -86,14 +90,17 @@ type DashboardProps = {
     | "notifications"
     | "profile"
     | "help"
-    | "professionals";
+    | "professionals"
+    | "favorites";
   initialSection?: string;
 };
 export default function HomeDashboard(props: DashboardProps) {
   return (
-    <NotificationsProvider>
-      <DashboardContent {...props} />
-    </NotificationsProvider>
+    <FavoritesProvider>
+      <NotificationsProvider>
+        <DashboardContent {...props} />
+      </NotificationsProvider>
+    </FavoritesProvider>
   );
 }
 function DashboardContent({
@@ -107,11 +114,13 @@ function DashboardContent({
     | "notifications"
     | "profile"
     | "help"
-    | "professionals";
+    | "professionals"
+    | "favorites";
   initialSection?: string;
 }) {
   const router = useRouter();
   const notifications = useNotifications();
+  const savedFavorites = useFavorites().data?.itens.length ?? 0;
   const unreadCount = notifications.summary?.naoLidas ?? 0;
   const badge =
     unreadCount > 0 ? (
@@ -177,19 +186,21 @@ function DashboardContent({
     initialSection === "Favoritos",
   );
   const [active, setActive] = useState(
-    view === "professionals"
-      ? "Profissionais"
-      : view === "help"
-        ? "Central de ajuda"
-        : view === "profile"
-          ? "Meu perfil"
-          : view === "notifications"
-            ? "Notificações"
-            : view === "requests"
-              ? "Minhas solicitações"
-              : view === "messages"
-                ? "Mensagens"
-                : initialSection,
+    view === "favorites"
+      ? "Favoritos"
+      : view === "professionals"
+        ? "Profissionais"
+        : view === "help"
+          ? "Central de ajuda"
+          : view === "profile"
+            ? "Meu perfil"
+            : view === "notifications"
+              ? "Notificações"
+              : view === "requests"
+                ? "Minhas solicitações"
+                : view === "messages"
+                  ? "Mensagens"
+                  : initialSection,
   );
   const [expanded, setExpanded] = useState<SortMode | null>(null);
   const [menu, setMenu] = useState(false);
@@ -237,6 +248,11 @@ function DashboardContent({
     setNotice({ title, text });
   }
   function nav(label: string) {
+    if (label === "Favoritos") {
+      setMenu(false);
+      router.push("/favoritos");
+      return;
+    }
     if (label === "Profissionais") {
       setMenu(false);
       router.push("/profissionais");
@@ -299,13 +315,14 @@ function DashboardContent({
           <button
             type="button"
             onClick={() => nav("Favoritos")}
-            className={onlyFavorites ? styles.active : ""}
-            aria-pressed={onlyFavorites}
+            aria-label="Favoritos"
+            className={view === "favorites" ? styles.active : ""}
+            aria-current={view === "favorites" ? "page" : undefined}
           >
             <HomeIcon name="heart" />
             Favoritos
-            {favorites.length > 0 && (
-              <span className={styles.count}>{favorites.length}</span>
+            {savedFavorites > 0 && (
+              <span className={styles.count}>{savedFavorites}</span>
             )}
           </button>
           <button
@@ -422,19 +439,21 @@ function DashboardContent({
             <span className={styles.breadcrumb}>
               Seu espaço <HomeIcon name="chevron" size={13} />
               <strong>
-                {view === "professionals"
-                  ? "Profissionais"
-                  : view === "help"
-                    ? "Central de ajuda"
-                    : view === "profile"
-                      ? "Meu perfil"
-                      : view === "notifications"
-                        ? "Notificações"
-                        : view === "requests"
-                          ? "Minhas solicitações"
-                          : view === "messages"
-                            ? "Mensagens"
-                            : "Início"}
+                {view === "favorites"
+                  ? "Favoritos"
+                  : view === "professionals"
+                    ? "Profissionais"
+                    : view === "help"
+                      ? "Central de ajuda"
+                      : view === "profile"
+                        ? "Meu perfil"
+                        : view === "notifications"
+                          ? "Notificações"
+                          : view === "requests"
+                            ? "Minhas solicitações"
+                            : view === "messages"
+                              ? "Mensagens"
+                              : "Início"}
               </strong>
             </span>
           </div>
@@ -474,7 +493,9 @@ function DashboardContent({
         {view !== "home" ? (
           <main id="main-content" className={styles.messagesMain}>
             <Suspense fallback={<p>Carregando seção…</p>}>
-              {view === "professionals" ? (
+              {view === "favorites" ? (
+                <FavoritesWorkspace />
+              ) : view === "professionals" ? (
                 <ProfessionalsWorkspace />
               ) : view === "help" ? (
                 <HelpWorkspace />
@@ -641,7 +662,9 @@ function DashboardContent({
                       : "profissionais encontrados"}
                     {query ? " para “" + query + "”" : ""}
                     {category ? " · " + category : ""}
-                    {onlyFavorites ? " · Favoritos" : ""}
+                    {onlyFavorites
+                      ? " · Favoritos demonstrativos (neste navegador)"
+                      : ""}
                   </p>
                 )}
                 {results.length === 0 ? (
@@ -768,7 +791,7 @@ function DashboardContent({
                     <HomeIcon name="heart" />
                   </span>
                   <span>
-                    <strong>Seus favoritos</strong>
+                    <strong>Favoritos demonstrativos</strong>
                     <small>
                       {favorites.length}{" "}
                       {favorites.length === 1
@@ -777,13 +800,23 @@ function DashboardContent({
                     </small>
                   </span>
                 </div>
-                <p>Gostou de um perfil? Salve para encontrar com facilidade.</p>
+                <p>
+                  Exemplos salvos apenas neste navegador, separados dos
+                  favoritos da sua conta.
+                </p>
                 <button
                   type="button"
                   className={styles.textButton}
-                  onClick={() => nav("Favoritos")}
+                  onClick={() => {
+                    setOnlyFavorites(true);
+                    setCategory(null);
+                    setQuery("");
+                    setDraft("");
+                    scrollToCatalog();
+                  }}
                 >
-                  Ver meus favoritos <HomeIcon name="arrow" size={16} />
+                  Ver favoritos demonstrativos{" "}
+                  <HomeIcon name="arrow" size={16} />
                 </button>
               </div>
               <section className={styles.steps}>

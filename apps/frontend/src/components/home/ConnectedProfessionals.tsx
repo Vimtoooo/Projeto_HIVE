@@ -14,6 +14,7 @@ import type {
   Provider,
 } from "../../services/MessagingApi";
 import { rememberViewer, writeStored, VIEWER_KEY } from "../../lib/ViewerStore";
+import FavoriteButton from "../favorites/FavoriteButton";
 import HomeIcon from "./HomeIcon";
 import styles from "../../styles/conversations.module.css";
 export default function ConnectedProfessionals({
@@ -207,6 +208,7 @@ export default function ConnectedProfessionals({
                 <span className={styles.initial}>{p.nome.charAt(0)}</span>
                 <h3>{p.nome}</h3>
                 <p>{p.areaAtuacao}</p>
+                <FavoriteButton id={p.idPrestador} name={p.nome} />
                 <button
                   type="button"
                   disabled={busy !== null}

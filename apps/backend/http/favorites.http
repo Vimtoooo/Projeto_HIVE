@@ -1,0 +1,28 @@
+@baseUrl = http://localhost:3000
+# Faça login com os exemplos de autenticação para obter o cookie de sessão.
+# Cole apenas no ambiente local do REST Client; não versione um cookie real.
+@sessionCookie = SUBSTITUA_LOCALMENTE
+@prestadorId = 1
+
+### Lista privada da conta conectada
+GET {{baseUrl}}/favoritos
+Cookie: hive_session={{sessionCookie}}
+
+### Salvar (repetir não duplica)
+PUT {{baseUrl}}/favoritos/{{prestadorId}}
+Content-Type: application/json
+X-Hive-Request: 1
+Cookie: hive_session={{sessionCookie}}
+
+{}
+
+### Remover (repetir mantém o resultado)
+DELETE {{baseUrl}}/favoritos/{{prestadorId}}
+Content-Type: application/json
+X-Hive-Request: 1
+Cookie: hive_session={{sessionCookie}}
+
+{}
+
+### Sem sessão: esperado 401
+GET {{baseUrl}}/favoritos

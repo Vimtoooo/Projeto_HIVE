@@ -20,7 +20,7 @@ persistência no PostgreSQL. As migrations do backend incluem sessões, conversa
 7. **Concluído:** perfil com edição de nome, telefone e endereço.
 8. **Concluído:** Central de Ajuda pública com pesquisa, categorias e artigos.
 9. **Concluído:** catálogo público de profissionais reais com detalhes e ações integradas.
-10. **Próximas etapas:** favoritos reais e demais telas. A Home pode ser explorada publicamente; mensagens, histórico, solicitações, notificações e perfil exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
+10. **Concluído:** favoritos reais persistidos por conta, com painel próprio. A Home pode ser explorada publicamente; mensagens, histórico, solicitações, notificações e perfil exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
 
 ### Executar agora
 
@@ -391,3 +391,9 @@ Conteúdo tipado em `src/data/HelpArticles.ts`, sem API ou tabela adicional. Exe
 **Conversar** usa as conversas existentes; **Solicitar serviço** exige conta adequada e abre `/solicitacoes` com o serviço escolhido, validado novamente no backend. O link legado `/home?secao=Profissionais` redireciona para o catálogo. A Home conserva os exemplos identificados e favoritos demonstrativos locais.
 
 Execute `npm run test:e2e -- ProfessionalsSpec`; integração real em `apps/backend`: `npm run test:profissionais`. Veja [contrato, limites e demonstração](docs/professionals.md).
+
+## Favoritos da conta
+
+`/favoritos` usa a sessão e os dados do PostgreSQL. Favoritar ou remover no catálogo e nos profissionais reais da Home atualiza a interface após confirmação da API; falhas preservam o estado. A lista permite remover profissionais indisponíveis e reutiliza os cards e detalhes do catálogo para os disponíveis.
+
+Os exemplos fictícios ficam separados em **Ver favoritos demonstrativos** na Home e não são importados. A barra lateral abre somente os favoritos persistidos. Aplique `npm run db:migrate:deploy` e `npm run prisma:generate` no backend antes de iniciar. Execute `npm run test:e2e -- FavoritesSpec`; veja o [guia de favoritos](docs/favorites.md).
