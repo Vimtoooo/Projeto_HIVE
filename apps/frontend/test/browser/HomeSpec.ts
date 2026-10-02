@@ -95,7 +95,7 @@ test("favoritos persistem ao recarregar, detalhes abrem e Escape restaura o foco
     page.getByRole("heading", { name: "Seus favoritos começam aqui" }),
   ).toBeVisible();
 });
-test("ver todos expande a seção e itens futuros não saem da Home", async ({
+test("ver todos expande a seção e ajuda abre seu painel", async ({
   page,
 }) => {
   await page.goto("/home");
@@ -104,9 +104,8 @@ test("ver todos expande a seção e itens futuros não saem da Home", async ({
   await page.getByRole("button", { name: "Ver menos: Perto de você" }).click();
   await expect(page.locator("article")).toHaveCount(9);
   await page.getByRole("button", { name: "Central de ajuda" }).click();
-  await expect(page.getByRole("dialog")).toContainText("Explore profissões");
-  await expect(page).toHaveURL(/home$/);
-  await page.getByRole("button", { name: "Entendi" }).click();
+  await expect(page).toHaveURL(/ajuda$/);
+  await expect(page.getByRole("heading", { name: "Central de Ajuda", exact: true })).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 test("celular tem menu funcional, sem transbordamento horizontal e captura", async ({

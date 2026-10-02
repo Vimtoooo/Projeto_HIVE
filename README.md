@@ -31,8 +31,8 @@ A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrã
 
 | Camada | Tecnologias |
 | :--- | :--- |
-| **Frontend atual** | Next.js + React + TypeScript + CSS Modules; Home, cadastro, login, mensagens, solicitações, notificações e perfil |
-| **Planejamento do frontend** | Base Node.js/Next.js adotada; ajuda, catálogo/favoritos reais e evolução dos componentes compartilhados |
+| **Frontend atual** | Next.js + React + TypeScript + CSS Modules; Home, cadastro, login, mensagens, solicitações, notificações, perfil e Central de Ajuda |
+| **Planejamento do frontend** | Base Node.js/Next.js adotada; catálogo/favoritos reais e evolução dos componentes compartilhados |
 | **Backend** | Node.js + NestJS (TypeScript) |
 | **Persistência** | PostgreSQL + Prisma ORM |
 | **Testes** | Jest, testes nativos Node.js, Playwright, integração com PostgreSQL e exemplos HTTP |
@@ -215,12 +215,14 @@ A seção `/notificacoes` reúne avisos reais de mensagens e solicitações em l
 | Minhas solicitações | Implementado | Pagamentos efetivos e avaliações em etapas próprias |
 | Notificações | Implementado | Novos tipos de aviso conforme novas funções |
 | Meu perfil | Implementado | Nome, telefone e endereço editáveis; outros dados somente para consulta |
-| Central de Ajuda | Pendente | Guias, busca e perguntas frequentes, sem chamados |
+| Central de Ajuda | Implementado | Guias, busca e perguntas frequentes, sem chamados |
 | Profissionais | Parcial: funciona na Home | Painel próprio com catálogo real e detalhes |
 | Favoritos | Parcial: exemplos locais | Favoritos reais persistidos por conta e painel próprio |
 | Cadastro de prestador pela interface | Outro integrante | Responsabilidade do integrante, fora desta sequência |
 
 O [plano da barra lateral](apps/frontend/docs/sidebar-roadmap.md) registra a ordem e os limites. Cada seção tem testes e commit próprios; o desenvolvimento pausa antes da próxima.
+
+A [Central de Ajuda](apps/frontend/docs/help.md) está disponível em `/ajuda`, com pesquisa, categorias e guias locais sobre as funções atuais.
 
 ## 📈 Roadmap
 

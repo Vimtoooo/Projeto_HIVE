@@ -18,7 +18,8 @@ persistência no PostgreSQL. As migrations do backend incluem sessões, conversa
 5. **Concluído:** solicitações de serviços pela interface, com aceite/recusa, conclusão e cancelamento.
 6. **Concluído:** notificações persistentes de mensagens e pedidos, filtros e leitura individual/em lote.
 7. **Concluído:** perfil com edição de nome, telefone e endereço.
-8. **Próximas etapas:** ajuda, catálogo/favoritos reais e demais telas. A Home pode ser explorada publicamente; mensagens, histórico, solicitações, notificações e perfil exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
+8. **Concluído:** Central de Ajuda pública com pesquisa, categorias e artigos.
+9. **Próximas etapas:** catálogo/favoritos reais e demais telas. A Home pode ser explorada publicamente; mensagens, histórico, solicitações, notificações e perfil exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
 
 ### Executar agora
 
@@ -375,3 +376,9 @@ Execute `npm run test:e2e -- NotificationsSpec` para os testes com API simulada.
 `/perfil` mostra resumo privado da conta e permite editar nome, telefone e endereço. E-mail, CPF mascarado, tipo de conta e data de cadastro são consultivos. Salvar atualiza a apresentação do nome; cancelar restaura o formulário; falhas preservam a edição. A navegação lateral e o botão da conta abrem o painel sem modal. Não há mudança de senha, e-mail, foto ou dados profissionais.
 
 Execute `npm run test:e2e -- ProfileSpec`; a integração real do backend é `npm run test:perfil`. Veja [uso, contratos e demonstração](docs/profile.md) e a [sequência da barra lateral](docs/sidebar-roadmap.md).
+
+## Central de Ajuda
+
+`/ajuda` mantém a barra lateral e o cabeçalho, com categorias e artigos expansíveis no painel principal. Pesquisa por título e conteúdo ignora acentos e maiúsculas; categorias podem ser combinadas à busca. Os guias são públicos e os atalhos pessoais exigem sessão na página de destino.
+
+Conteúdo tipado em `src/data/HelpArticles.ts`, sem API ou tabela adicional. Execute `npm test` e `npm run test:e2e -- HelpSpec`. Veja [arquitetura, limites e roteiro](docs/help.md). Não há chamados, atendimento humano ou processamento de pagamentos.

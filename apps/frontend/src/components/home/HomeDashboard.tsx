@@ -26,6 +26,7 @@ import HomeIcon from "./HomeIcon";
 import type { IconName } from "./HomeIcon";
 import HomeDialog from "./HomeDialog";
 import ProfessionalAvatar from "./ProfessionalAvatar";
+import HelpWorkspace from "../help/HelpWorkspace";
 import ProfileWorkspace from "../profile/ProfileWorkspace";
 import RequestsWorkspace from "../requests/RequestsWorkspace";
 import MessagesWorkspace from "../messages/MessagesWorkspace";
@@ -77,7 +78,13 @@ const sections: {
   },
 ];
 type DashboardProps = {
-  view?: "home" | "messages" | "requests" | "notifications" | "profile";
+  view?:
+    | "home"
+    | "messages"
+    | "requests"
+    | "notifications"
+    | "profile"
+    | "help";
   initialSection?: string;
 };
 export default function HomeDashboard(props: DashboardProps) {
@@ -91,7 +98,13 @@ function DashboardContent({
   view = "home",
   initialSection = "Início",
 }: {
-  view?: "home" | "messages" | "requests" | "notifications" | "profile";
+  view?:
+    | "home"
+    | "messages"
+    | "requests"
+    | "notifications"
+    | "profile"
+    | "help";
   initialSection?: string;
 }) {
   const router = useRouter();
@@ -161,15 +174,17 @@ function DashboardContent({
     initialSection === "Favoritos",
   );
   const [active, setActive] = useState(
-    view === "profile"
-      ? "Meu perfil"
-      : view === "notifications"
-        ? "Notificações"
-        : view === "requests"
-          ? "Minhas solicitações"
-          : view === "messages"
-            ? "Mensagens"
-            : initialSection,
+    view === "help"
+      ? "Central de ajuda"
+      : view === "profile"
+        ? "Meu perfil"
+        : view === "notifications"
+          ? "Notificações"
+          : view === "requests"
+            ? "Minhas solicitações"
+            : view === "messages"
+              ? "Mensagens"
+              : initialSection,
   );
   const [expanded, setExpanded] = useState<SortMode | null>(null);
   const [menu, setMenu] = useState(false);
@@ -321,12 +336,12 @@ function DashboardContent({
           </button>
           <button
             type="button"
-            onClick={() =>
-              notify(
-                "Como funciona o HIVE",
-                "Explore profissões, busque um serviço e salve seus favoritos. Os perfis desta Home são fictícios; você pode conhecer os detalhes, mas conversar com os profissionais cadastrados no banco.",
-              )
-            }
+            onClick={() => {
+              setMenu(false);
+              router.push("/ajuda");
+            }}
+            className={view === "help" ? styles.active : ""}
+            aria-current={view === "help" ? "page" : undefined}
           >
             <HomeIcon name="help" />
             Central de ajuda
@@ -397,15 +412,17 @@ function DashboardContent({
             <span className={styles.breadcrumb}>
               Seu espaço <HomeIcon name="chevron" size={13} />
               <strong>
-                {view === "profile"
-                  ? "Meu perfil"
-                  : view === "notifications"
-                    ? "Notificações"
-                    : view === "requests"
-                      ? "Minhas solicitações"
-                      : view === "messages"
-                        ? "Mensagens"
-                        : "Início"}
+                {view === "help"
+                  ? "Central de ajuda"
+                  : view === "profile"
+                    ? "Meu perfil"
+                    : view === "notifications"
+                      ? "Notificações"
+                      : view === "requests"
+                        ? "Minhas solicitações"
+                        : view === "messages"
+                          ? "Mensagens"
+                          : "Início"}
               </strong>
             </span>
           </div>
@@ -445,7 +462,9 @@ function DashboardContent({
         {view !== "home" ? (
           <main id="main-content" className={styles.messagesMain}>
             <Suspense fallback={<p>Carregando seção…</p>}>
-              {view === "profile" ? (
+              {view === "help" ? (
+                <HelpWorkspace />
+              ) : view === "profile" ? (
                 <ProfileWorkspace />
               ) : view === "notifications" ? (
                 <NotificationsWorkspace />
@@ -773,15 +792,7 @@ function DashboardContent({
                 <HomeIcon name="help" size={23} />
                 <h3>Podemos ajudar?</h3>
                 <p>Conheça o que já é possível explorar no HIVE.</p>
-                <button
-                  type="button"
-                  onClick={() =>
-                    notify(
-                      "Como funciona o HIVE",
-                      "Busque por profissão ou serviço, filtre as categorias, veja detalhes e salve favoritos. Abra Mensagens ou envie uma mensagem pelos cards de profissionais cadastrados.",
-                    )
-                  }
-                >
+                <button type="button" onClick={() => router.push("/ajuda")}>
                   Como funciona <HomeIcon name="arrow" size={15} />
                 </button>
               </div>

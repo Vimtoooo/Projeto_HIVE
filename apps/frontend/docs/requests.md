@@ -31,7 +31,7 @@ A migration `20261001000000_request_idempotency` adiciona uma chave UUID opciona
 - Transações serializáveis e comparação do estado impedem ações concorrentes de sobrescrever mudanças. Em conflito, atualize os detalhes e decida novamente.
 - A conclusão alimenta o histórico **Contrate novamente** da Home. Conversar abre a mesma dupla cliente/prestador, inclusive quando o prestador inicia a conversa pelo pedido.
 
-Não há processamento de pagamento, geração automática de fatura, agendamento estruturado, rastreamento de localização, avaliação ou notificação nesta entrega. Endereço e horário devem ser combinados na conversa. Os detalhes de título/descrição usam o serviço atual; o valor do pedido é o dado preservado na contratação.
+Não há processamento de pagamento, geração automática de fatura, agendamento estruturado, rastreamento de localização, avaliação nesta entrega. Notificações de pedidos foram adicionadas posteriormente; veja o [guia](notifications.md). Endereço e horário devem ser combinados na conversa. Os detalhes de título/descrição usam o serviço atual; o valor do pedido é o dado preservado na contratação.
 
 ## Interface e arquitetura
 
