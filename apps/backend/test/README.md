@@ -432,3 +432,7 @@ npm run test:notificacoes
 ## Perfil: consulta e edição autenticadas
 
 `npm run test:perfil` cria um banco `hive_profile_<uuid>_test`, aplica migrations e testa GET/PATCH `/perfil` com contas fictícias. Valida sessão/CSRF, resposta sem segredos, CPF mascarado, persistência, atualização parcial, campos proibidos e isolamento. Requer TEST_DATABASE_URL local em `.env/.env.test.local` e CREATEDB. Não execute a suíte diretamente no banco da aplicação. Veja o [guia](../../frontend/docs/profile.md).
+
+## Profissionais: catálogo real
+
+Execute `npm run test:profissionais` para validar paginação por prestador, busca, filtros, dados públicos mínimos, avaliações reais, indisponibilidade e integração com conversas/pedidos autenticados. O script cria e remove apenas `hive_professionals_<uuid>_test`; usa a mesma configuração local `TEST_DATABASE_URL` e permissão CREATEDB das outras suítes descartáveis. Não limpa nem popula o banco da aplicação.

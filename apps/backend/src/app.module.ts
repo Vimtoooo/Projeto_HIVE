@@ -1,3 +1,4 @@
+import { ProfessionalsModule } from './professionals/professionals.module';
 import { ProfileModule } from './profile/profile.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { RequestsModule } from './requests/requests.module';
@@ -23,6 +24,7 @@ import { ClienteModule } from './cliente/cliente.module';
     RequestsModule,
     NotificationsModule,
     ProfileModule,
+    ProfessionalsModule,
   ],
 
   controllers: [AppController],

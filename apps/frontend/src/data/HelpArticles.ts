@@ -100,11 +100,11 @@ export const helpArticles: readonly HelpArticle[] = [
     title: "Quais profissionais posso contratar?",
     paragraphs: [
       "A Home separa perfis demonstrativos e profissionais cadastrados no banco. Fotos, distâncias e avaliações dos exemplos são ilustrativas; não representam informações verificadas de prestadores reais.",
-      "Para contratar, escolha um serviço ativo no fluxo de Nova solicitação. O catálogo próprio de profissionais ainda será ampliado em outra etapa.",
+      "Para contratar, escolha um serviço ativo no fluxo de Nova solicitação. A seção Profissionais reúne o catálogo real, com busca por nome e serviço, filtro por área e detalhes.",
     ],
     link: {
-      label: "Explorar profissionais na Home",
-      href: "/home?secao=Profissionais",
+      label: "Explorar profissionais",
+      href: "/profissionais",
     },
   },
   {

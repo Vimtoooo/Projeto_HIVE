@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import HomeDashboard from "../../components/home/HomeDashboard";
 export const metadata = {
   title: "HIVE — Início",
@@ -9,15 +10,10 @@ export default async function Page({
   searchParams: Promise<{ secao?: string }>;
 }) {
   const { secao } = await searchParams;
+  if (secao === "Profissionais") redirect("/profissionais");
   return (
     <HomeDashboard
-      initialSection={
-        secao === "Favoritos"
-          ? "Favoritos"
-          : secao === "Profissionais"
-            ? "Profissionais"
-            : "Início"
-      }
+      initialSection={secao === "Favoritos" ? "Favoritos" : "Início"}
     />
   );
 }

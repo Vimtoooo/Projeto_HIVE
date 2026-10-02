@@ -1,0 +1,24 @@
+@baseUrl = http://localhost:3000
+# Substitua pelo idPrestador recebido na consulta. Rotas de leitura públicas.
+@prestadorId = 1
+
+### Catálogo paginado por profissional
+GET {{baseUrl}}/profissionais?pagina=1&limite=12
+
+### Pesquisa por nome, área e serviços ativos
+GET {{baseUrl}}/profissionais?texto=montagem
+
+### Área combinada com busca
+GET {{baseUrl}}/profissionais?texto=montagem&areaAtuacao=Marcenaria
+
+### Detalhes públicos e serviços ativos
+GET {{baseUrl}}/profissionais/{{prestadorId}}
+
+### Validação de limite: esperado 400
+GET {{baseUrl}}/profissionais?limite=51
+
+### Identificador inválido: esperado 400
+GET {{baseUrl}}/profissionais/abc
+
+### Profissional inexistente: esperado 404
+GET {{baseUrl}}/profissionais/2147483647

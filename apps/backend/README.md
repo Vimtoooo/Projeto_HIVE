@@ -350,3 +350,11 @@ npm run start:dev
 ```
 
 Para ferramentas executadas diretamente (Nest CLI, Jest ou ts-node), gere primeiro com `npm run prisma:generate`. `start:prod` usa o build previamente preparado: execute `npm run build` antes; não exige instalar o Prisma CLI no ambiente de produção. Após modificar `schema.prisma`, gere o client novamente e reinicie o watch. Se houver erro de tabela ausente, isso é outra etapa: consulte o guia de migrations, sem resetar o banco.
+
+## Catálogo público de profissionais
+
+`GET /profissionais` pagina prestadores ativos com serviços ativos, sem duplicá-los por serviço. Aceita `texto`, `areaAtuacao`, `pagina` e `limite` (padrão 12, máximo 50). A busca ignora caixa, mas não acentos; a ordenação é por nome e ID. `GET /profissionais/:id` mostra experiência, certificações declaradas e serviços ativos. ID inválido retorna 400; indisponível ou inexistente retorna 404.
+
+Seleções explícitas impedem a exposição de senha, documentos, contato e endereço residencial. As avaliações são agregadas dos registros existentes, sem reutilizar médias fictícias; nenhuma avaliação implica média nula. O módulo é somente leitura e não modifica o cadastro de prestador. Conversar e solicitar reutilizam as validações de sessão, conta, disponibilidade e preço dos módulos existentes.
+
+Não há migration nova. Teste com `npm run test:profissionais` em PostgreSQL descartável; veja [guia técnico e demonstração](../frontend/docs/professionals.md) e `http/professionals.http`.

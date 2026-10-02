@@ -250,6 +250,8 @@ function RequestsContent({ query }: { query: string }) {
                 ) : (
                   <NewRequestForm
                     user={user.idUsuario}
+                    initialProfessional={params.get("profissional")}
+                    initialService={params.get("servico")}
                     onUnauthorized={expire}
                     onCreated={(id) =>
                       navigate({ papel: "cliente", pedido: String(id) })

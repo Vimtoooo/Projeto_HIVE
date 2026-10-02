@@ -26,6 +26,7 @@ import HomeIcon from "./HomeIcon";
 import type { IconName } from "./HomeIcon";
 import HomeDialog from "./HomeDialog";
 import ProfessionalAvatar from "./ProfessionalAvatar";
+import ProfessionalsWorkspace from "../professionals/ProfessionalsWorkspace";
 import HelpWorkspace from "../help/HelpWorkspace";
 import ProfileWorkspace from "../profile/ProfileWorkspace";
 import RequestsWorkspace from "../requests/RequestsWorkspace";
@@ -84,7 +85,8 @@ type DashboardProps = {
     | "requests"
     | "notifications"
     | "profile"
-    | "help";
+    | "help"
+    | "professionals";
   initialSection?: string;
 };
 export default function HomeDashboard(props: DashboardProps) {
@@ -104,7 +106,8 @@ function DashboardContent({
     | "requests"
     | "notifications"
     | "profile"
-    | "help";
+    | "help"
+    | "professionals";
   initialSection?: string;
 }) {
   const router = useRouter();
@@ -174,17 +177,19 @@ function DashboardContent({
     initialSection === "Favoritos",
   );
   const [active, setActive] = useState(
-    view === "help"
-      ? "Central de ajuda"
-      : view === "profile"
-        ? "Meu perfil"
-        : view === "notifications"
-          ? "Notificações"
-          : view === "requests"
-            ? "Minhas solicitações"
-            : view === "messages"
-              ? "Mensagens"
-              : initialSection,
+    view === "professionals"
+      ? "Profissionais"
+      : view === "help"
+        ? "Central de ajuda"
+        : view === "profile"
+          ? "Meu perfil"
+          : view === "notifications"
+            ? "Notificações"
+            : view === "requests"
+              ? "Minhas solicitações"
+              : view === "messages"
+                ? "Mensagens"
+                : initialSection,
   );
   const [expanded, setExpanded] = useState<SortMode | null>(null);
   const [menu, setMenu] = useState(false);
@@ -232,6 +237,11 @@ function DashboardContent({
     setNotice({ title, text });
   }
   function nav(label: string) {
+    if (label === "Profissionais") {
+      setMenu(false);
+      router.push("/profissionais");
+      return;
+    }
     if (view !== "home") {
       setMenu(false);
       router.push(
@@ -412,17 +422,19 @@ function DashboardContent({
             <span className={styles.breadcrumb}>
               Seu espaço <HomeIcon name="chevron" size={13} />
               <strong>
-                {view === "help"
-                  ? "Central de ajuda"
-                  : view === "profile"
-                    ? "Meu perfil"
-                    : view === "notifications"
-                      ? "Notificações"
-                      : view === "requests"
-                        ? "Minhas solicitações"
-                        : view === "messages"
-                          ? "Mensagens"
-                          : "Início"}
+                {view === "professionals"
+                  ? "Profissionais"
+                  : view === "help"
+                    ? "Central de ajuda"
+                    : view === "profile"
+                      ? "Meu perfil"
+                      : view === "notifications"
+                        ? "Notificações"
+                        : view === "requests"
+                          ? "Minhas solicitações"
+                          : view === "messages"
+                            ? "Mensagens"
+                            : "Início"}
               </strong>
             </span>
           </div>
@@ -462,7 +474,9 @@ function DashboardContent({
         {view !== "home" ? (
           <main id="main-content" className={styles.messagesMain}>
             <Suspense fallback={<p>Carregando seção…</p>}>
-              {view === "help" ? (
+              {view === "professionals" ? (
+                <ProfessionalsWorkspace />
+              ) : view === "help" ? (
                 <HelpWorkspace />
               ) : view === "profile" ? (
                 <ProfileWorkspace />

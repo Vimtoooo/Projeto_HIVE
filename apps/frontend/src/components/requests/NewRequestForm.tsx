@@ -6,6 +6,7 @@ import {
   requestServices,
 } from "../../services/RequestsApi";
 import type { CatalogService } from "../../services/RequestsApi";
+import { professionalDetail } from "../../services/ProfessionalsApi";
 import { session } from "../../services/MessagingApi";
 import { requestMoney as money } from "../../lib/RequestFormatting";
 import styles from "../../styles/requests-page.module.css";
@@ -13,8 +14,12 @@ export default function NewRequestForm({
   user,
   onCreated,
   onUnauthorized,
+  initialProfessional,
+  initialService,
 }: {
   user: number;
+  initialProfessional?: string | null;
+  initialService?: string | null;
   onCreated: (id: number) => void;
   onUnauthorized: () => void;
 }) {
@@ -36,6 +41,57 @@ export default function NewRequestForm({
       mounted.current = false;
     };
   }, []);
+  const [initialLoading, setInitialLoading] = useState(
+    Boolean(initialProfessional || initialService),
+  );
+  const [initialError, setInitialError] = useState("");
+  useEffect(() => {
+    if (!initialProfessional && !initialService) return;
+    let active = true;
+    async function loadSelected() {
+      try {
+        const providerId = Number(initialProfessional),
+          serviceId = Number(initialService);
+        if (
+          !Number.isSafeInteger(providerId) ||
+          providerId <= 0 ||
+          !Number.isSafeInteger(serviceId) ||
+          serviceId <= 0 ||
+          providerId === user
+        )
+          throw Error(
+            "Seleção de serviço inválida. Escolha outro serviço na lista.",
+          );
+        const provider = await professionalDetail(providerId);
+        const service = provider.servicos.find(
+          (item) => item.idServico === serviceId,
+        );
+        if (!service)
+          throw Error(
+            "O serviço escolhido não está mais disponível. Escolha outro serviço.",
+          );
+        if (active)
+          setSelected({
+            ...service,
+            prestador: {
+              idPrestador: provider.idPrestador,
+              nome: provider.nome,
+            },
+          });
+      } catch (e) {
+        if (active)
+          setInitialError(
+            e instanceof Error ? e.message : "Serviço indisponível.",
+          );
+      } finally {
+        if (active) setInitialLoading(false);
+      }
+    }
+    void loadSelected();
+    return () => {
+      active = false;
+    };
+  }, [initialProfessional, initialService, user]);
   const pending = useRef<{ payload: string; key: string } | null>(null),
     locked = useRef(false);
   useEffect(() => {
@@ -103,6 +159,8 @@ export default function NewRequestForm({
         Escolha um serviço cadastrado. O profissional receberá o pedido para
         avaliar.
       </p>
+      {initialLoading && <p role="status">Conferindo o serviço escolhido…</p>}
+      {initialError && <p role="alert">{initialError}</p>}
       {error && (
         <p role="alert" className={styles.error}>
           {error}
@@ -137,8 +195,11 @@ export default function NewRequestForm({
               type="button"
               key={s.idServico}
               aria-pressed={selected?.idServico === s.idServico}
-              onClick={() => setSelected(s)}
-              disabled={busy}
+              onClick={() => {
+                setSelected(s);
+                setInitialError("");
+              }}
+              disabled={busy || initialLoading}
             >
               <span>
                 <strong>{s.titulo}</strong>
@@ -207,7 +268,7 @@ export default function NewRequestForm({
         </p>
         <button
           className={styles.primary}
-          disabled={!selected || busy || loading}
+          disabled={!selected || busy || loading || initialLoading}
         >
           {busy ? "Enviando…" : "Confirmar solicitação"}
         </button>

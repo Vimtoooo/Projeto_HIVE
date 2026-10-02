@@ -19,7 +19,8 @@ persistência no PostgreSQL. As migrations do backend incluem sessões, conversa
 6. **Concluído:** notificações persistentes de mensagens e pedidos, filtros e leitura individual/em lote.
 7. **Concluído:** perfil com edição de nome, telefone e endereço.
 8. **Concluído:** Central de Ajuda pública com pesquisa, categorias e artigos.
-9. **Próximas etapas:** catálogo/favoritos reais e demais telas. A Home pode ser explorada publicamente; mensagens, histórico, solicitações, notificações e perfil exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
+9. **Concluído:** catálogo público de profissionais reais com detalhes e ações integradas.
+10. **Próximas etapas:** favoritos reais e demais telas. A Home pode ser explorada publicamente; mensagens, histórico, solicitações, notificações e perfil exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
 
 ### Executar agora
 
@@ -382,3 +383,11 @@ Execute `npm run test:e2e -- ProfileSpec`; a integração real do backend é `np
 `/ajuda` mantém a barra lateral e o cabeçalho, com categorias e artigos expansíveis no painel principal. Pesquisa por título e conteúdo ignora acentos e maiúsculas; categorias podem ser combinadas à busca. Os guias são públicos e os atalhos pessoais exigem sessão na página de destino.
 
 Conteúdo tipado em `src/data/HelpArticles.ts`, sem API ou tabela adicional. Execute `npm test` e `npm run test:e2e -- HelpSpec`. Veja [arquitetura, limites e roteiro](docs/help.md). Não há chamados, atendimento humano ou processamento de pagamentos.
+
+## Profissionais
+
+`/profissionais` apresenta somente prestadores ativos com serviços ativos. A busca considera nome, área e serviços; o filtro de área pode ser combinado. Há paginação por prestador, detalhes no painel e navegação móvel com retorno à lista. Não são exibidos dados de contato ou documentos, distâncias inventadas ou selos de verificação. Sem avaliações registradas, aparece **Sem avaliações**.
+
+**Conversar** usa as conversas existentes; **Solicitar serviço** exige conta adequada e abre `/solicitacoes` com o serviço escolhido, validado novamente no backend. O link legado `/home?secao=Profissionais` redireciona para o catálogo. A Home conserva os exemplos identificados e favoritos demonstrativos locais.
+
+Execute `npm run test:e2e -- ProfessionalsSpec`; integração real em `apps/backend`: `npm run test:profissionais`. Veja [contrato, limites e demonstração](docs/professionals.md).
