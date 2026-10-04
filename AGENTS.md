@@ -17,6 +17,10 @@
 - Use os testes de integração com bancos descartáveis documentados. Confira destino e migrations antes de modificar o banco local. Nunca registre credenciais, cookies de sessão ou conteúdo de arquivos de ambiente em documentação ou logs compartilhados.
 - Não inicie agentes paralelos por padrão. Se o usuário autorizar, distribua escopos sem edições concorrentes nos mesmos arquivos.
 
+## Delegação
+
+Quando o usuário solicitar delegação, siga [o acordo de trabalho](engineering/ai-workflow.md). O coordenador define objetivos, responsáveis por arquivos e critérios de aceite; agentes retornam evidências e não ampliam o escopo. Use execução sequencial quando houver dependência ou disputa pelos mesmos arquivos.
+
 ## Conclusão e parada da branch
 
 1. Identifique o requisito principal, os critérios de aceite e os limites da entrega antes de implementar. Se já estiverem documentados, reutilize-os.
