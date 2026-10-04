@@ -5,3 +5,6 @@
 *.key
 *.p12
 *.pfx
+
+# Documentos locais e privados.
+/docs
