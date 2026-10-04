@@ -1,0 +1,5 @@
+# Habilita a capacidade; AGENTS.md exige pedido explicito para delegar.
+# Nao altera modelos, aprovacoes, rede ou permissoes do ambiente.
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 2

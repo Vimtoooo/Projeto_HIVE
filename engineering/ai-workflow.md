@@ -42,6 +42,8 @@ Delegue a leitura do contrato existente no backend e a identificação dos compo
 
 ## Procedimentos reutilizáveis
 
+Os perfis do Codex e os comandos de validação estão em [ai-config.md](ai-config.md). Use os papéis como especializações do contrato acima, não como autorização para edição paralela irrestrita.
+
 As skills do repositório ficam em `.agents/skills`: `hive-fechamento` prepara evidências e continuidade; `hive-validacao-interface` verifica fluxos visuais alterados. No Codex, peça `$hive-fechamento` ou `$hive-validacao-interface`; descrições específicas também permitem seleção automática. Elas não concedem autorização extra nem exigem agentes paralelos.
 
 Para usar as mesmas instruções em outro cliente sem descoberta dessa pasta, forneça o SKILL.md explicitamente. Os CLAUDE.md compartilham regras via AGENTS.md; não significam que configurações específicas do Codex são carregadas por Claude.
