@@ -53,6 +53,10 @@ async function fixture(page: Page) {
         : route.fulfill({
             json: state.invalid ? { ...detail, servicos: null } : detail,
           });
+    if (path === "/api/profissionais/12/avaliacoes")
+      return route.fulfill({
+        json: { itens: [], total: 0, pagina: 1, limite: 5 },
+      });
     if (path === "/api/profissionais") {
       if (state.failList)
         return route.fulfill({
@@ -120,6 +124,8 @@ async function fixture(page: Page) {
           papel: "cliente",
           acoes: ["CANCELAR"],
           cancelamentoBloqueado: false,
+          avaliacao: null,
+          podeAvaliar: false,
         },
       });
     }

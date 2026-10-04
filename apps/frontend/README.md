@@ -386,7 +386,7 @@ Conteúdo tipado em `src/data/HelpArticles.ts`, sem API ou tabela adicional. Exe
 
 ## Profissionais
 
-`/profissionais` apresenta somente prestadores ativos com serviços ativos. A busca considera nome, área e serviços; o filtro de área pode ser combinado. Há paginação por prestador, detalhes no painel e navegação móvel com retorno à lista. Não são exibidos dados de contato ou documentos, distâncias inventadas ou selos de verificação. Sem avaliações registradas, aparece **Sem avaliações**.
+`/profissionais` apresenta somente prestadores ativos com serviços ativos. A busca considera nome, área e serviços; o filtro de área pode ser combinado. Há paginação por prestador, detalhes no painel e navegação móvel com retorno à lista. Não são exibidos dados de contato ou documentos, distâncias inventadas ou selos de verificação. Sem avaliações registradas, aparece **Sem avaliações**. Clientes podem avaliar pedidos concluídos em `/solicitacoes`; notas e comentários aparecem nos detalhes públicos. Veja [regras, migration e testes de avaliações](docs/reviews.md).
 
 **Conversar** usa as conversas existentes; **Solicitar serviço** exige conta adequada e abre `/solicitacoes` com o serviço escolhido, validado novamente no backend. O link legado `/home?secao=Profissionais` redireciona para o catálogo. A Home conserva os exemplos identificados e favoritos demonstrativos locais.
 

@@ -4,6 +4,8 @@ import {
   IsIn,
   IsInt,
   IsOptional,
+  IsString,
+  MaxLength,
   IsUUID,
   Max,
   Min,
@@ -27,4 +29,9 @@ export class RequestActionDto {
     | 'RECUSAR'
     | 'CONCLUIR'
     | 'CANCELAR';
+}
+
+export class CreateReviewDto {
+  @IsInt() @Min(1) @Max(5) nota!: number;
+  @IsOptional() @IsString() @MaxLength(1000) comentario?: string;
 }

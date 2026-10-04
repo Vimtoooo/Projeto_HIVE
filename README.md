@@ -21,7 +21,7 @@ A arquitetura organiza regras em **classes de domínio**; o catálogo segue Cont
 
 ## Integração atual
 
-A API REST NestJS/Prisma/PostgreSQL oferece cadastro de clientes e prestadores, catálogo de serviços, login com sessão HTTP-only, mensagens persistentes e fluxo de solicitações: criar, aceitar/recusar, concluir e cancelar. Notificações persistentes avisam a contraparte sobre novas mensagens e alterações dos pedidos. O frontend Next.js integra essas funções em páginas com navegação compartilhada. Pagamentos e avaliações pela API continuam no planejamento; JWT/RBAC amplo permanece como evolução da autorização atual por sessão e participação.
+A API REST NestJS/Prisma/PostgreSQL oferece cadastro de clientes e prestadores, catálogo de serviços, login com sessão HTTP-only, mensagens persistentes e fluxo de solicitações: criar, aceitar/recusar, concluir, cancelar e avaliar. Notificações persistentes avisam a contraparte sobre novas mensagens, alterações dos pedidos e avaliações recebidas. O frontend Next.js integra essas funções em páginas com navegação compartilhada. Pagamentos continuam no planejamento; JWT/RBAC amplo permanece como evolução da autorização atual por sessão e participação.
 
 Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
 
@@ -206,19 +206,23 @@ A seção **Minhas solicitações** permite criar e acompanhar pedidos, aceitar/
 
 A seção `/notificacoes` reúne avisos reais de mensagens e solicitações em lista e painel de detalhes, com filtros, contador e leitura individual/em lote. Aplique a migration com `npm run db:migrate:deploy` no backend antes de iniciar a API. Eventos antigos não são reconstruídos. Veja o [guia de demonstração](apps/frontend/docs/notifications.md).
 
+### Avaliações de serviços
+
+O cliente pode avaliar uma única vez cada pedido concluído, com nota inteira de 1 a 5 e comentário opcional. A interface confirma o envio definitivo; o perfil público exibe comentários paginados e médias reais, e o prestador recebe uma notificação. Aplique a migration aditiva `20261003000000_review_notifications`. Consulte [regras, execução e testes](apps/frontend/docs/reviews.md).
+
 ### Situação das funções da barra lateral
 
 | Seção | Situação | Evolução prevista |
 | --- | --- | --- |
 | Início | Implementado | Refinar a Home conforme as próximas entregas |
 | Mensagens | Implementado | Melhorias futuras conforme requisitos do grupo |
-| Minhas solicitações | Implementado | Pagamentos efetivos e avaliações em etapas próprias |
+| Minhas solicitações | Implementado, incluindo avaliações | Pagamentos efetivos em etapa própria |
 | Notificações | Implementado | Novos tipos de aviso conforme novas funções |
 | Meu perfil | Implementado | Nome, telefone e endereço editáveis; outros dados somente para consulta |
 | Central de Ajuda | Implementado | Guias, busca e perguntas frequentes, sem chamados |
 | Profissionais | Implementado | Catálogo real com busca, paginação, detalhes, conversa e solicitação |
 | Favoritos | Implementado | Profissionais reais salvos por conta; exemplos locais separados |
-| Cadastro de prestador pela interface | Outro integrante | Responsabilidade do integrante, fora desta sequência |
+| Cadastro de prestador pela interface | Próxima tarefa | Implementação em uma branch própria após o fechamento desta entrega |
 
 O [plano da barra lateral](apps/frontend/docs/sidebar-roadmap.md) registra a ordem e os limites. Cada seção tem testes e commit próprios; o desenvolvimento pausa antes da próxima.
 
@@ -238,7 +242,8 @@ O [catálogo de profissionais](apps/frontend/docs/professionals.md) está em `/p
 - [x] Sessões HTTP-only, autorização por participante e mensagens persistentes.
 - [x] Solicitações pela API e interface: criação, aceite/recusa, conclusão e cancelamento.
 - [x] Notificações de mensagens e pedidos, com filtros e leitura persistente.
-- [ ] Endpoints de pagamento e avaliação.
+- [x] Avaliações definitivas de serviços concluídos pela API e interface.
+- [ ] Endpoints de pagamento.
 - [x] Perfil com consulta e edição de nome, telefone e endereço.
 - [x] Telas de login e cadastro em React/TypeScript integradas à API.
 - [ ] Ampliar a integração do frontend com a API e desenvolver as demais telas.

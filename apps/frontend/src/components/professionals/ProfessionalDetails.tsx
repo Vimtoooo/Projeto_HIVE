@@ -13,6 +13,7 @@ import { rememberViewer } from "../../lib/ViewerStore";
 import { requestMoney } from "../../lib/RequestFormatting";
 import { RatingLabel } from "./ProfessionalCard";
 import HomeIcon from "../home/HomeIcon";
+import ProfessionalReviews from "./ProfessionalReviews";
 import styles from "../../styles/professionals-page.module.css";
 export default function ProfessionalDetails({
   id,
@@ -167,6 +168,7 @@ export default function ProfessionalDetails({
             A disponibilidade e o preço serão conferidos no envio do pedido.
             Nenhuma cobrança é realizada aqui.
           </p>
+          <ProfessionalReviews key={id} id={id} />
         </>
       )}
     </section>

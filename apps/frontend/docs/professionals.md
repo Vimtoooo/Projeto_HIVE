@@ -10,7 +10,7 @@ Inicie a API com `npm run start:dev` em `apps/backend` e o frontend com `npm run
 4. **Solicitar serviço** abre a criação de pedido com o serviço selecionado. Confira o valor, escolha a forma de pagamento pretendida e confirme. Não há cobrança. Contas somente de prestador não contratam; contas CONTRATANTE ou AMBOS contratam outro prestador.
 5. No celular, **Voltar à lista** retorna aos resultados. Filtros, página e seleção ficam na URL e funcionam com Voltar/Avançar.
 
-A Home conserva os exemplos identificados como demonstração. `/home?secao=Profissionais` é encaminhado a `/profissionais`; favoritos locais continuam separados. Cadastro de prestador, avaliações pela interface e favoritos reais não foram alterados nesta entrega.
+A Home conserva os exemplos identificados como demonstração. `/home?secao=Profissionais` é encaminhado a `/profissionais`; favoritos locais continuam separados. Avaliações pela interface e favoritos reais foram acrescentados posteriormente; veja [avaliações](reviews.md) e [favoritos](favorites.md). Cadastro de prestador pela interface é a próxima etapa.
 
 ## Contrato público
 

@@ -15,6 +15,16 @@ export type HelpArticle = {
 };
 export const helpArticles: readonly HelpArticle[] = [
   {
+    id: "avaliar",
+    category: "Contratação",
+    title: "Como avalio um serviço concluído?",
+    paragraphs: [
+      "Abra um pedido concluído em Minhas solicitações, escolha uma nota de 1 a 5 e escreva um comentário opcional de até 1000 caracteres. Somente o cliente daquele pedido pode avaliar. Revise e confirme o envio: a avaliação é definitiva nesta versão.",
+      "A nota, o comentário e seu primeiro nome aparecem nos detalhes do profissional. Cada pedido recebe uma única avaliação, que atualiza a média real e gera uma notificação ao prestador. Não inclua dados pessoais no comentário.",
+    ],
+    link: { label: "Avaliar um pedido concluído", href: "/solicitacoes?status=CONCLUIDA" },
+  },
+  {
     id: "editar-conta",
     category: "Conta",
     title: "Como atualizo os dados da minha conta?",

@@ -14,6 +14,7 @@ import type { SessionRequest } from '../auth/session.service';
 import { RequestsService } from './requests.service';
 import {
   CreateRequestDto,
+  CreateReviewDto,
   RequestActionDto,
   RequestQueryDto,
 } from './requests.dto';
@@ -39,6 +40,13 @@ export class RequestsController {
     @Body() body: RequestActionDto,
   ) {
     return this.service.act(req.usuarioId, id, body.acao);
+  }
+  @Post(':id/avaliacao') review(
+    @Req() req: SessionRequest,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateReviewDto,
+  ) {
+    return this.service.review(req.usuarioId, id, body);
   }
   @Post(':id/conversa') conversation(
     @Req() req: SessionRequest,

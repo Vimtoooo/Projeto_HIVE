@@ -9,6 +9,7 @@ import {
 import { Prisma, PrismaClient } from '@prisma/client';
 import {
   CreateRequestDto,
+  CreateReviewDto,
   RequestActionDto,
   RequestQueryDto,
 } from './requests.dto';
@@ -30,6 +31,14 @@ const select = {
       prestador: {
         select: { areaAtuacao: true, usuario: { select: identity } },
       },
+    },
+  },
+  avaliacao: {
+    select: {
+      idAvaliacao: true,
+      nota: true,
+      comentario: true,
+      dataAvaliacao: true,
     },
   },
   fatura: { select: { statusPagamento: true } },
@@ -76,6 +85,8 @@ function present(row: Row, user: number) {
     papel: provider ? 'prestador' : 'cliente',
     acoes,
     cancelamentoBloqueado: financialBlock(row),
+    avaliacao: row.avaliacao,
+    podeAvaliar: !provider && row.status === 'CONCLUIDA' && !row.avaliacao,
   };
 }
 @Injectable()
@@ -270,6 +281,56 @@ export class RequestsService {
         throw new ConflictException(
           'Outra ação alterou esta solicitação. Atualize a página.',
         );
+      throw e;
+    }
+  }
+  async review(user: number, id: number, input: CreateReviewDto) {
+    const comentario = input.comentario?.trim() || null;
+    const replay = (row: Row) => {
+      if (
+        row.avaliacao?.nota !== input.nota ||
+        row.avaliacao.comentario !== comentario
+      )
+        throw new ConflictException(
+          'A avaliação já foi enviada e é definitiva nesta versão.',
+        );
+      return present(row, user);
+    };
+    try {
+      return await this.db.$transaction(async (tx) => {
+        const row = await this.row(tx, user, id);
+        if (row.contratanteId !== user || row.servico.prestadorId === user)
+          throw new ForbiddenException(
+            'Somente o cliente deste pedido pode avaliar.',
+          );
+        if (row.status !== 'CONCLUIDA')
+          throw new ConflictException(
+            'A avaliação exige um serviço concluído.',
+          );
+        if (row.avaliacao) return replay(row);
+        await tx.avaliacao.create({
+          data: { contratacaoId: id, nota: input.nota, comentario },
+        });
+        await this.notifications.emit(tx, {
+          usuarioId: row.servico.prestadorId,
+          tipo: 'AVALIACAO_RECEBIDA',
+          chaveEvento: `pedido:${id}:AVALIACAO`,
+          titulo: 'Você recebeu uma avaliação',
+          descricao:
+            `Seu serviço ${row.servico.titulo} recebeu nota ${input.nota} de 5.`.slice(
+              0,
+              500,
+            ),
+          contratacaoId: id,
+        });
+        return present(await this.row(tx, user, id), user);
+      });
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2002'
+      )
+        return replay(await this.row(this.db, user, id));
       throw e;
     }
   }

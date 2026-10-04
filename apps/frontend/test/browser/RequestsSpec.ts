@@ -21,6 +21,8 @@ const base = {
   papel: "cliente",
   acoes: ["CANCELAR"],
   cancelamentoBloqueado: false,
+  avaliacao: null,
+  podeAvaliar: false,
 };
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/notificacoes/resumo", (r) =>

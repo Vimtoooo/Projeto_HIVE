@@ -25,4 +25,4 @@ Solicitações e Notificações foram concluídas. O [plano de notificações](n
 
 Todas as seções mantêm cabeçalho, navegação e painéis, sem modal de conteúdo. Testar desktop/celular, teclado, erros, sessão e isolamento. Integrações usam bancos descartáveis; migrations são validadas antes do banco local, sem reset. Sem push automático.
 
-**Cadastro de prestador:** responsabilidade de outro integrante; sem planejamento ou alterações nesta sequência. Pagamentos, avaliações, geolocalização e upload também estão fora destas entregas.
+**Escopo original:** cadastro de prestador era responsabilidade de outro integrante; pagamentos, avaliações, geolocalização e upload estavam fora desta sequência da barra lateral. Posteriormente, avaliações foram implementadas em etapa própria ([guia](reviews.md)); cadastro de prestador foi indicado pelo responsável como próxima tarefa, em uma branch própria após o fechamento desta entrega.

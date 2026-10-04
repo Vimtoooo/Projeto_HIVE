@@ -1,5 +1,7 @@
 # Backend do HIVE
 
+Avaliações definitivas disponíveis em `POST /solicitacoes/:id/avaliacao` e leitura pública em `GET /profissionais/:id/avaliacoes`. Aplique a migration `20261003000000_review_notifications` e execute `npm run test:avaliacoes` para validar em banco descartável. Veja [regras e preparação](../frontend/docs/reviews.md).
+
 API REST NestJS com Prisma 7 e PostgreSQL, integrada ao frontend Next.js. Oferece cadastro de clientes e prestadores, catálogo, login por sessão HTTP-only, mensagens persistentes, solicitações de serviços com criação, aceite/recusa, conclusão e cancelamento, além de notificações por conta desses eventos.
 
 ## Preparar o ambiente
@@ -232,7 +234,7 @@ contas existentes. Novos cadastros ficam ativos nesta etapa acadêmica.
 Autenticação por sessão e autorização por participante já existem. JWT/RBAC amplo, aprovação de cadastros e limitação de requisições continuam planejados; o estado atual é voltado à demonstração acadêmica.
 
 CPF/CNPJ têm validação de tamanho, não verificação fiscal. Valores monetários
-continuam como Float. Contratação já possui rotas e interface; pagamento e avaliação permanecem nas classes/persistência, sem fluxo HTTP próprio. O método Usuario.autenticar não
+continuam como Float. Contratação e avaliação já possuem rotas e interface; pagamento permanece nas classes/persistência, sem fluxo HTTP próprio. O método Usuario.autenticar não
 é o responsável pelo login da API; essa responsabilidade está em AuthService.
 
 ## Documentação complementar

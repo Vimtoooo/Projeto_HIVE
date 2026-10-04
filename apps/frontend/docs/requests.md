@@ -20,7 +20,8 @@ A migration `20261001000000_request_idempotency` adiciona uma chave UUID opciona
 | --- | --- | --- |
 | Pendente | Cancelar | Aceitar ou recusar |
 | Em andamento | Cancelar | Concluir ou cancelar |
-| Concluída / Cancelada | Consultar e conversar | Consultar e conversar |
+| Concluída | Consultar, conversar e avaliar uma única vez | Consultar e conversar |
+| Cancelada | Consultar e conversar | Consultar e conversar |
 
 - Cliente com perfil CONTRATANTE ou AMBOS solicita um serviço ativo de outro prestador com conta ativa. Conta somente PRESTADOR recebe pedidos, mas não cria pedidos como cliente.
 - A criação registra o preço vigente no servidor e a forma de pagamento pretendida. O valor é exibido nos detalhes e não muda se o catálogo mudar depois. O preço visto antes do envio pode ter sido atualizado pelo prestador; confira o valor registrado.
@@ -31,7 +32,7 @@ A migration `20261001000000_request_idempotency` adiciona uma chave UUID opciona
 - Transações serializáveis e comparação do estado impedem ações concorrentes de sobrescrever mudanças. Em conflito, atualize os detalhes e decida novamente.
 - A conclusão alimenta o histórico **Contrate novamente** da Home. Conversar abre a mesma dupla cliente/prestador, inclusive quando o prestador inicia a conversa pelo pedido.
 
-Não há processamento de pagamento, geração automática de fatura, agendamento estruturado, rastreamento de localização, avaliação nesta entrega. Notificações de pedidos foram adicionadas posteriormente; veja o [guia](notifications.md). Endereço e horário devem ser combinados na conversa. Os detalhes de título/descrição usam o serviço atual; o valor do pedido é o dado preservado na contratação.
+Não há processamento de pagamento, geração automática de fatura, agendamento estruturado ou rastreamento de localização. Notificações de pedidos e avaliações definitivas foram adicionadas posteriormente; veja os guias de [notificações](notifications.md) e [avaliações](reviews.md). Endereço e horário devem ser combinados na conversa. Os detalhes de título/descrição usam o serviço atual; o valor do pedido é o dado preservado na contratação.
 
 ## Interface e arquitetura
 

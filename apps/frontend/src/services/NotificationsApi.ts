@@ -26,6 +26,7 @@ const integer = (v: unknown): v is number =>
 const date = (v: unknown): v is string =>
   typeof v === "string" && Number.isFinite(Date.parse(v));
 const types = [
+  "AVALIACAO_RECEBIDA",
   "NOVA_MENSAGEM",
   "SOLICITACAO_CRIADA",
   "SOLICITACAO_ACEITA",

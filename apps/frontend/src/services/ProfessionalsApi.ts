@@ -1,4 +1,36 @@
 import { api } from "./MessagingApi";
+import { isReview, type Review } from "./RequestsApi";
+export type PublicReview = Review & { autor: string; servico: string };
+export type ReviewsPage = {
+  itens: PublicReview[];
+  total: number;
+  pagina: number;
+  limite: number;
+};
+export async function professionalReviews(
+  professionalId: number,
+  page: number,
+): Promise<ReviewsPage> {
+  const data = await api(
+    `profissionais/${professionalId}/avaliacoes?pagina=${page}&limite=5`,
+  );
+  if (
+    !object(data) ||
+    !Array.isArray(data.itens) ||
+    !data.itens.every(
+      (v) =>
+        isReview(v) &&
+        object(v) &&
+        typeof v.autor === "string" &&
+        typeof v.servico === "string",
+    ) ||
+    !integer(data.total) ||
+    !id(data.pagina) ||
+    !id(data.limite)
+  )
+    throw Error("Resposta de avaliações inválida.");
+  return data as ReviewsPage;
+}
 export type Rating = { quantidade: number; media: number | null };
 export type PublicService = {
   idServico: number;

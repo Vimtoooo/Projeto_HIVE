@@ -128,6 +128,23 @@ async function fixture(page: Page) {
   });
   return state;
 }
+test("avaliação recebida abre o pedido do prestador", async ({ page }) => {
+  const state = await fixture(page);
+  state.rows[0] = {
+    ...state.rows[0],
+    tipo: "AVALIACAO_RECEBIDA",
+    titulo: "Você recebeu uma avaliação",
+    destino: "/solicitacoes?pedido=31&papel=prestador",
+  };
+  await page.goto("/notificacoes");
+  await page
+    .getByRole("region", { name: "Lista de notificações" })
+    .getByRole("button", { name: /Você recebeu uma avaliação/ })
+    .click();
+  await expect(
+    page.getByRole("link", { name: "Ver solicitação" }),
+  ).toHaveAttribute("href", "/solicitacoes?pedido=31&papel=prestador");
+});
 test("navega sem modal, lê, mantém contadores e abre o pedido; desktop", async ({
   page,
 }) => {

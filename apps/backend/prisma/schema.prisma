@@ -253,6 +253,7 @@ model Mensagem {
 }
 
 enum TipoNotificacao {
+  AVALIACAO_RECEBIDA
   NOVA_MENSAGEM
   SOLICITACAO_CRIADA
   SOLICITACAO_ACEITA

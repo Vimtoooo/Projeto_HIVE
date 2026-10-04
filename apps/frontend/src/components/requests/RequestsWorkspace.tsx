@@ -24,6 +24,7 @@ import { requestMoney as money } from "../../lib/RequestFormatting";
 import { initials } from "../../lib/HomeCatalog";
 import HomeIcon from "../home/HomeIcon";
 import NewRequestForm from "./NewRequestForm";
+import RequestReview from "./RequestReview";
 import styles from "../../styles/requests-page.module.css";
 const date = (value: string) =>
   new Date(value).toLocaleString("pt-BR", {
@@ -455,6 +456,18 @@ function RequestsContent({ query }: { query: string }) {
                           ser tratados antes de um cancelamento.
                         </p>
                       )}
+                      <RequestReview
+                        key={`${detail.idContratacao}:${user.idUsuario}`}
+                        request={detail}
+                        userId={user.idUsuario}
+                        onUnauthorized={expire}
+                        onSaved={(row) => {
+                          if (!mounted.current) return;
+                          setDetail(row);
+                          setNotice("Avaliação enviada. Obrigado por compartilhar sua experiência!");
+                          setTick((v) => v + 1);
+                        }}
+                      />
                       <div className={styles.actions}>
                         {detail.acoes.map((action) => (
                           <button

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { ProfessionalsQueryDto } from './professionals.dto';
+import { ReviewsQueryDto } from './reviews-query.dto';
 const available = {
   usuario: { statusConta: 'ATIVO' },
   servicos: { some: { status: 'ATIVO' } },
@@ -92,6 +93,50 @@ export class ProfessionalsService {
           });
         }
         return { itens, total, pagina: q.pagina, limite: q.limite };
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
+    );
+  }
+  reviews(id: number, q: ReviewsQueryDto) {
+    return this.db.$transaction(
+      async (tx) => {
+        const provider = await tx.prestador.findFirst({
+          where: { ...available, idPrestador: id },
+          select: { idPrestador: true },
+        });
+        if (!provider)
+          throw new NotFoundException('Profissional indisponível.');
+        const where = { contratacao: { servico: { prestadorId: id } } };
+        const rows = await tx.avaliacao.findMany({
+          where,
+          orderBy: [{ dataAvaliacao: 'desc' }, { idAvaliacao: 'desc' }],
+          skip: (q.pagina - 1) * q.limite,
+          take: q.limite,
+          select: {
+            idAvaliacao: true,
+            nota: true,
+            comentario: true,
+            dataAvaliacao: true,
+            contratacao: {
+              select: {
+                contratante: { select: { nome: true } },
+                servico: { select: { titulo: true } },
+              },
+            },
+          },
+        });
+        const total = await tx.avaliacao.count({ where });
+        return {
+          itens: rows.map(({ contratacao, ...review }) => ({
+            ...review,
+            autor:
+              contratacao.contratante.nome.trim().split(/\s+/)[0] || 'Cliente',
+            servico: contratacao.servico.titulo,
+          })),
+          total,
+          pagina: q.pagina,
+          limite: q.limite,
+        };
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
     );

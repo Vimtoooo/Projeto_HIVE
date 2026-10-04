@@ -20,6 +20,25 @@ export const actions = {
 } as const;
 export type RequestAction = keyof typeof actions;
 export type RequestRole = "cliente" | "prestador";
+export interface Review {
+  idAvaliacao: number;
+  nota: number;
+  comentario: string | null;
+  dataAvaliacao: string;
+}
+export function isReview(v: unknown): v is Review {
+  return (
+    object(v) &&
+    id(v.idAvaliacao) &&
+    typeof v.nota === "number" &&
+    Number.isInteger(v.nota) &&
+    v.nota >= 1 &&
+    v.nota <= 5 &&
+    (v.comentario === null || typeof v.comentario === "string") &&
+    typeof v.dataAvaliacao === "string" &&
+    Number.isFinite(Date.parse(v.dataAvaliacao))
+  );
+}
 export interface ServiceRequest {
   idContratacao: number;
   dataContratacao: string;
@@ -32,6 +51,8 @@ export interface ServiceRequest {
   papel: RequestRole;
   acoes: RequestAction[];
   cancelamentoBloqueado: boolean;
+  avaliacao: Review | null;
+  podeAvaliar: boolean;
 }
 export interface CatalogService {
   idServico: number;
@@ -76,7 +97,9 @@ function isRequest(v: unknown): v is ServiceRequest {
     ["cliente", "prestador"].includes(String(v.papel)) &&
     Array.isArray(v.acoes) &&
     v.acoes.every((a) => member(a, actions)) &&
-    typeof v.cancelamentoBloqueado === "boolean"
+    typeof v.cancelamentoBloqueado === "boolean" &&
+    typeof v.podeAvaliar === "boolean" &&
+    (v.avaliacao === null || isReview(v.avaliacao))
   );
 }
 function checked(v: unknown): ServiceRequest {
@@ -122,6 +145,15 @@ export async function createRequest(
 }
 export async function changeRequest(id: number, acao: RequestAction) {
   return checked(await api(`solicitacoes/${id}/acao`, { acao }));
+}
+export async function reviewRequest(
+  id: number,
+  nota: number,
+  comentario: string,
+) {
+  return checked(
+    await api(`solicitacoes/${id}/avaliacao`, { nota, comentario }),
+  );
 }
 export async function requestConversation(id: number) {
   const data = await api(`solicitacoes/${id}/conversa`, {});

@@ -46,7 +46,8 @@
     "prestart": "npm run prisma:generate",
     "prestart:dev": "npm run prisma:generate",
     "prestart:debug": "npm run prisma:generate",
-    "prestart:demo": "npm run prisma:generate"
+    "prestart:demo": "npm run prisma:generate",
+    "test:avaliacoes": "node scripts/verify-reviews.cjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
