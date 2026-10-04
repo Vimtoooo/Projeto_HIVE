@@ -24,7 +24,10 @@ test("ajuda pública, pesquisa sem acentos, categorias e recuperação sem resul
     page.getByRole("heading", { name: "Nenhum artigo encontrado" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Limpar busca e filtros" }).click();
-  await expect(page.locator("details")).toHaveCount(10);
+  await expect(page.locator("details")).toHaveCount(11);
+  await expect(
+    page.locator("summary").filter({ hasText: "Como avalio um serviço concluído?" }),
+  ).toBeVisible();
 });
 test("artigos por teclado, limites de pagamento e atalhos válidos", async ({
   page,
