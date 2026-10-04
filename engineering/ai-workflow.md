@@ -39,3 +39,9 @@ Uma branch termina ao cumprir o requisito e o fechamento descritos no AGENTS.md.
 ## Exemplo: cadastro de prestador
 
 Delegue a leitura do contrato existente no backend e a identificação dos componentes reutilizáveis no frontend. Consolide as descobertas, defina o contrato e só então implemente o formulário. Não invente campos ou valores para satisfazer validações. Após a implementação, faça revisão e fechamento proporcionais ao escopo.
+
+## Procedimentos reutilizáveis
+
+As skills do repositório ficam em `.agents/skills`: `hive-fechamento` prepara evidências e continuidade; `hive-validacao-interface` verifica fluxos visuais alterados. No Codex, peça `$hive-fechamento` ou `$hive-validacao-interface`; descrições específicas também permitem seleção automática. Elas não concedem autorização extra nem exigem agentes paralelos.
+
+Para usar as mesmas instruções em outro cliente sem descoberta dessa pasta, forneça o SKILL.md explicitamente. Os CLAUDE.md compartilham regras via AGENTS.md; não significam que configurações específicas do Codex são carregadas por Claude.
