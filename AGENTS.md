@@ -53,3 +53,9 @@ Crie documentos auxiliares apenas quando decisões ou procedimentos não coubere
 - `AGENTS.md` é a fonte das regras compartilhadas; os `CLAUDE.md` correspondentes apenas referenciam os arquivos aplicáveis.
 - Mantenha regras estáveis aqui e estado temporário no prompt de continuidade. Não acrescente instruções redundantes a cada tarefa.
 - Estas instruções orientam o agente; não substituem permissões, sandbox e aprovações do ambiente.
+
+## Code Review Rules
+
+- Revise o diff contra a base informada e os critérios de aceite, seguindo `engineering/review.md`. Não transforme uma revisão em implementação.
+- Priorize autorização por conta/participante, exposição de dados, integridade de transações, concorrência e compatibilidade dos contratos frontend/backend.
+- Informe apenas problemas sustentados por evidência, com arquivo/linha, impacto e cenário de reprodução. Separe sugestões opcionais de impedimentos da entrega.
