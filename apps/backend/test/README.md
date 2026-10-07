@@ -407,3 +407,38 @@ O comando de reset local não faz parte da limpeza automática destas suítes.
 `npm run test:migrations` valida deploy, seed, integração e baseline em banco
 descartável, removido no final. Exige PostgreSQL local e permissão CREATEDB.
 Veja os [procedimentos para banco novo e existente](../prisma/README.md#preparação-para-postgresql).
+
+## Sessões, mensagens e histórico
+
+Execute `npm run test:mensagens` na pasta backend. Configure TEST_DATABASE_URL em `.env/.env.test.local` para PostgreSQL local e use um usuário com CREATEDB. O runner cria um banco `hive_messages_<uuid>_test`, aplica migrations e remove somente esse banco após os testes; não reseta o banco configurado.
+
+`messaging.integration-spec.ts` testa HTTP real com o AppModule e Prisma: cookie HTTP-only, login inválido, bloqueio de CSRF, conversa única, leitura/envio nos dois sentidos, idempotência, isolamento de terceiros, validação de texto, paginação, histórico de concluídos, logout, expiração e conta bloqueada. Todos os dados são fictícios e exclusivos do banco descartável.
+
+## Solicitações: fluxo HTTP → Prisma → PostgreSQL
+
+Execute `npm run test:solicitacoes`. A suíte `requests.integration-spec.ts` usa banco descartável `hive_requests_<uuid>_test`, aplica migrations e remove somente o banco criado pelo teste. Exige TEST_DATABASE_URL local em `.env/.env.test.local` e permissão CREATEDB. Cobre sessão/CSRF, validação, isolamento entre contas, duplicação, preço, estados, pagamentos, paginação, conversa e concorrência. Não execute o arquivo Jest diretamente contra o banco da aplicação.
+
+## Notificações: eventos e leitura persistente
+
+Em `apps/backend`, configure `.env/.env.test.local` com TEST_DATABASE_URL PostgreSQL local terminada em `_test`; o usuário precisa de CREATEDB. Execute:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+npm run test:notificacoes
+```
+
+`notifications.integration-spec.ts` cria contas fictícias, faz login HTTP e valida eventos de mensagens/solicitações, destinatários, repetição concorrente, isolamento por sessão, CSRF, leitura individual/lote, filtros, cursor e cascata. Falhas simuladas de gravação confirmam rollback da operação de origem; seus logs de erro são esperados. O executor aplica as migrations, compara com o schema e remove apenas o banco `hive_notifications_<uuid>_test` criado por ele. Não execute o Jest diretamente contra `hive`. Para demonstrar no navegador, siga o [roteiro com duas contas](../../frontend/docs/notifications.md).
+
+## Perfil: consulta e edição autenticadas
+
+`npm run test:perfil` cria um banco `hive_profile_<uuid>_test`, aplica migrations e testa GET/PATCH `/perfil` com contas fictícias. Valida sessão/CSRF, resposta sem segredos, CPF mascarado, persistência, atualização parcial, campos proibidos e isolamento. Requer TEST_DATABASE_URL local em `.env/.env.test.local` e CREATEDB. Não execute a suíte diretamente no banco da aplicação. Veja o [guia](../../frontend/docs/profile.md).
+
+## Profissionais: catálogo real
+
+Execute `npm run test:profissionais` para validar paginação por prestador, busca, filtros, dados públicos mínimos, avaliações reais, indisponibilidade e integração com conversas/pedidos autenticados. O script cria e remove apenas `hive_professionals_<uuid>_test`; usa a mesma configuração local `TEST_DATABASE_URL` e permissão CREATEDB das outras suítes descartáveis. Não limpa nem popula o banco da aplicação.
+
+## Favoritos persistentes
+
+A migration aditiva `20261002000000_favorites` cria `Favorito`, com chave composta `(usuarioId, prestadorId)`, data de criação e FKs com exclusão em cascata. Preserva os registros existentes. Aplique `npm run db:migrate:deploy` e gere o client com `npm run prisma:generate`; reinicie o backend, sem reset.
+
+`GET /favoritos`, `PUT /favoritos/:prestadorId` e `DELETE /favoritos/:prestadorId` exigem sessão; escritas exigem `X-Hive-Request: 1`. Não aceitam identidade enviada no corpo. PUT/DELETE são idempotentes; indisponíveis permanecem removíveis. `npm run test:favoritos` verifica migrations e integração em PostgreSQL descartável, sem limpar o banco da aplicação. O reset de dados já remove vínculos por cascata; nenhum favorito é adicionado pelo seed.

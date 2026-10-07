@@ -76,6 +76,8 @@ enum TipoUsuario {
 // ==========================================
 
 model Usuario {
+  favoritos Favorito[]
+  notificacoes Notificacao[]
   idUsuario        Int          @id @default(autoincrement())
   nome             String
   email            String       @unique
@@ -88,6 +90,10 @@ model Usuario {
   statusConta      StatusConta  @default(PENDENTE)
 
   // Extensão de herança para Prestador
+  sessoes Sessao[]
+  conversasCliente Conversa[] @relation("ClienteConversa")
+  conversasPrestador Conversa[] @relation("PrestadorConversa")
+  mensagens Mensagem[]
   prestadorPerfil Prestador?
 
   // Relacionamentos
@@ -97,6 +103,7 @@ model Usuario {
 }
 
 model Prestador {
+  favoritadoPor Favorito[]
   idPrestador     Int      @id
   areaAtuacao     String
   experiencia     String
@@ -127,6 +134,9 @@ model Servico {
 }
 
 model Contratacao {
+  notificacoes Notificacao[]
+  chave String? @db.Uuid
+  @@unique([contratanteId, chave])
   idContratacao   Int               @id @default(autoincrement())
   dataContratacao DateTime          @default(now())
   status          StatusContratacao @default(PENDENTE)
@@ -207,4 +217,77 @@ model Financeiro {
 
   contratacaoId Int
   contratacao   Contratacao  @relation(fields: [contratacaoId], references: [idContratacao])
+}
+model Sessao {
+  tokenHash String @id
+  usuarioId Int
+  expiraEm DateTime
+  usuario Usuario @relation(fields: [usuarioId], references: [idUsuario], onDelete: Cascade)
+  @@index([usuarioId])
+  @@index([expiraEm])
+}
+model Conversa {
+  id Int @id @default(autoincrement())
+  clienteId Int
+  prestadorId Int
+  atualizadaEm DateTime @default(now())
+  cliente Usuario @relation("ClienteConversa", fields: [clienteId], references: [idUsuario], onDelete: Cascade)
+  prestador Usuario @relation("PrestadorConversa", fields: [prestadorId], references: [idUsuario], onDelete: Cascade)
+  mensagens Mensagem[]
+  @@unique([clienteId, prestadorId])
+  @@index([prestadorId, atualizadaEm])
+  @@index([clienteId, atualizadaEm])
+}
+model Mensagem {
+  notificacoes Notificacao[]
+  id Int @id @default(autoincrement())
+  conversaId Int
+  remetenteId Int
+  conteudo String @db.VarChar(2000)
+  enviadaEm DateTime @default(now())
+  chave String @db.Uuid
+  conversa Conversa @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+  remetente Usuario @relation(fields: [remetenteId], references: [idUsuario], onDelete: Cascade)
+  @@unique([conversaId, remetenteId, chave])
+  @@index([conversaId, id])
+}
+
+enum TipoNotificacao {
+  AVALIACAO_RECEBIDA
+  NOVA_MENSAGEM
+  SOLICITACAO_CRIADA
+  SOLICITACAO_ACEITA
+  SOLICITACAO_RECUSADA
+  SOLICITACAO_CONCLUIDA
+  SOLICITACAO_CANCELADA
+}
+
+model Notificacao {
+  id            Int             @id @default(autoincrement())
+  usuarioId     Int
+  usuario       Usuario         @relation(fields: [usuarioId], references: [idUsuario], onDelete: Cascade)
+  tipo          TipoNotificacao
+  chaveEvento   String          @db.VarChar(100)
+  titulo        String          @db.VarChar(100)
+  descricao     String          @db.VarChar(500)
+  criadaEm      DateTime        @default(now())
+  lidaEm        DateTime?
+  contratacaoId Int?
+  contratacao   Contratacao?    @relation(fields: [contratacaoId], references: [idContratacao], onDelete: Cascade)
+  mensagemId    Int?
+  mensagem      Mensagem?       @relation(fields: [mensagemId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, chaveEvento])
+  @@index([usuarioId, id])
+  @@index([usuarioId, lidaEm, id])
+}
+
+model Favorito {
+  usuarioId Int
+  prestadorId Int
+  criadoEm DateTime @default(now())
+  usuario Usuario @relation(fields: [usuarioId], references: [idUsuario], onDelete: Cascade)
+  prestador Prestador @relation(fields: [prestadorId], references: [idPrestador], onDelete: Cascade)
+  @@id([usuarioId, prestadorId])
+  @@index([prestadorId])
 }

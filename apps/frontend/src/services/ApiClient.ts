@@ -15,7 +15,7 @@ export function isPublicUser(value: unknown): value is PublicUser {
     "email" in value &&
     typeof value.email === "string" &&
     "tipoUsuario" in value &&
-    (value.tipoUsuario === "CONTRATANTE" || value.tipoUsuario === "PRESTADOR")
+    (value.tipoUsuario === "CONTRATANTE" || value.tipoUsuario === "PRESTADOR" || value.tipoUsuario === "AMBOS")
   );
 }
 export function apiMessage(value: unknown, fallback: string): string {
@@ -40,7 +40,7 @@ async function postUser(
   try {
     response = await fetch("/api/" + route, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Hive-Request": "1" },
       body: JSON.stringify(input),
       signal: AbortSignal.timeout(15000),
     });

@@ -1,0 +1,103 @@
+.panel {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid #e3e7dc;
+  border-radius: 12px;
+  background: #fafbf7;
+  min-width: 0;
+}
+.panel h3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+}
+.panel p {
+  margin: 12px 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.panel small {
+  display: block;
+  color: #626b59;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.rating {
+  color: #806000;
+  font-weight: 700;
+}
+.score {
+  border: 0;
+  padding: 0;
+  margin: 18px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.score legend {
+  margin-bottom: 10px;
+}
+.score label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid #d6ddcb;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.score label:has(input:checked) {
+  background: #fff0ad;
+  border-color: #ad7900;
+}
+.score input {
+  accent-color: #806000;
+}
+.comment {
+  display: block;
+  line-height: 1.6;
+}
+.comment textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  margin: 8px 0;
+  padding: 10px;
+  font: inherit;
+  border: 1px solid #d6ddcb;
+  border-radius: 8px;
+  background: white;
+}
+.panel :focus-visible {
+  outline: 2px solid #ad7900;
+  outline-offset: 3px;
+}
+.confirm button {
+  margin: 4px 8px 4px 0;
+}
+.review {
+  padding: 16px 0;
+  border-bottom: 1px solid #e3e7dc;
+}
+.review small {
+  margin-top: 8px;
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+@media (max-width: 760px) {
+  .panel {
+    padding: 14px;
+  }
+  .score {
+    gap: 5px;
+  }
+  .score label {
+    padding: 7px 5px;
+  }
+}

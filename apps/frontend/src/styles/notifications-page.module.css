@@ -1,0 +1,380 @@
+.workspace {
+  max-width: 1500px;
+  margin: 0 auto;
+  color: #252d1d;
+}
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 8px 0 28px;
+}
+.detailIcon {
+  display: grid;
+  place-items: center;
+  background: #fff1b0;
+  color: #9c7400;
+  border-radius: 18px;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+}
+.heading h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 28px;
+  margin: 10px 0;
+}
+.heading h1 svg {
+  flex-shrink: 0;
+}
+.heading p,
+.scope,
+.toolbar p {
+  color: #747d69;
+  font-size: 14px;
+  margin: 0;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  font-weight: 700;
+  color: #8a916f;
+}
+.total {
+  margin-left: auto;
+  border: 1px solid #e2e6d8;
+  border-radius: 24px;
+  padding: 10px 16px;
+  white-space: nowrap;
+  font-size: 13px;
+  background: white;
+}
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.workspace button {
+  font: inherit;
+  cursor: pointer;
+}
+.workspace button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.filters button {
+  border: 1px solid #e2e6d8;
+  border-radius: 22px;
+  padding: 10px 22px;
+  background: white;
+  font-size: 13px;
+}
+.filters button[aria-pressed="true"] {
+  background: #ffdb46;
+  border-color: #ffdb46;
+  color: #262b1c;
+  font-weight: 700;
+}
+.filters label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+  font-size: 13px;
+}
+.filters input {
+  accent-color: #b78a00;
+  width: 17px;
+  height: 17px;
+}
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.toolbar button,
+.pagination button,
+.back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: #586543;
+  padding: 10px;
+  font-size: 13px;
+}
+.workspace .scope {
+  font-size: 11px;
+  margin: 4px 0 16px;
+  line-height: 1.5;
+}
+.panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.list,
+.detail {
+  border: 1px solid #e2e6d8;
+  border-radius: 16px;
+  background: white;
+  min-width: 0;
+  overflow: hidden;
+  min-height: 560px;
+}
+.item {
+  border: 0;
+  border-bottom: 1px solid #eef0e9;
+  background: white;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  padding: 23px 20px;
+  color: inherit;
+}
+.unread {
+  background: #fffbec;
+}
+.selected {
+  box-shadow: inset 4px 0 #edb600;
+  background: #fff3c0;
+}
+.eventIcon {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: #fff0af;
+  color: #9c7400;
+  border-radius: 50%;
+}
+.messageIcon {
+  background: #e6eee2;
+  color: #586b4a;
+}
+.copy {
+  display: grid;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.copy strong {
+  font-size: 14px;
+}
+.copy > span {
+  font-size: 13px;
+  color: #6f7864;
+  line-height: 1.5;
+}
+.copy small {
+  font-size: 11px;
+  color: #747d69;
+}
+.detail {
+  padding: 26px;
+  position: sticky;
+  top: 20px;
+}
+.detailIcon {
+  margin: 28px 0 22px;
+}
+.detail h2 {
+  font-size: 22px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  margin: 10px 0;
+}
+.detail time,
+.readState {
+  font-size: 12px;
+  color: #747d69;
+}
+.detail .description {
+  line-height: 1.8;
+  font-size: 15px;
+  margin: 28px 0;
+  overflow-wrap: anywhere;
+}
+.primary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-decoration: none;
+  color: #282c1c;
+  background: #ffda45;
+  padding: 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 30px;
+}
+.detail .hint {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #7b826e;
+  border-top: 1px solid #eef0e9;
+  margin-top: 28px;
+  padding-top: 18px;
+}
+.state {
+  padding: 64px 26px;
+  text-align: center;
+  color: #768068;
+  line-height: 1.7;
+}
+.state svg {
+  margin: 0 auto 20px;
+  color: #acb49d;
+}
+.state h2 {
+  font-size: 20px;
+  color: #34402a;
+}
+.state p {
+  font-size: 14px;
+}
+.state a {
+  color: #76600b;
+}
+.state button,
+.notice button,
+.detail > button:not(.back) {
+  background: white;
+  border: 1px solid #dce2d0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #53653c;
+}
+.workspace .notice {
+  padding: 13px 16px;
+  border: 1px solid #e6d79e;
+  background: #fff9e6;
+  border-radius: 10px;
+  font-size: 13px;
+}
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+}
+.workspace :is(button, a, input):focus-visible {
+  outline: 2px solid #856600;
+  outline-offset: 3px;
+}
+.back {
+  padding-left: 0;
+}
+.badge {
+  background: #ffe371;
+  color: #34391f;
+  border-radius: 20px;
+  min-width: 20px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.bell {
+  position: relative;
+}
+.bell .badge {
+  position: absolute;
+  top: -7px;
+  right: -10px;
+  font-size: 9px;
+  min-width: 15px;
+}
+.detail h2:focus {
+  outline: none;
+}
+@media (max-width: 1100px) {
+  .panels {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.9fr);
+  }
+  .item {
+    padding: 18px 14px;
+    gap: 10px;
+  }
+  .detail {
+    padding: 20px;
+  }
+}
+@media (max-width: 760px) {
+  .heading {
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .heading h1 {
+    font-size: 25px;
+  }
+  .heading > div {
+    flex: 1;
+    min-width: 210px;
+  }
+  .heading p {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .total {
+    margin-left: 0;
+    padding: 6px 12px;
+  }
+  .filters {
+    gap: 8px;
+  }
+  .filters button {
+    padding: 9px 14px;
+  }
+  .filters label {
+    margin: 8px 0 0;
+    width: 100%;
+  }
+  .toolbar {
+    align-items: flex-start;
+  }
+  .toolbar p {
+    font-size: 12px;
+  }
+  .toolbar button {
+    font-size: 12px;
+    padding: 0;
+  }
+  .panels {
+    display: block;
+  }
+  .detail {
+    display: none;
+    position: static;
+    min-height: 440px;
+  }
+  .hasDetail .detail {
+    display: block;
+  }
+  .hasDetail .list {
+    display: none;
+  }
+  .list {
+    min-height: 400px;
+  }
+  .workspace .scope {
+    margin-top: 10px;
+  }
+  .state {
+    padding: 44px 20px;
+  }
+  .item {
+    padding: 20px 14px;
+  }
+}

@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, InternalServerErrorException, ServiceUnavailableException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { Prisma, StatusConta, TipoUsuario } from '@prisma/client';
 import { CadastroClienteDto } from './cliente.dto';
 import { PersistenciaService } from '../persistence/persistencia.service';
@@ -36,7 +41,10 @@ export class ClienteService {
   }
 
   private falhaPersistencia(error: unknown): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
       throw new ConflictException('E-mail ou CPF já cadastrados.');
     }
     if (
@@ -44,8 +52,12 @@ export class ClienteService {
       (error.name === 'DriverAdapterError' ||
         error instanceof Prisma.PrismaClientInitializationError)
     ) {
-      throw new ServiceUnavailableException('Banco de dados indisponível. Tente novamente mais tarde.');
+      throw new ServiceUnavailableException(
+        'Banco de dados indisponível. Tente novamente mais tarde.',
+      );
     }
-    throw new InternalServerErrorException('Não foi possível concluir o cadastro.');
+    throw new InternalServerErrorException(
+      'Não foi possível concluir o cadastro.',
+    );
   }
 }

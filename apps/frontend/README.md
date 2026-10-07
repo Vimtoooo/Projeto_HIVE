@@ -2,10 +2,10 @@
 
 ## React e TypeScript com Next.js
 
-Login, cadastro e Home agora são rotas React/TypeScript. O código dos formulários
+Login, cadastro, Home, mensagens, solicitações e notificações são rotas React/TypeScript. O código dos formulários
 foi migrado para componentes, e o Next.js gera o JavaScript executado pelo
 navegador. O backend NestJS continua responsável por regras de negócio, senhas e
-persistência no PostgreSQL; não houve alteração de schema nesta etapa.
+persistência no PostgreSQL. As migrations do backend incluem sessões, conversas, mensagens, a chave de idempotência das solicitações e notificações; aplique-as antes de usar esses fluxos.
 
 ### Plano de adoção
 
@@ -14,8 +14,13 @@ persistência no PostgreSQL; não houve alteração de schema nesta etapa.
    automática de HTML/JavaScript legado e preservação do visual e da Home em andamento.
 3. **Concluído:** contratos tipados, validação de respostas em execução, testes
    unitários e testes de navegador, CSS Modules para evitar conflitos entre telas.
-4. **Próximas etapas:** extrair componentes compartilhados conforme surgirem novas
-   telas e implementar sessão/autorização junto ao backend. A Home ainda é pública.
+4. **Concluído:** sessões com cookie HTTP-only, mensagens persistentes entre contas e histórico de prestadores contratados.
+5. **Concluído:** solicitações de serviços pela interface, com aceite/recusa, conclusão e cancelamento.
+6. **Concluído:** notificações persistentes de mensagens e pedidos, filtros e leitura individual/em lote.
+7. **Concluído:** perfil com edição de nome, telefone e endereço.
+8. **Concluído:** Central de Ajuda pública com pesquisa, categorias e artigos.
+9. **Concluído:** catálogo público de profissionais reais com detalhes e ações integradas.
+10. **Concluído:** favoritos reais persistidos por conta, com painel próprio. A Home pode ser explorada publicamente; mensagens, histórico, solicitações, notificações e perfil exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
 
 ### Executar agora
 
@@ -29,6 +34,8 @@ Mantenha PostgreSQL e os dois servidores em execução. Na raiz do repositório:
 cd apps/backend
 $env:DOTENV_CONFIG_PATH = '.env/.env'
 $env:PORT = '3000'
+npm run prisma:generate
+npm run db:migrate:deploy
 npm run start:dev
 ```
 
@@ -41,9 +48,8 @@ npm run dev
 ```
 
 Abra http://localhost:3001. A raiz vai para /login; cadastro em /cadastro e Home
-em /home. Os antigos /pages/Hive.html, /pages/register.html e /pages/home.html
-redirecionam para essas rotas. Não há mais arquivos HTML executáveis independentes
-nem sincronização para public; o Next.js gera o HTML. Não use o servidor Python.
+em /home. Mensagens em /mensagens, pedidos em /solicitacoes e avisos em /notificacoes. Os antigos /pages/Hive.html, /pages/register.html e /pages/home.html
+redirecionam para essas rotas. As telas da aplicação são renderizadas pelo Next.js, sem sincronização de HTML legado para public. Os HTML em `docs/prototypes/` são apenas protótipos locais, sem acesso à API. Não use o servidor Python.
 
 | Comando em apps/frontend | Finalidade |
 | --- | --- |
@@ -52,6 +58,9 @@ nem sincronização para public; o Next.js gera o HTML. Não use o servidor Pyth
 | npm run typecheck | Gerar tipos das rotas e verificar TypeScript, sem emitir JS |
 | npm test | Testar validações e cliente HTTP com dados fictícios |
 | npm run test:e2e | Testar telas no navegador, com API simulada |
+| npm run test:e2e -- RequestsSpec | Testar o fluxo visual de solicitações |
+| npm run test:e2e -- NotificationsSpec | Testar notificações, leitura, filtros e estados de erro |
+| npm run test:e2e -- MessagingSpec | Testar o painel de mensagens |
 | npm run build | Gerar aplicação de produção |
 | npm start | Servir o build pronto na porta 3001 |
 
@@ -69,8 +78,7 @@ API_URL=http://localhost:3000
 
 Use somente a origem HTTP(S), sem caminho ou credenciais. Reinicie dev ou refaça
 o build após alterar a variável. API_URL é usada no servidor, sem NEXT_PUBLIC_.
-Nunca copie DATABASE_URL para o frontend. O navegador chama /api/login e
-/api/clientes, encaminhados ao NestJS. Esse proxy não acrescenta autenticação.
+Nunca copie DATABASE_URL para o frontend. O navegador chama as rotas `/api/*`, encaminhadas ao NestJS na mesma origem. O proxy encaminha o cookie de sessão; a validação da sessão e a autorização ficam no backend. Login e operações autenticadas de escrita enviam `X-Hive-Request: 1`.
 
 ### Organização
 
@@ -78,15 +86,15 @@ Nunca copie DATABASE_URL para o frontend. O navegador chama /api/login e
 frontend/
 ├── src/
 │   ├── app/              # page.tsx e layout.tsx: rotas e layout do Next.js
-│   ├── components/       # Formulários e componentes da Home em home/
+│   ├── components/       # Formulários e painéis em home/, messages/, requests/ e notifications/
 │   ├── data/             # Catálogo fictício da demonstração
-│   ├── services/         # ApiClient.ts: HTTP e validação das respostas
+│   ├── services/         # ApiClient, MessagingApi, RequestsApi e NotificationsApi: HTTP e validação
 │   ├── types/            # ApiTypes.ts: contratos públicos
-│   ├── lib/              # FormValidation.ts: máscaras e validações
-│   └── styles/           # auth-page.module.css e home-page.module.css
+│   ├── lib/              # Validações, preferências de exibição e formatação de valores
+│   └── styles/           # CSS Modules de autenticação, Home, mensagens, solicitações e notificações
 ├── public/images/       # Imagens originais versionadas em kebab-case
 ├── test/                # Testes unitários e cenários de navegador
-├── docs/                # Cadastro e explicação técnica da migração
+├── docs/                # Guias de cadastro, mensagens, solicitações, notificações e protótipos
 ├── PlaywrightConfig.ts  # Configuração dos testes de navegador
 ├── next.config.mjs      # Proxy e redirecionamentos de compatibilidade
 ├── tsconfig.json        # TypeScript estrito
@@ -150,12 +158,10 @@ npm ci
 $env:DOTENV_CONFIG_PATH=".env/.env"
 npm run prisma:generate
 npm run prisma:validate
-npx prisma db push
+npm run db:migrate:deploy
 ```
 
-Use `db push` apenas em um banco novo ou quando a alteração do schema tiver
-sido revisada. Em um banco com dados importantes, não aceite perda de dados e
-consulte a documentação do Prisma antes de sincronizar.
+Use as migrations versionadas. Se o banco já foi preparado por `db push`, siga a conferência e o baseline do [guia do Prisma](../backend/prisma/README.md#preparação-para-postgresql). Não é necessário resetar o banco para atualizar o schema.
 
 
 ## Iniciar a API
@@ -228,6 +234,8 @@ Content-Type: application/json
 }
 ```
 
+Esse exemplo cria uma conta de prestador. Para demonstrar pedidos feitos por um cliente, use `/cadastro` (POST /clientes) ou a conta Ana do seed.
+
 O cadastro deve retornar **201**. Repetir os mesmos dados retorna **409**;
 nesse caso, reutilize a conta já criada ou limpe este lote antes de repetir.
 Entre no formulário com o email e a senha acima, sem substituir o cadastro
@@ -265,7 +273,7 @@ ter a senha correspondente ao hash armazenado no banco.
 
 ### Resultado esperado
 
-- Login correto: `POST /login` retorna 201; o formulário navega automaticamente para `/home`.
+- Login correto: `POST /login` retorna 201 e define o cookie HTTP-only; o formulário navega para `/home`. Dados de apresentação em sessionStorage não substituem a sessão.
 - E-mail ou senha incorretos: a API retorna 401, exibe erro e permanece na tela.
 - Conta inativa: a API rejeita a autenticação.
 - API desligada: o navegador informa que não foi possível conectar ao servidor.
@@ -282,16 +290,16 @@ No terminal da API e no terminal do frontend, pressione `Ctrl+C`.
 ## Observações
 
 - As imagens ficam em public/images e usam kebab-case; o destino do login é /home.
-- O login ainda não cria sessão/token. A Home é pública e pode ser aberta diretamente.
+- O login cria sessão no backend por cookie HTTP-only. A Home é pública; conversas, histórico e solicitações são privados e verificados pelo backend.
 - O navegador usa o proxy /api na mesma origem. O frontend não acessa o banco diretamente.
 - O cadastro de cliente já chama POST /clientes; os botões de login social ainda são visuais.
-- A Home apresenta catálogo fictício com busca, categorias, favoritos e detalhes; contratação e mensagens continuam como etapas futuras.
+- A Home combina catálogo ilustrativo, profissionais cadastrados, mensagens reais e histórico de serviços concluídos. Contratação pela interface está disponível em `/solicitacoes`.
 - Nunca versione `.env`, senhas, tokens ou chaves privadas.
 
 
 ## Evolução planejada
 
-As três telas atuais usam React e TypeScript. A evolução de sessão e novas telas segue o plano acima.
+As telas atuais usam React e TypeScript. A evolução das demais telas segue o plano acima.
 O planejamento das demais telas permanece registrado no [README principal](../../README.md).
 
 
@@ -323,18 +331,69 @@ Depois rode npm run dev. O comando remove apenas cache gerado.
 
 Acesse /home após entrar para ver seu primeiro nome. Sem login, a saudação
 é de visitante. O login guarda somente ID e nome em sessionStorage para
-apresentação; isso não é sessão autenticada nem proteção de rota.
+apresentação; a autorização usa separadamente a sessão HTTP-only emitida pelo backend.
 
 A busca aceita nomes, profissões e serviços, sem diferenciar acentos. Categorias
 e favoritos podem ser combinados com a busca. As três seções ordenam os perfis
 por distância ilustrativa, nota/avaliações e quantidade fictícia de serviços.
-Detalhes abrem em uma janela na própria Home; não são criadas outras páginas.
+Detalhes dos perfis ilustrativos abrem em uma janela na própria Home. Mensagens reais têm uma página própria em `/mensagens`.
 
 Favoritos ficam nesta aba, separados por usuário, e podem ser removidos. Ao
-sair, nome e favoritos do usuário atual são limpos. Se o armazenamento estiver
+sair, a sessão é revogada na API e nome e favoritos do usuário atual são limpos. Se o armazenamento estiver
 bloqueado, a apresentação usa memória e não persiste após recarregar.
 
-Os menus de mensagens, solicitações e notificações informam que são recursos
-futuros. Não há geolocalização, contratação, pagamento nem envio de mensagens.
-Osasco, distâncias, preços e avaliações são dados fictícios. Veja o
+Mensagens reais são acessíveis pelo menu e pelos cards de profissionais cadastrados.
+Solicitações estão disponíveis em `/solicitacoes`; notificações estão disponíveis em `/notificacoes`. Não há geolocalização ou processamento de pagamentos pela interface.
+Osasco, distâncias, preços e avaliações dos cards demonstrativos são fictícios. Profissionais cadastrados e valores de pedidos vêm da API. Veja o
 [guia da Home](docs/home.md) e o [roteiro de testes](test/README.md).
+
+## Mensagens reais e histórico de prestadores
+
+Aplique a migration de sessões/conversas no backend e faça login novamente. “Profissionais cadastrados” permite iniciar conversas reais; “Contrate novamente” usa exclusivamente contratações concluídas da conta. Veja [configuração, demonstração com duas contas e limites](docs/messages.md).
+
+A página `/mensagens` organiza contatos, chat e detalhes em painéis, com busca por nome e navegação adaptada ao celular. Consulte os [dois protótipos](docs/prototypes/README.md) e o [guia técnico de mensagens](docs/messages.md).
+
+## Minhas solicitações
+
+A rota `/solicitacoes` mantém a navegação lateral e mostra pedidos feitos/recebidos, filtros e detalhes. As confirmações ficam no painel principal; no celular, lista e detalhes alternam com **Voltar à lista**.
+
+- **Cliente (CONTRATANTE ou AMBOS):** cria pedidos de serviços ativos de outros profissionais e cancela pedidos pendentes ou em andamento, respeitando os bloqueios financeiros.
+- **Prestador responsável:** aceita ou recusa pedidos pendentes; conclui ou cancela os que estão em andamento. Estados finais não podem ser reabertos.
+- **Integração:** preço definido pelo servidor e exibido com centavos, repetição de envio protegida por chave UUID e acesso à conversa dos participantes. Concluir alimenta o histórico da Home.
+- **Limites:** sem cobrança automática, geração de fatura, rastreamento ou agendamento estruturado. Endereço e horário são combinados pela conversa.
+
+Antes de testar, aplique `npm run db:migrate:deploy` no backend e reinicie a API após gerar o Prisma Client. Para cliente e prestador simultâneos, use perfis separados do navegador: abas comuns compartilham o cookie. Veja [regras, preparação e demonstração com duas contas](docs/requests.md).
+
+## Notificações
+
+A página `/notificacoes` mantém o shell de navegação e separa lista e detalhes; no celular alterna os painéis com **Voltar às notificações**. Os avisos vêm do backend, com filtros de categoria e não lidas, paginação, atalhos para pedidos/conversas e marcação de leitura persistente. O sino, a barra lateral e o total da seção compartilham o contador da conta.
+
+`NotificationsProvider` consulta o resumo a cada 10 segundos somente em aba visível e ao recuperar foco. A página atualiza sua lista no mesmo ciclo. Após uma leitura confirmada, consulta novamente o resumo; falhas oferecem nova tentativa. Troca de conta ou sessão expirada descarta a lista anterior. O cliente valida respostas e destinos permitidos em execução, sem armazenar avisos ou tokens no navegador.
+
+Execute `npm run test:e2e -- NotificationsSpec` para os testes com API simulada. A integração PostgreSQL roda no backend com `npm run test:notificacoes`. Preparação, eventos, limites e roteiro com duas contas: [guia de notificações](docs/notifications.md).
+
+## Meu perfil
+
+`/perfil` mostra resumo privado da conta e permite editar nome, telefone e endereço. E-mail, CPF mascarado, tipo de conta e data de cadastro são consultivos. Salvar atualiza a apresentação do nome; cancelar restaura o formulário; falhas preservam a edição. A navegação lateral e o botão da conta abrem o painel sem modal. Não há mudança de senha, e-mail, foto ou dados profissionais.
+
+Execute `npm run test:e2e -- ProfileSpec`; a integração real do backend é `npm run test:perfil`. Veja [uso, contratos e demonstração](docs/profile.md) e a [sequência da barra lateral](docs/sidebar-roadmap.md).
+
+## Central de Ajuda
+
+`/ajuda` mantém a barra lateral e o cabeçalho, com categorias e artigos expansíveis no painel principal. Pesquisa por título e conteúdo ignora acentos e maiúsculas; categorias podem ser combinadas à busca. Os guias são públicos e os atalhos pessoais exigem sessão na página de destino.
+
+Conteúdo tipado em `src/data/HelpArticles.ts`, sem API ou tabela adicional. Execute `npm test` e `npm run test:e2e -- HelpSpec`. Veja [arquitetura, limites e roteiro](docs/help.md). Não há chamados, atendimento humano ou processamento de pagamentos.
+
+## Profissionais
+
+`/profissionais` apresenta somente prestadores ativos com serviços ativos. A busca considera nome, área e serviços; o filtro de área pode ser combinado. Há paginação por prestador, detalhes no painel e navegação móvel com retorno à lista. Não são exibidos dados de contato ou documentos, distâncias inventadas ou selos de verificação. Sem avaliações registradas, aparece **Sem avaliações**. Clientes podem avaliar pedidos concluídos em `/solicitacoes`; notas e comentários aparecem nos detalhes públicos. Veja [regras, migration e testes de avaliações](docs/reviews.md).
+
+**Conversar** usa as conversas existentes; **Solicitar serviço** exige conta adequada e abre `/solicitacoes` com o serviço escolhido, validado novamente no backend. O link legado `/home?secao=Profissionais` redireciona para o catálogo. A Home conserva os exemplos identificados e favoritos demonstrativos locais.
+
+Execute `npm run test:e2e -- ProfessionalsSpec`; integração real em `apps/backend`: `npm run test:profissionais`. Veja [contrato, limites e demonstração](docs/professionals.md).
+
+## Favoritos da conta
+
+`/favoritos` usa a sessão e os dados do PostgreSQL. Favoritar ou remover no catálogo e nos profissionais reais da Home atualiza a interface após confirmação da API; falhas preservam o estado. A lista permite remover profissionais indisponíveis e reutiliza os cards e detalhes do catálogo para os disponíveis.
+
+Os exemplos fictícios ficam separados em **Ver favoritos demonstrativos** na Home e não são importados. A barra lateral abre somente os favoritos persistidos. Aplique `npm run db:migrate:deploy` e `npm run prisma:generate` no backend antes de iniciar. Execute `npm run test:e2e -- FavoritesSpec`; veja o [guia de favoritos](docs/favorites.md).

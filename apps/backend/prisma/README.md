@@ -80,8 +80,7 @@ npm run test:catalogo
 aceitar perda de dados automaticamente. Os comandos de testes inserem dados
 fictícios e fazem limpeza seletiva. Não use TRUNCATE para a demonstração.
 
-As novas rotas reutilizam as tabelas existentes; esta entrega não acrescentou
-uma migration de tabelas. Quando uma mudança futura exigir evolução estrutural
+As rotas iniciais de cadastro e busca reutilizaram as tabelas existentes. A integração posterior de mensagens acrescenta a migration descrita ao final deste documento. Quando uma mudança futura exigir evolução estrutural
 compartilhada pela equipe, produza e revise uma migration em banco de
 desenvolvimento antes de aplicá-la aos demais ambientes.
 
@@ -295,3 +294,27 @@ npm run db:reset:test -- --confirm hive_pi_2026f0915_test
 Escolha **seed ou reset**, não é necessário executar ambos. Seed exige banco
 vazio; reset apaga os dados das oito tabelas e repõe os exemplos. Os comandos
 não criam nem renomeiam bancos e não alteram seus arquivos de credenciais.
+
+## Migration de sessões e mensagens (2026-09-30)
+
+`20260930000000_sessions_messages` adiciona Sessao, Conversa e Mensagem, com FKs para Usuario, índices de consulta, unicidade da dupla cliente/prestador e chave de idempotência por remetente/conversa. Contratacao é reutilizada para o histórico; nenhuma contratação fictícia é criada ao abrir a Home.
+
+Pare o backend, execute `npm run prisma:generate`, confira `npm run db:migrate:status` e aplique `npm run db:migrate:deploy`. A migration é aditiva e não reseta dados. Para banco criado antes por db push, siga o procedimento de baseline das migrations que já estiverem materializadas; não marque a nova migration como aplicada se suas tabelas ainda não existem.
+
+Exclusão de Usuario remove suas sessões, conversas e mensagens por cascade. Os resets de dados já existentes também removem esses registros ao remover os usuários. A migration inicial continua preservada; a verificação de baseline agora registra todas as migrations já materializadas no banco descartável.
+
+`npm run test:mensagens` cria um banco temporário isolado e testa o fluxo HTTP/Prisma/PostgreSQL; exige TEST_DATABASE_URL local e CREATEDB. O banco original permanece intacto.
+
+## Chave de solicitação
+
+A migration `20261001000000_request_idempotency` acrescenta `Contratacao.chave` (UUID opcional) e unicidade por `contratanteId/chave`, evitando pedidos duplicados em tentativas repetidas. Linhas anteriores e seed continuam válidos com chave nula. Aplique com `npm run db:migrate:deploy`; não precisa resetar ou repopular o banco.
+
+## Notificações de eventos
+
+A migration aditiva `20261001010000_notifications` cria `Notificacao`, o enum de eventos e índices por destinatário/leitura/ID. A chave `(usuarioId, chaveEvento)` é única; as relações com usuário, contratação e mensagem usam cascata na exclusão. Aplique `npm run db:migrate:deploy` e `npm run prisma:generate`, sem reset. O seed não gera histórico de notificações; eventos novos pela API geram os avisos na mesma transação da operação. `npm run test:notificacoes` valida migrations/schema e integração em banco descartável. Veja o [guia](../../frontend/docs/notifications.md).
+
+## Favoritos persistentes
+
+A migration aditiva `20261002000000_favorites` cria `Favorito`, com chave composta `(usuarioId, prestadorId)`, data de criação e FKs com exclusão em cascata. Preserva os registros existentes. Aplique `npm run db:migrate:deploy` e gere o client com `npm run prisma:generate`; reinicie o backend, sem reset.
+
+`GET /favoritos`, `PUT /favoritos/:prestadorId` e `DELETE /favoritos/:prestadorId` exigem sessão; escritas exigem `X-Hive-Request: 1`. Não aceitam identidade enviada no corpo. PUT/DELETE são idempotentes; indisponíveis permanecem removíveis. `npm run test:favoritos` verifica migrations e integração em PostgreSQL descartável, sem limpar o banco da aplicação. O reset de dados já remove vínculos por cascata; nenhum favorito é adicionado pelo seed.

@@ -1,3 +1,9 @@
+import { FavoritesModule } from './favorites/favorites.module';
+import { ProfessionalsModule } from './professionals/professionals.module';
+import { ProfileModule } from './profile/profile.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { RequestsModule } from './requests/requests.module';
+import { MessagingModule } from './messaging/messaging.module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
 
@@ -10,7 +16,18 @@ import { AuthModule } from './auth/auth.module';
 import { ClienteModule } from './cliente/cliente.module';
 
 @Module({
-  imports: [PersistenciaModule, CatalogoModule, AuthModule, ClienteModule],
+  imports: [
+    PersistenciaModule,
+    CatalogoModule,
+    AuthModule,
+    ClienteModule,
+    MessagingModule,
+    RequestsModule,
+    NotificationsModule,
+    ProfileModule,
+    ProfessionalsModule,
+    FavoritesModule,
+  ],
 
   controllers: [AppController],
 

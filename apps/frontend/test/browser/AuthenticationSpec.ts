@@ -1,5 +1,7 @@
+import { mockHomeApi } from "./ApiFixture";
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
+test.beforeEach(async ({page})=>{await mockHomeApi(page);});
 const user = {
   idUsuario: 1,
   nome: "Ana Demonstração",

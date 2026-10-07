@@ -35,7 +35,19 @@
     "db:reset:test": "ts-node prisma/seed.ts --test --reset",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:status": "prisma migrate status",
-    "test:migrations": "node scripts/verify-postgres-migrations.cjs"
+    "test:migrations": "node scripts/verify-postgres-migrations.cjs",
+    "test:mensagens": "node scripts/verify-messaging.cjs",
+    "test:solicitacoes": "node scripts/verify-requests.cjs",
+    "test:notificacoes": "node scripts/verify-notifications.cjs",
+    "test:favoritos": "node scripts/verify-favorites.cjs",
+    "test:profissionais": "node scripts/verify-professionals.cjs",
+    "test:perfil": "node scripts/verify-profile.cjs",
+    "prebuild": "npm run prisma:generate",
+    "prestart": "npm run prisma:generate",
+    "prestart:dev": "npm run prisma:generate",
+    "prestart:debug": "npm run prisma:generate",
+    "prestart:demo": "npm run prisma:generate",
+    "test:avaliacoes": "node scripts/verify-reviews.cjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

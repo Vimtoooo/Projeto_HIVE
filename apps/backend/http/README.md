@@ -202,3 +202,7 @@ extras que não fazem parte do contrato.
 - Prefira o banco de testes e limpe os cadastros criados quando terminar.
 - Não envie senhas ou dados privados no `GET /servicos`; a resposta pública não
    deve expor esses campos.
+
+## Mensagens autenticadas
+
+`messages.http` demonstra login por cookie, identidade, criação de conversa, envio, leitura, histórico e logout. Atualize os IDs com os retornados pelo seu banco. O login e POSTs privados exigem `X-Hive-Request: 1`; mantenha o armazenamento de cookies do REST Client habilitado. Nunca versione cookies capturados ou credenciais reais.

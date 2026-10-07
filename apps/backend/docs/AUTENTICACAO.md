@@ -61,3 +61,13 @@ http://localhost:3000/login
 ### CORS
 
 O backend possui CORS habilitado para permitir que o frontend realize requisições para a API durante o desenvolvimento local.
+
+## Sessão e autorização de mensagens
+
+O login agora exige `Content-Type: application/json` e `X-Hive-Request: 1`. Além do mesmo corpo público de resposta, define o cookie `hive_session`, HTTP-only, SameSite=Lax, Path=/, com oito horas de validade e Secure em produção. O token aleatório tem 32 bytes; apenas seu hash SHA-256 é armazenado em Sessao. Tokens não ficam no localStorage/sessionStorage nem são retornados no JSON.
+
+`GET /sessao` recupera a identidade pelo cookie. `POST /logout`, com o header `X-Hive-Request: 1`, revoga a sessão e expira o cookie. O frontend só limpa sua apresentação depois da confirmação do logout.
+
+SessionGuard valida expiração e conta ATIVA. Operações de escrita exigem o header customizado para impedir formulários cross-origin; CORS não permite credenciais de outras origens. Use o frontend pelo proxy de mesma origem `/api`. A autorização de conversas verifica no servidor se o usuário é cliente ou prestador da dupla. Não aceita remetenteId ou contratanteId enviados pelo navegador como prova de identidade.
+
+Conversas privadas retornam 404 para terceiros e 401 sem sessão válida. Essa implementação não é JWT/RBAC e não transforma as rotas públicas do catálogo em rotas privadas.

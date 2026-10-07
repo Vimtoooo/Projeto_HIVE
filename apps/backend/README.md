@@ -1,13 +1,12 @@
 # Backend do HIVE
 
-API NestJS com Prisma 7 e PostgreSQL. Esta etapa conecta as classes de domínio à
-aplicação HTTP: cadastro de prestador com serviço inicial e busca de serviços.
-O frontend estático ainda não está conectado a essas rotas.
+Avaliações definitivas disponíveis em `POST /solicitacoes/:id/avaliacao` e leitura pública em `GET /profissionais/:id/avaliacoes`. Aplique a migration `20261003000000_review_notifications` e execute `npm run test:avaliacoes` para validar em banco descartável. Veja [regras e preparação](../frontend/docs/reviews.md).
+
+API REST NestJS com Prisma 7 e PostgreSQL, integrada ao frontend Next.js. Oferece cadastro de clientes e prestadores, catálogo, login por sessão HTTP-only, mensagens persistentes, solicitações de serviços com criação, aceite/recusa, conclusão e cancelamento, além de notificações por conta desses eventos.
 
 ## Preparar o ambiente
 
-Execute os comandos desta página em `apps/backend`. O ambiente usado na
-validação inicial foi Node.js 24.13, npm 11 e MySQL 8.0. Nesta branch, o banco é PostgreSQL; as versões de dependências
+Execute os comandos desta página em `apps/backend`. O ambiente atual utiliza Node.js 24, npm 11 e PostgreSQL (MySQL pertence à implementação anterior); as versões de dependências
 resolvidas estão em `package-lock.json`.
 
 ```powershell
@@ -61,15 +60,14 @@ npm run prisma:generate
 npm run prisma:validate
 ```
 
-Para um banco local novo, sincronize as tabelas e inicie a API:
+Para preparar um banco novo ou atualizar um banco com migrations já registradas, aplique as migrations e inicie a API:
 
 ```powershell
-npx prisma db push
+npm run db:migrate:deploy
 npm run start:dev
 ```
 
-Em um banco com dados, revise a mudança antes de aplicar. Não aceite perda de
-dados. Para carga fictícia, use o seed local protegido abaixo. Veja o
+Se o banco foi criado anteriormente com `db push`, confira o schema e faça o baseline conforme o guia do Prisma antes de aplicar migrations; não use reset para resolver a divergência. Para carga fictícia, use o seed local protegido abaixo. Veja o
 [README do Prisma](prisma/README.md) para distinguir client, schema e inserções.
 
 A conexão atual usa PostgreSQL via `@prisma/adapter-pg`, normalmente na porta 5432.
@@ -93,8 +91,7 @@ Para os testes, coloque a URL do banco exclusivo em `.env/.env.test.local`:
 TEST_DATABASE_URL="postgresql://SEU_USUARIO:SUA_SENHA@localhost:5432/hive_test"
 ```
 
-No PowerShell, em `apps/backend`, carregue o arquivo **antes** de iniciar
-`test-database.cjs`, pois ele verifica TEST_DATABASE_URL imediatamente:
+No PowerShell, em `apps/backend`, selecione o ambiente de testes antes de executar os modos abaixo. O script carrega `.env/.env.test.local` por padrão e respeita `DOTENV_CONFIG_PATH`:
 
 ```powershell
 $env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
@@ -113,9 +110,7 @@ O modo `serve` mantém a API ligada ao banco de testes e executa
 `dist/src/main` e requer compilação prévia. Use um banco terminado em
 `_test`, diferente do principal. Não é necessário copiar a senha para o terminal.
 
-Quando os arquivos estiverem na raiz do backend, os comandos npm de teste
-continuam disponíveis. Com a pasta `.env/`, use o prefixo
-`node -r dotenv/config scripts/test-database.cjs` e o modo correspondente:
+Os comandos npm de teste também funcionam com a pasta `.env/`. Para outro caminho, ajuste `DOTENV_CONFIG_PATH`. Se preferir chamar o script diretamente, use o prefixo `node -r dotenv/config scripts/test-database.cjs` e o modo correspondente:
 `prepare`, `test`, `api`, `demo`, `api-demo`, `serve` ou `clean UUID`.
 
 ## Requisições manuais no VS Code
@@ -130,10 +125,13 @@ blocos `POST` e `GET`.
 
 | Método e rota | Comportamento |
 | --- | --- |
+| `POST /clientes` | Cria uma conta de contratante com senha protegida; retorna 201 |
 | `POST /prestadores` | Cria Usuario, Prestador e o primeiro Servico juntos; retorna 201 |
 | `GET /servicos` | Busca pública com filtros, paginação e retorno somente de campos públicos |
-| `POST /login` | Confere email, senha scrypt e conta ativa; retorna 201 com os dados públicos do usuário ou 401 para credenciais rejeitadas |
+| `POST /login` | Confere email, senha scrypt e conta ativa; cria cookie de sessão e retorna 201 com dados públicos, ou 401 para credenciais rejeitadas |
 | `GET /` | Verificação básica já existente; retorna Hello World! |
+
+As rotas de sessão, logout, conversas e histórico estão em [Mensagens e histórico autenticados](#mensagens-e-histórico-autenticados); as de contratação em [Solicitações de serviços](#solicitações-de-serviços).
 
 O POST de `/prestadores` exige dados pessoais, dados profissionais e o objeto `servico`.
 O GET aceita `texto`, `areaAtuacao`, `precoMin`, `precoMax`, `prestadorId`,
@@ -142,16 +140,16 @@ limites, exemplos JSON e respostas 400, 409, 503 e 500.
 
 ## Login integrado ao frontend
 
-Crie primeiro a conta com `POST /prestadores` no mesmo banco usado pela API.
+Crie a conta com `POST /clientes`, `POST /prestadores` ou pelo seed no mesmo banco usado pela API.
 O [guia do frontend](../frontend/README.md#criar-a-conta-antes-do-login) contém
 um POST fictício e o roteiro para abrir a tela e confirmar o redirecionamento.
 O login recebe `{"email":"...","senha":"..."}` e retorna `idUsuario`,
 `nome`, `email` e `tipoUsuario`, sem retornar o hash.
 
 A verificação de senha usa scrypt com salt e comparação com timingSafeEqual.
-O fluxo atual não emite token nem cookie de sessão: o redirecionamento para
-Home comprova a integração, mas ainda não protege essa página. O corpo de
-login usa um tipo inline, sem DTO validado como o do cadastro.
+O login usa DTO validado e cria sessão HTTP-only com duração de oito horas.
+Inclua `X-Hive-Request: 1` no login e em operações autenticadas de escrita.
+A Home permite exploração pública; conversas, histórico e solicitações são protegidos pelo backend.
 
 ## Arquitetura e motivos das mudanças
 
@@ -161,11 +159,14 @@ login usa um tipo inline, sem DTO validado como o do cadastro.
 | `src/catalog/catalogo.dto.ts` | Valida formatos, limites e campos extras antes de executar regras ou acessar o banco |
 | `src/catalog/servico.service.ts` | Coordena o cadastro e a busca, verifica intervalo de preços e traduz erros para HTTP |
 | `src/catalog/servico.repository.ts` | Define consultas e projeções públicas; evita expor senha, documentos e contato |
-| `src/auth/` | Recebe o login, busca a conta e verifica status e senha |
+| `src/auth/` | Login, senha, sessões HTTP-only, logout e guard de autorização |
+| `src/cliente/` | Cadastro validado de contratantes |
+| `src/messaging/` | Mensagens, acesso por participante e histórico de serviços concluídos |
+| `src/requests/` | Pedidos, preço registrado, transições, idempotência e proteção financeira |
 | `src/models/` | Mantém as classes Prestador/Servico e demais regras de domínio já utilizadas nos testes |
 | `src/persistence/` | Reutiliza transações, gravação das classes, conexão e adaptador do banco |
 
-`AppModule` registra `CatalogoModule`, `AuthModule` e um `ValidationPipe` global com transformação,
+`AppModule` registra os módulos de persistência, catálogo, clientes, autenticação, mensagens, solicitações e notificações, além de um `ValidationPipe` global com transformação,
 whitelist e rejeição de campos desconhecidos. `class-validator` e
 `class-transformer` fornecem a validação em tempo de execução; tipos TypeScript
 sozinhos não validam um JSON recebido pela rede.
@@ -224,23 +225,23 @@ API real ligada ao banco de testes, sem alterar `.env`. Abra
 `http://localhost:3000/servicos?texto=UUID_DA_EXECUCAO` usando o UUID recebido.
 Pare a API com Ctrl+C; limpe a execução usando o comando exibido pelo teste.
 O [roteiro completo](docs/CATALOGO-API.md#apresentação-para-o-grupo-e-o-professor)
-inclui a consulta no Workbench.
+inclui consultas para conferir os dados; no PostgreSQL, use pgAdmin, psql ou SQLTools com conexão PostgreSQL.
 
 ## Limites atuais
 
 O cadastro abre uma nova conta com seu serviço inicial; não adiciona serviços a
 contas existentes. Novos cadastros ficam ativos nesta etapa acadêmica.
-Autenticação, autorização, aprovação e limitação de requisições ainda precisam
-ser implementadas antes de disponibilizar a API em produção.
+Autenticação por sessão e autorização por participante já existem. JWT/RBAC amplo, aprovação de cadastros e limitação de requisições continuam planejados; o estado atual é voltado à demonstração acadêmica.
 
 CPF/CNPJ têm validação de tamanho, não verificação fiscal. Valores monetários
-continuam como Float. Contratação, pagamento e avaliação estão nas classes e
-na persistência, mas ainda não possuem rotas. O método Usuario.autenticar não
+continuam como Float. Contratação e avaliação já possuem rotas e interface; pagamento permanece nas classes/persistência, sem fluxo HTTP próprio. O método Usuario.autenticar não
 é o responsável pelo login da API; essa responsabilidade está em AuthService.
 
 ## Documentação complementar
 
-- [Plano de implementação](docs/PLANO-CADASTRO-BUSCA.md)
+- [Plano original de cadastro e busca](docs/PLANO-CADASTRO-BUSCA.md)
+- [Solicitações: regras, interface e demonstração com duas contas](../frontend/docs/requests.md)
+- [Entregas da barra lateral](../frontend/docs/sidebar-roadmap.md)
 - [Persistência: transações, relações e limitações](docs/PERSISTENCIA.md)
 - [Prisma: schema, migrations e troca de banco](prisma/README.md)
 - [Segurança e sincronização após limpeza do histórico](docs/SEGURANCA-HISTORICO.md)
@@ -262,3 +263,106 @@ Para bancos novos, use `npm run db:migrate:deploy` e confira
 precisam da conferência de schema e do baseline descritos no
 [guia do Prisma](prisma/README.md#preparação-para-postgresql), sem reset.
 O SQL MySQL está arquivado; os dados fictícios podem ser recriados com o seed.
+
+## Mensagens e histórico autenticados
+
+Após `npm run prisma:generate`, aplique `npm run db:migrate:deploy` para criar Sessao, Conversa e Mensagem. O módulo `src/messaging` usa o Prisma e verifica os participantes em cada operação. O histórico reaproveita Contratacao e inclui apenas serviços CONCLUIDOS da conta autenticada.
+
+| Endpoint | Finalidade |
+| --- | --- |
+| GET /sessao | Dados públicos da conta da sessão |
+| POST /logout | Revoga a sessão e limpa o cookie |
+| GET /conversas | Até 100 conversas recentes da conta |
+| POST /conversas | Inicia/reutiliza conversa com prestador ativo |
+| GET /conversas/:id/mensagens?antes=ID | Página de até 50 mensagens |
+| POST /conversas/:id/mensagens | Envia texto com chave UUID de idempotência |
+| GET /contratacoes/anteriores | Prestadores de serviços concluídos do contratante |
+
+Consulte [autenticação](docs/AUTENTICACAO.md), [exemplos HTTP](http/messages.http) e [demonstração ponta a ponta](../frontend/docs/messages.md). Execute `npm run test:mensagens` para testar com banco descartável, sem reset do banco local.
+
+## Solicitações de serviços
+
+O módulo `src/requests` implementa o fluxo autenticado de contratação. Aplique a migration `20261001000000_request_idempotency` com `npm run db:migrate:deploy` e gere o cliente com `npm run prisma:generate`. A alteração é aditiva e preserva as contratações existentes.
+
+| Endpoint | Finalidade |
+| --- | --- |
+| GET /solicitacoes | Lista paginada da sessão; filtros `papel=cliente/prestador`, `status`, `pagina`, `limite` (máximo 50) |
+| GET /solicitacoes/:id | Detalhes e ações permitidas, somente para participantes |
+| POST /solicitacoes | Cria pedido PENDENTE com `servicoId`, `formaPagamento`, `chave` UUID v4 |
+| POST /solicitacoes/:id/acao | Executa `acao`: ACEITAR, RECUSAR, CONCLUIR ou CANCELAR |
+| POST /solicitacoes/:id/conversa | Obtém/cria a conversa da dupla cliente/prestador |
+
+Mutações exigem cookie de sessão e `X-Hive-Request: 1`. O servidor determina contratante e preço. Aceite/conclusão são exclusivos do prestador responsável; cancelamento é permitido aos participantes nos estados não finais, respeitando bloqueios financeiros. Não cria cobranças ou faturas automaticamente.
+
+A chave única por contratante evita duplicações, e a transação serializável protege as mudanças concorrentes de estado. Listas usam seleção explícita de campos públicos entre participantes; CPF, senha, email e tokens não são retornados. Veja [regras e roteiro com duas contas](../frontend/docs/requests.md).
+
+### Validar mensagens e solicitações
+
+Em `apps/backend`, selecione o arquivo que contém TEST_DATABASE_URL:
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+npm run test:mensagens
+npm run test:solicitacoes
+```
+
+Os executores criam bancos temporários próprios, aplicam migrations, verificam o schema e executam testes HTTP com Prisma/PostgreSQL reais. Exigem PostgreSQL local e permissão CREATEDB; removem apenas os bancos criados pelo teste, sem popular ou resetar o banco da aplicação.
+
+A suíte de solicitações cobre autorização, validação, preço preservado, idempotência, transições, pagamentos, filtros, conversa e ações concorrentes. Para testar a interface, execute Playwright no frontend ou siga o roteiro com duas contas acima. Ao voltar à aplicação neste terminal, restaure `$env:DOTENV_CONFIG_PATH = '.env/.env'`.
+
+## Notificações persistentes
+
+`NotificationsModule` registra avisos de novas mensagens e de criação, aceite, recusa, conclusão e cancelamento de solicitações. O destinatário é sempre a contraparte. `RequestsService` e `MessagingService` chamam `NotificationsService.emit` com o cliente da mesma transação Prisma: uma falha no aviso reverte a operação de origem. A unicidade `(usuarioId, chaveEvento)` e a detecção de envios repetidos impedem duplicação e preservam a primeira leitura. Não existe retrocarga de eventos antigos.
+
+| Endpoint autenticado | Contrato |
+| --- | --- |
+| `GET /notificacoes` | `categoria=mensagens/solicitacoes`, `naoLidas=true/false`, `limite` (20, máximo 50), `antes` e `ateId`; retorna `usuarioId`, `itens`, `ateId` e `proximoCursor` |
+| `GET /notificacoes/resumo` | `usuarioId`, total `naoLidas` e maior `ateId`, sem restringir à página/filtro |
+| `GET /notificacoes/:id` | Aviso do destinatário com destino interno para pedido ou conversa |
+| `POST /notificacoes/:id/lida` | Primeira data de leitura persistente; repetir não a altera |
+| `POST /notificacoes/ler-todas` | Corpo `{ "ateId": 123 }`; marca a conta até esse ID, em todas as categorias; retorna `atualizadas` |
+
+A sessão determina o usuário; consultas de outra conta retornam 404. Escritas exigem `X-Hive-Request: 1`. Mensagens não são copiadas para o texto do aviso. As FKs removem avisos junto com usuário, mensagem ou contratação de origem. A paginação usa IDs decrescentes e conserva `ateId` nas páginas seguintes; ao voltar a **Mais recentes**, obtém um novo limite.
+
+Antes de executar a API, aplique a migration aditiva `20261001010000_notifications` com `npm run db:migrate:deploy` e gere o client com `npm run prisma:generate`. Não é preciso resetar nem repor o seed.
+
+```powershell
+$env:DOTENV_CONFIG_PATH = '.env/.env.test.local'
+npm run test:notificacoes
+```
+
+O comando cria e remove apenas seu próprio banco `hive_notifications_<uuid>_test`, aplica todas as migrations e confere a ausência de divergência com o schema. Exige PostgreSQL local, TEST_DATABASE_URL terminada em `_test` e permissão CREATEDB. Os logs **Falha simulada** são esperados nos casos que verificam rollback. Ao usar novamente a aplicação, restaure `$env:DOTENV_CONFIG_PATH = '.env/.env'`.
+
+Veja o [roteiro de demonstração e limites](../frontend/docs/notifications.md). Não há push, e-mail ou recibo de leitura de conversa nesta etapa.
+
+## Perfil da conta
+
+GET `/perfil` e PATCH `/perfil` usam SessionGuard. A consulta retorna somente dados da conta atual, com CPF mascarado; a escrita permite nome, telefone e endereço e exige `X-Hive-Request: 1`. Não aceita identidade, senha, e-mail ou tipo de conta enviados pelo formulário. Reutiliza os campos existentes, sem migration. Execute `npm run test:perfil` com TEST_DATABASE_URL local e CREATEDB para validar no banco descartável. Veja o [guia de perfil](../frontend/docs/profile.md).
+
+## Prisma Client ausente: erros TS2305 ao iniciar
+
+Se vários arquivos indicarem que `@prisma/client` não exporta `PrismaClient`, `Prisma` ou enums, o client gerado pode estar ausente ou desatualizado. O pacote instalado delega esses exports aos arquivos gerados em `node_modules/.prisma/client`; eles não são versionados.
+
+Os comandos `npm run build`, `npm start`, `npm run start:dev`, `npm run start:debug` e `npm run start:demo` agora executam `prisma:generate` automaticamente antes de compilar/iniciar. Se a geração falhar, o comando principal não inicia. Essa etapa gera código local; não aplica migrations nem altera dados do banco.
+
+Para recuperar um processo watch já aberto, pare-o com Ctrl+C e rode, em `apps/backend`:
+
+```powershell
+npm run start:dev
+```
+
+Para ferramentas executadas diretamente (Nest CLI, Jest ou ts-node), gere primeiro com `npm run prisma:generate`. `start:prod` usa o build previamente preparado: execute `npm run build` antes; não exige instalar o Prisma CLI no ambiente de produção. Após modificar `schema.prisma`, gere o client novamente e reinicie o watch. Se houver erro de tabela ausente, isso é outra etapa: consulte o guia de migrations, sem resetar o banco.
+
+## Catálogo público de profissionais
+
+`GET /profissionais` pagina prestadores ativos com serviços ativos, sem duplicá-los por serviço. Aceita `texto`, `areaAtuacao`, `pagina` e `limite` (padrão 12, máximo 50). A busca ignora caixa, mas não acentos; a ordenação é por nome e ID. `GET /profissionais/:id` mostra experiência, certificações declaradas e serviços ativos. ID inválido retorna 400; indisponível ou inexistente retorna 404.
+
+Seleções explícitas impedem a exposição de senha, documentos, contato e endereço residencial. As avaliações são agregadas dos registros existentes, sem reutilizar médias fictícias; nenhuma avaliação implica média nula. O módulo é somente leitura e não modifica o cadastro de prestador. Conversar e solicitar reutilizam as validações de sessão, conta, disponibilidade e preço dos módulos existentes.
+
+Não há migration nova. Teste com `npm run test:profissionais` em PostgreSQL descartável; veja [guia técnico e demonstração](../frontend/docs/professionals.md) e `http/professionals.http`.
+
+## Favoritos persistentes
+
+A migration aditiva `20261002000000_favorites` cria `Favorito`, com chave composta `(usuarioId, prestadorId)`, data de criação e FKs com exclusão em cascata. Preserva os registros existentes. Aplique `npm run db:migrate:deploy` e gere o client com `npm run prisma:generate`; reinicie o backend, sem reset.
+
+`GET /favoritos`, `PUT /favoritos/:prestadorId` e `DELETE /favoritos/:prestadorId` exigem sessão; escritas exigem `X-Hive-Request: 1`. Não aceitam identidade enviada no corpo. PUT/DELETE são idempotentes; indisponíveis permanecem removíveis. `npm run test:favoritos` verifica migrations e integração em PostgreSQL descartável, sem limpar o banco da aplicação. O reset de dados já remove vínculos por cascata; nenhum favorito é adicionado pelo seed.

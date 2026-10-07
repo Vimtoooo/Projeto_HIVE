@@ -1,0 +1,45 @@
+# REST Client mantém cookies entre requisições. Use somente contas fictícias locais.
+# Configure IDs retornados pelo seu banco; não confunda IDs dos perfis ilustrativos da Home.
+@baseUrl = http://localhost:3000
+@providerId = 2
+@conversationId = 1
+
+### 1. Login de cliente do seed (cookie armazenado pelo REST Client)
+POST {{baseUrl}}/login
+Content-Type: application/json
+X-Hive-Request: 1
+
+{"email":"ana@hive.example.invalid","senha":"HiveDemo!2026"}
+
+### 2. Conferir identidade
+GET {{baseUrl}}/sessao
+
+### 3. Profissionais e IDs reais
+GET {{baseUrl}}/servicos
+
+### 4. Abrir/reutilizar conversa; copie o id retornado para conversationId
+POST {{baseUrl}}/conversas
+Content-Type: application/json
+X-Hive-Request: 1
+
+{"prestadorId":{{providerId}}}
+
+### 5. Enviar texto (use uma UUID nova para cada nova mensagem)
+POST {{baseUrl}}/conversas/{{conversationId}}/mensagens
+Content-Type: application/json
+X-Hive-Request: 1
+
+{"conteudo":"Olá! Podemos combinar um novo serviço?","chave":"{{$guid}}"}
+
+### 6. Ler mensagens
+GET {{baseUrl}}/conversas/{{conversationId}}/mensagens
+
+### 7. Listar conversas
+GET {{baseUrl}}/conversas
+
+### 8. Prestadores contratados anteriormente
+GET {{baseUrl}}/contratacoes/anteriores
+
+### 9. Encerrar sessão
+POST {{baseUrl}}/logout
+X-Hive-Request: 1

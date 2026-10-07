@@ -1,4 +1,8 @@
+import { mockHomeApi } from "./ApiFixture";
 import { test, expect } from "@playwright/test";
+test.beforeEach(async ({ page }) => {
+  await mockHomeApi(page);
+});
 const viewer = { id: 7, name: "João Martins" };
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -24,6 +28,7 @@ test("home personalizada, três seções, distâncias ilustrativas e captura des
   await page.screenshot({
     path: "test-results/home-desktop.png",
     fullPage: true,
+    animations: "disabled",
   });
   expect(errors).toEqual([]);
 });
@@ -76,11 +81,12 @@ test("favoritos persistem ao recarregar, detalhes abrem e Escape restaura o foco
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(details).toBeFocused();
   await page
-    .getByRole("navigation", { name: "Navegação principal" })
-    .getByRole("button", { name: /Favoritos/ })
+    .getByRole("button", { name: "Ver favoritos demonstrativos" })
     .click();
   await expect(
-    page.getByText("1 profissional encontrado · Favoritos"),
+    page.getByText(
+      "1 profissional encontrado · Favoritos demonstrativos (neste navegador)",
+    ),
   ).toBeVisible();
   await page
     .getByRole("button", { name: "Remover dos favoritos: Rafael Martins" })
@@ -90,23 +96,17 @@ test("favoritos persistem ao recarregar, detalhes abrem e Escape restaura o foco
     page.getByRole("heading", { name: "Seus favoritos começam aqui" }),
   ).toBeVisible();
 });
-test("ver todos expande a seção e itens futuros não saem da Home", async ({
-  page,
-}) => {
+test("ver todos expande a seção e ajuda abre seu painel", async ({ page }) => {
   await page.goto("/home");
   await page.getByRole("button", { name: "Ver todos: Perto de você" }).click();
   await expect(page.locator("article")).toHaveCount(15);
   await page.getByRole("button", { name: "Ver menos: Perto de você" }).click();
   await expect(page.locator("article")).toHaveCount(9);
-  await page
-    .getByRole("navigation")
-    .getByRole("button", { name: /Minhas solicitações/ })
-    .click();
-  await expect(page.getByRole("dialog")).toContainText(
-    "ainda não está disponível",
-  );
-  await expect(page).toHaveURL(/home$/);
-  await page.getByRole("button", { name: "Entendi" }).click();
+  await page.getByRole("button", { name: "Central de ajuda" }).click();
+  await expect(page).toHaveURL(/ajuda$/);
+  await expect(
+    page.getByRole("heading", { name: "Central de Ajuda", exact: true }),
+  ).toBeVisible();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 test("celular tem menu funcional, sem transbordamento horizontal e captura", async ({
@@ -122,11 +122,10 @@ test("celular tem menu funcional, sem transbordamento horizontal e captura", asy
     .click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(
-    page.getByRole("heading", { name: "Seus favoritos começam aqui" }),
+    page.getByRole("heading", { name: "Seus profissionais favoritos ficam aqui" }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Explorar profissionais", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Abrir navegação" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Início", exact: true }).click();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -137,6 +136,7 @@ test("celular tem menu funcional, sem transbordamento horizontal e captura", asy
   await page.screenshot({
     path: "test-results/home-mobile.png",
     fullPage: true,
+    animations: "disabled",
   });
   await page.setViewportSize({ width: 320, height: 740 });
   expect(
