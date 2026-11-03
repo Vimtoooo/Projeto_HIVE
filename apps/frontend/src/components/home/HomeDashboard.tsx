@@ -35,6 +35,7 @@ import HelpWorkspace from "../help/HelpWorkspace";
 import ProfileWorkspace from "../profile/ProfileWorkspace";
 import RequestsWorkspace from "../requests/RequestsWorkspace";
 import MessagesWorkspace from "../messages/MessagesWorkspace";
+import ProviderInvitation from "./ProviderInvitation";
 import ConnectedProfessionals from "./ConnectedProfessionals";
 import { api } from "../../services/MessagingApi";
 import type { Conversation } from "../../services/MessagingApi";
@@ -397,28 +398,7 @@ function DashboardContent({
           </span>
         </Link>
         {navigation()}
-        <div className={styles.joinCard}>
-          <span className={styles.joinIcon}>
-            <HomeIcon name="wrench" />
-          </span>
-          <h3>
-            Seu talento tem
-            <br />
-            lugar aqui.
-          </h3>
-          <p>Faça parte da comunidade de profissionais HIVE.</p>
-          <button
-            type="button"
-            onClick={() =>
-              notify(
-                "Seja um profissional HIVE",
-                "O cadastro de prestadores pela interface será desenvolvido em uma próxima etapa. Por enquanto, explore os perfis de demonstração.",
-              )
-            }
-          >
-            Quero ser profissional <HomeIcon name="arrow" size={16} />
-          </button>
-        </div>
+        <ProviderInvitation />
         <div className={styles.sidebarFooter}>
           <span className={styles.miniHex}>⬡</span> Conectando pessoas.
           <br />

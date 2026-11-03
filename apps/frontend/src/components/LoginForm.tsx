@@ -39,7 +39,7 @@ export default function LoginForm() {
     }
   }
   return (
-    <div className={styles.screen}>
+    <div className={`${styles.screen} ${styles.loginScreen}`}>
       <div className={styles["page"]}>
         <aside className={styles["painel-left"]}>
           <div className={styles["left-top"]}>
@@ -110,7 +110,7 @@ export default function LoginForm() {
               </div>
               <h2 className={styles["form-title"]}>Olá!</h2>
               <p className={styles["form-subtitle"]}>
-                Confirme sua senha para entrar na sua conta.
+                Entre com seu e-mail e senha.
               </p>
             </div>
 
@@ -224,6 +224,7 @@ export default function LoginForm() {
 
             <p className={styles["switch-account"]}>
               Deseja criar uma conta? <Link href="/cadastro">Cadastrar-se</Link>
+              {" · "}<Link href="/cadastro/prestador">Sou prestador</Link>
             </p>
           </form>
         </main>

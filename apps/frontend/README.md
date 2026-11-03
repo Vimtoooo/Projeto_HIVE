@@ -9,6 +9,8 @@ persistência no PostgreSQL. As migrations do backend incluem sessões, conversa
 
 ### Plano de adoção
 
+Os cadastros de cliente e prestador agora usam mensagens de validação junto aos campos, ícones e exemplos de preenchimento. O layout de autenticação usa painel lateral acima de 768 px. Na Home, o convite de cadastro respeita o tipo da sessão, e os cards de profissionais reais mostram preço e avaliações do catálogo. Veja [cadastros](docs/registration.md) e [Home](docs/home.md). A próxima prioridade proposta é a [conta única para contratar e prestar serviços](../backend/docs/CONTA-UNICA.md), ainda não implementada. A página dedicada de perfil público do prestador permanece no backlog; o painel de detalhes atual continua disponível.
+
 1. **Concluído:** base Next.js, App Router, TypeScript estrito e proxy /api.
 2. **Concluído:** migração do login, cadastro e Home para React; retirada da cópia
    automática de HTML/JavaScript legado e preservação do visual e da Home em andamento.
@@ -23,6 +25,8 @@ persistência no PostgreSQL. As migrations do backend incluem sessões, conversa
 10. **Concluído:** favoritos reais persistidos por conta, com painel próprio. A Home pode ser explorada publicamente; mensagens, histórico, solicitações, notificações e perfil exigem sessão válida. O [plano da barra lateral](docs/sidebar-roadmap.md) registra as entregas por seção.
 
 ### Executar agora
+
+O cadastro de prestadores está em `/cadastro/prestador`, com acesso pelo login e pelo cadastro de cliente. Cria conta, perfil profissional e primeiro serviço usando `POST /prestadores`, permitindo que novos profissionais entrem no catálogo pela interface. Exige CNPJ e certificações conforme o contrato existente; após o sucesso, redireciona ao login. Veja [campos e validações](docs/registration.md#cadastro-de-prestador).
 
 Use Node.js **22.18 ou superior** (Node 24 usado na validação) e npm. O executor
 nativo dos testes TypeScript exige essa base; Python não é mais usado no frontend.
@@ -397,3 +401,9 @@ Execute `npm run test:e2e -- ProfessionalsSpec`; integração real em `apps/back
 `/favoritos` usa a sessão e os dados do PostgreSQL. Favoritar ou remover no catálogo e nos profissionais reais da Home atualiza a interface após confirmação da API; falhas preservam o estado. A lista permite remover profissionais indisponíveis e reutiliza os cards e detalhes do catálogo para os disponíveis.
 
 Os exemplos fictícios ficam separados em **Ver favoritos demonstrativos** na Home e não são importados. A barra lateral abre somente os favoritos persistidos. Aplique `npm run db:migrate:deploy` e `npm run prisma:generate` no backend antes de iniciar. Execute `npm run test:e2e -- FavoritesSpec`; veja o [guia de favoritos](docs/favorites.md).
+
+O login possui espaçamento compacto por altura de tela, preservando acesso ao conteúdo quando necessário. O cadastro de cliente apresenta etapas ilustradas de busca, comparação e contato no painel lateral, seguindo o cadastro de prestador. Detalhes em [cadastros](docs/registration.md).
+
+O cadastro de prestador também distribui orientações e ícones ao longo do painel lateral: apresentação profissional, descrição do serviço e conversa com clientes, acompanhando a altura do formulário.
+
+Login e cadastros compartilham o alinhamento do topo e reservam largura estável para a área de rolagem, evitando deslocamentos na navegação. O login conserva o layout compacto por altura de tela.

@@ -5,6 +5,8 @@ import {
   formatPhone,
   registrationInput,
   validateRegistration,
+  registrationErrors,
+  validName,
 } from "../src/lib/FormValidation.ts";
 import { apiMessage, isPublicUser, login } from "../src/services/ApiClient.ts";
 const form = {
@@ -16,6 +18,46 @@ const form = {
   senha: "Teste!2026",
   confirmarSenha: "Teste!2026",
 };
+test("nome aceita letras Unicode e separadores entre partes, mas rejeita números e símbolos", () => {
+  for (const name of [
+    "João da Silva",
+    "Ana-Maria",
+    "D’Ávila",
+    "D'Ávila",
+    "Jose\u0301",
+    "李小明",
+  ])
+    assert.equal(validName(name), true, name);
+  for (const name of [
+    "Pedro123",
+    "123",
+    "Ana 😊",
+    "-Ana",
+    "Ana-",
+    "Ana--Maria",
+    "Ana@Silva",
+    "Ana\nMaria",
+    "'",
+    " ",
+  ])
+    assert.equal(validName(name), false, name);
+});
+test("validação retorna todos os campos incorretos sem misturar falhas", () => {
+  const errors = registrationErrors({
+    ...form,
+    nome: "Ana123",
+    cpf: "",
+    email: "",
+    confirmarSenha: "",
+  });
+  assert.deepEqual(Object.keys(errors), [
+    "nome",
+    "cpf",
+    "email",
+    "confirmarSenha",
+  ]);
+  assert.equal(registrationErrors(form).nome, undefined);
+});
 test("normaliza dados e não envia confirmação de senha", () => {
   assert.equal(validateRegistration(form), null);
   assert.deepEqual(registrationInput(form), {

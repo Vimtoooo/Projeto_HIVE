@@ -65,3 +65,8 @@ npm run test:e2e -- RequestsSpec
 O backend cria um banco temporário `hive_requests_<uuid>_test` a partir da conexão TEST_DATABASE_URL, aplica migrations e o remove ao terminar. Exige PostgreSQL local e permissão CREATEDB. O banco configurado e seus dados não são apagados.
 
 A suíte HTTP/Prisma/PostgreSQL cobre autorização, validação, idempotência, preço preservado, aceite/conclusão, recusa/cancelamento, pagamentos, filtros, conversa e concorrência. Os testes de navegador simulam a API e cobrem a interface desktop/celular, falha recuperável, sessão expirada e confirmações. Capturas ficam em `test-results/requests-desktop.png` e `requests-mobile.png`.
+
+
+## Evolução planejada: conta única
+
+O [plano de conta única](../../backend/docs/CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.

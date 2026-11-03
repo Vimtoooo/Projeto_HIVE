@@ -201,6 +201,79 @@ describe('Profissionais: catálogo público e ações com PostgreSQL', () => {
     for (const id of [providers[2], providers[3], providers[4], 2147483647])
       await get('/' + id).expect(404);
   });
+  it('cadastro público cria prestador e serviço consultáveis e permite login', async () => {
+    const dados = {
+      nome: 'Ana-Maria D’Ávila',
+      email: 'cadastro@provider.example.invalid',
+      senha: 'Cadastro!2026',
+      telefone: '11999998888',
+      cpf: '98765432109',
+      endereco: 'Rua de Teste, 10',
+      areaAtuacao: 'Montagem',
+      experiencia: 'Montagem de móveis',
+      certificacoes: ['Curso de montagem'],
+      cnpj: '98765432000109',
+      servico: {
+        titulo: 'Montagem de mesa',
+        descricao: 'Montagem completa',
+        precoBase: 1234.56,
+      },
+    };
+    for (const nome of ['Ana123', '123', 'Ana 😊', '-Ana', 'Ana--Maria']) {
+      await request(app.getHttpServer())
+        .post('/prestadores')
+        .send({ ...dados, nome })
+        .expect(400);
+      const { email, senha, telefone, cpf, endereco } = dados;
+      await request(app.getHttpServer())
+        .post('/clientes')
+        .send({ nome, email, senha, telefone, cpf, endereco })
+        .expect(400);
+    }
+    expect(await db.usuario.count({ where: { email: dados.email } })).toBe(0);
+    const criado = await request(app.getHttpServer())
+      .post('/prestadores')
+      .send(dados)
+      .expect(201);
+    const body = criado.body as {
+      idServico: number;
+      prestador: { idPrestador: number };
+    };
+    expect(
+      (await get('?texto=Ana-Maria').expect(200)).body as unknown,
+    ).toMatchObject({
+      total: 1,
+      itens: [{ idPrestador: body.prestador.idPrestador }],
+    });
+    expect(
+      (await get('/' + body.prestador.idPrestador).expect(200)).body as unknown,
+    ).toMatchObject({ servicos: [{ idServico: body.idServico }] });
+    const servico = await db.servico.findUniqueOrThrow({
+      where: { idServico: body.idServico },
+    });
+    expect(Number(servico.precoBase)).toBe(1234.56);
+    await request(app.getHttpServer())
+      .post('/login')
+      .set('X-Hive-Request', '1')
+      .send({ email: dados.email, senha: dados.senha })
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/prestadores')
+      .send(dados)
+      .expect(409);
+    expect(await db.usuario.count({ where: { email: dados.email } })).toBe(1);
+    await request(app.getHttpServer())
+      .post('/clientes')
+      .send({
+        nome: "João D'Ávila",
+        email: 'cliente.nome@example.invalid',
+        senha: dados.senha,
+        telefone: dados.telefone,
+        cpf: '98765432108',
+        endereco: dados.endereco,
+      })
+      .expect(201);
+  });
   it('catálogo público integra conversa e pedido autenticados e valida disponibilidade novamente', async () => {
     await request(app.getHttpServer())
       .post('/conversas')

@@ -1,7 +1,9 @@
 import { mockHomeApi } from "./ApiFixture";
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
-test.beforeEach(async ({page})=>{await mockHomeApi(page);});
+test.beforeEach(async ({ page }) => {
+  await mockHomeApi(page);
+});
 const user = {
   idUsuario: 1,
   nome: "Ana Demonstração",
@@ -140,7 +142,7 @@ test("cadastro valida senhas antes da API, aplica máscaras e envia somente cont
   );
   await page.getByLabel("Confirmar senha").fill("OutraSenha");
   await page.getByRole("button", { name: "Cadastrar", exact: true }).click();
-  await expect(page.locator("form").getByRole("alert")).toContainText(
+  await expect(page.locator("#confirmarSenha-error")).toContainText(
     "não coincidem",
   );
   expect(calls).toBe(0);

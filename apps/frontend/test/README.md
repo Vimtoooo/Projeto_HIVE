@@ -16,6 +16,16 @@ são executados com remoção nativa de tipos; a análise estática é um comand
 
 ## Testes de navegador
 
+### Cadastro de prestador
+
+`RegistrationPolishSpec.ts` verifica erros por campo nos dois cadastros, placeholders, foco e correção, medidas compartilhadas com o login, breakpoint em 768/769 px, convite condicionado à sessão e cards reais com paginação recuperável. Execute junto de `ProviderRegistrationSpec`, `AuthenticationSpec`, `HomeSpec`, `MessagingSpec` e `FavoritesSpec`. Capturas: `test-results/polish-provider-{320,390,768,769,860,1440}.png` e `polish-real-cards.png`. As respostas HTTP são simuladas. No backend, a suíte de profissionais também verifica a rejeição de nomes inválidos pelos dois endpoints e a aceitação de nomes acentuados/compostos.
+
+`ProviderRegistrationTest.ts` cobre normalização, máscara de CNPJ, limites, conversão monetária e validação da resposta pública. `ProviderRegistrationSpec.ts` cobre acesso por login/cadastro, payload, confirmação de senha, envio único, erros 400/409/503/rede/resposta malformada, preservação de campos, nova tentativa, teclado e larguras 1440/390/320.
+
+Execute `npm run test:e2e -- ProviderRegistrationSpec AuthenticationSpec` com o navegador configurado abaixo. As capturas ficam em `test-results/provider-registration-1440.png`, `provider-registration-390.png` e `provider-registration-320.png`. A API é simulada nesses testes. No backend, `npm run test:profissionais` inclui cadastro via HTTP, presença no catálogo, preço persistido, login e duplicidade, em banco PostgreSQL descartável. Falha de preparação do banco deixa essa verificação pendente.
+
+### Configuração do navegador
+
 Na primeira utilização, instale o navegador do Playwright:
 
 ```powershell
@@ -68,3 +78,7 @@ A página de mensagens também é testada por URL direta e após recarregar, bus
 ## Perfil
 
 `npm run test:e2e -- ProfileSpec` testa navegação, campos permitidos, CPF mascarado, edição, persistência simulada, atualização da saudação, cancelamento, falha com retry, sessão expirada, teclado e celular. Capturas ignoradas pelo Git em `test-results/profile-*.png`. O teste real HTTP/Prisma/PostgreSQL roda no backend com `npm run test:perfil`.
+
+O cenário de login compacto em `RegistrationPolishSpec.ts` verifica ausência de rolagem vertical e horizontal, inclusive com erro de autenticação, em 320×568, 390×844, 768×768, 769×720, 860×720, 1366×768 e 1440×900. Também verifica as três etapas do painel de cliente e a remoção do depoimento. Usa API simulada e gera capturas em `test-results` para inspeção.
+
+O cenário `topo permanece alinhado entre login e cadastros` compara coordenadas de Voltar, título do formulário e, no desktop, logo, título e descrição do painel esquerdo nas três rotas. Também verifica ausência de sobreposição entre os links superiores em seis combinações de largura e altura.

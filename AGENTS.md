@@ -21,6 +21,15 @@
 
 Quando o usuário solicitar delegação, siga [o acordo de trabalho](engineering/ai-workflow.md). O coordenador define objetivos, responsáveis por arquivos e critérios de aceite; agentes retornam evidências e não ampliam o escopo. Use execução sequencial quando houver dependência ou disputa pelos mesmos arquivos.
 
+## Documentação acompanha a implementação
+
+- Ao adicionar ou alterar uma funcionalidade, correção ou melhoria técnica, atualize na mesma entrega os READMEs afetados e os guias relacionados. Documentação coerente faz parte dos critérios de conclusão, não é uma tarefa opcional para outra conversa.
+- Descreva o que mudou, por que a mudança foi necessária e seu efeito para quem usa ou mantém o projeto. Registre apenas motivos confirmados; não invente justificativas ou benefícios sem evidência.
+- Atualize o README da raiz quando mudar a visão geral, capacidades, arquitetura, estrutura ou execução do projeto. Atualize os READMEs das aplicações e áreas envolvidas para detalhes locais; não altere READMEs sem relação com a entrega apenas para cumprir esta regra.
+- Revise instruções de uso, configuração, comandos, contratos, migrations, testes e limitações conforme o impacto real. Distinga o que está implementado do que permanece planejado. Prefira atualizar as seções existentes e vincular guias detalhados a duplicar conteúdo ou acumular um diário de conversas.
+- Confira caminhos e comandos documentados. Se uma alteração interna não exigir mudança em nenhum README, explique brevemente essa ausência de impacto no fechamento, em vez de acrescentar texto artificial.
+- Documentação necessária à equipe deve ser versionada nos READMEs, em `apps/*/docs` ou em `engineering/`. Mantenha prompts pessoais, rascunhos, estado transitório, ambientes virtuais e segredos fora dessa documentação compartilhada.
+
 ## Conclusão e parada da branch
 
 1. Identifique o requisito principal, os critérios de aceite e os limites da entrega antes de implementar. Se já estiverem documentados, reutilize-os.

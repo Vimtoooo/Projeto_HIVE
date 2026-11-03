@@ -1,4 +1,38 @@
-# Tela de Registro de Cliente — HIVE
+# Cadastro de clientes e prestadores — HIVE
+
+## Apresentação e validação dos cadastros
+
+Os dois cadastros compartilham campos pessoais, ícones SVG, placeholders e mensagens por campo. O formulário de prestador usa a largura de 400 px do cadastro de cliente no desktop, mantendo textareas mais altas para textos longos. Login e ambos os cadastros exibem o painel esquerdo acima de 768 px; até essa largura, usam coluna única. O painel do prestador explica as etapas com ilustrações vetoriais, sem depoimentos fictícios.
+
+A validação é própria (`noValidate`), substituindo os balões nativos do navegador. Ao sair de um campo, o erro aparece abaixo dele; durante a correção, é reavaliado. O envio apresenta todos os erros e foca o primeiro campo inválido. Borda vermelha e texto descrevem o problema, com `aria-invalid`, `aria-describedby` e transição de 180 ms, desativada para quem prefere movimento reduzido. Erros gerais da API continuam no alerta do formulário.
+
+O nome aceita letras Unicode, acentos, espaços, hífen e apóstrofos entre partes, como **Ana-Maria D’Ávila**, com 3–191 caracteres. Números, emojis, outros símbolos e separadores isolados são rejeitados no frontend e nos endpoints `POST /clientes` e `POST /prestadores`. Não é obrigatório ter sobrenome. Essa regra não modifica cadastros existentes nem a edição de perfil. Demais limites e exigências permanecem os mesmos.
+
+## Cadastro de prestador
+
+A rota `/cadastro/prestador` permite criar uma nova conta de prestador com seu primeiro serviço. Está acessível pelos links **Sou prestador** no login e **Quero me cadastrar como prestador** no cadastro de cliente. Usa `POST /api/prestadores`, encaminhado pelo proxy ao endpoint existente. Isso permite cadastrar profissionais pela interface sem preencher requisições manualmente.
+
+O formulário organiza os campos obrigatórios em dados pessoais, perfil profissional e primeiro serviço. Segue o contrato atual:
+
+| Campo | Limite |
+| --- | --- |
+| Nome / endereço | 3–191 / 5–191 caracteres |
+| E-mail / senha | E-mail válido até 191; senha de 8 a 128 caracteres |
+| CPF / CNPJ / telefone | 11 / 14 / 10–11 dígitos, respectivamente |
+| Área de atuação / experiência | 1–191 caracteres cada |
+| Certificações | De 1 a 20, uma por linha, até 191 caracteres cada; linhas em branco são ignoradas |
+| Título / descrição do serviço | 5–191 / 1–5000 caracteres |
+| Preço base | R$ 0,01 a R$ 1.000.000,00, até duas casas decimais |
+
+Documentos e telefone têm máscaras, removidas no envio. O preço usa vírgula para centavos e aceita agrupamento brasileiro opcional (`1.234,56` vira o número JSON `1234.56`); entradas ambíguas como `200.50` são rejeitadas. Não há arredondamento silencioso. A confirmação da senha não é enviada. CPF/CNPJ são verificados por tamanho, sem cálculo de dígitos verificadores, conforme a API.
+
+O cadastro cria conta, perfil e serviço juntos. O formulário bloqueia novos envios enquanto aguarda e preserva os campos após falhas de validação, duplicidade ou conexão. Erros locais direcionam o foco ao primeiro campo inválido; falhas gerais direcionam ao alerta do formulário. Uma resposta válida leva a `/login`; não há login automático. Se a resposta de sucesso vier malformada, a interface avisa que a conta pode ter sido criada e orienta tentar entrar antes de reenviar.
+
+CNPJ e ao menos uma certificação continuam obrigatórios. Não há preenchimento fictício, conversão de conta existente ou gestão de serviços. Não foi necessária migration. A validação do nome foi reforçada nos dois endpoints de cadastro, conforme descrito acima. Depois de cadastrar, o perfil e o serviço ativos ficam disponíveis em `/profissionais` conforme as regras atuais de visibilidade.
+
+Arquivos principais: `src/components/ProviderRegistrationForm.tsx`, `src/lib/ProviderRegistration.ts`, `src/services/ProviderRegistrationApi.ts` e `src/styles/provider-registration.module.css`.
+
+Verificação: execute os comandos do [guia de testes](../test/README.md#cadastro-de-prestador). Para conferir manualmente com a API real, prepare o banco pelas migrations existentes, inicie backend/frontend, cadastre dados de teste legítimos, entre com a conta e busque seu nome em `/profissionais`. Esse roteiro grava no banco selecionado; prefira ambiente de testes.
 
 ## O que essa funcionalidade faz
 
@@ -102,3 +136,20 @@ encaminha ao NestJS; confirmação de senha não é enviada. CSS Modules preserv
 o visual com escopo por tela. Não existe mais cópia de HTML para public.
 
 Veja o [README](../README.md) e os [testes](../test/README.md).
+
+### Ajuste visual de login e cadastro de cliente (02/11/2026)
+
+O login usa espaçamentos próprios, adaptados à altura disponível, sem alterar as dimensões dos campos dos cadastros. Foi verificado sem rolagem vertical entre 320 × 568 e 1440 × 900 px, incluindo o alerta de credenciais inválidas. Não há bloqueio de rolagem: zoom, teclado virtual ou mensagens excepcionalmente longas continuam permitindo acessar todo o conteúdo.
+
+O painel esquerdo do cadastro de cliente substitui o depoimento por uma ilustração de colmeia e três etapas: encontrar profissionais, comparar serviços e conversar para combinar os detalhes. Reutiliza o estilo do painel do prestador, sem avaliações ou promessas fictícias. Permanece oculto até 768 px. A preferência por movimento reduzido também desativa as animações dos campos.
+
+O painel do prestador acompanha a extensão do formulário com orientações ilustradas para apresentar experiência e certificações, descrever o primeiro serviço e alinhar o atendimento por mensagem. Inclui cuidado com dados pessoais e um fechamento visual, sem métricas, depoimentos ou promessas fictícias. O conteúdo complementar é exclusivo desse cadastro e permanece oculto no celular.
+
+### Alinhamento entre telas de autenticação
+
+Login e cadastros usam as mesmas posições de navegação, logo, título e descrição do painel esquerdo. O início dos formulários compartilha uma posição responsiva pela altura da janela, sem depender do tamanho total de cada formulário. Margens do logo e etiqueta de boas-vindas também são compartilhadas. A área de rolagem reserva uma largura estável nessas páginas para evitar deslocamentos horizontais ao trocar entre login e cadastro; o login continua sem rolagem nas dimensões verificadas. Em telas estreitas, o link superior usa tamanho ajustado para não sobrepor Voltar.
+
+
+## Evolução planejada: conta única
+
+O [plano de conta única](../../backend/docs/CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.

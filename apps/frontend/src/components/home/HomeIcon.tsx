@@ -1,5 +1,9 @@
 import type { CSSProperties } from "react";
 const paths = {
+  phone: "M5 3h4l2 5-3 2a16 16 0 0 0 6 6l2-3 5 2v4c-10 3-20-7-16-16z",
+  mail: "M3 5h18v14H3z M3 5l9 7 9-7",
+  lock: "M5 11h14v10H5z M8 11V7a4 4 0 0 1 8 0v4",
+  money: "M12 2v20 M17 6H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H6",
   home: "M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z",
   users:
     "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M22 21v-2a4 4 0 0 0-3-3.87 M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M16 3a4 4 0 0 1 0 8",

@@ -1,5 +1,7 @@
 # Como executar os testes de persistência do HIVE
 
+Para validar o cadastro de prestador integrado ao catálogo, execute `npm run test:profissionais`: a suíte verifica criação via `POST /prestadores`, visibilidade pública, preço persistido, login e rejeição de duplicidade. O executor usa `TEST_DATABASE_URL` local, exige permissão CREATEDB e cria/remove somente seu banco `hive_professionals_<uuid>_test`. Não reseta o banco configurado. Os testes da nova tela são separados e usam API simulada; veja [testes do frontend](../../frontend/test/README.md#cadastro-de-prestador).
+
 Este guia mostra como testar a transferência dos objetos de `src/models` para
 o PostgreSQL pelo Prisma, consultar os dados fictícios e removê-los depois.
 
