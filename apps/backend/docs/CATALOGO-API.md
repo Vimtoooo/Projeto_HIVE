@@ -5,9 +5,10 @@ O AppModule carrega CatalogoModule. O fluxo segue o diagrama:
 O retorno percorre o caminho inverso em JSON. O cadastro usa as classes
 Prestador e Servico, com a transação de PersistenciaService já existente.
 
-Escopo: **cadastro de prestador com serviço inicial e busca**. A tela estática
-de login ainda não consome esses endpoints. Contratação, pagamento, avaliação
-e autenticação não são endpoints desta entrega.
+Este guia cobre **cadastro de prestador com serviço inicial e busca**. O frontend
+Next.js consome o cadastro em `/cadastro/prestador` via proxy `/api/prestadores`;
+veja [campos e fluxo](../../frontend/docs/registration.md#cadastro-de-prestador).
+Os módulos de autenticação, contratação e avaliação são documentados separadamente.
 
 ## Configurar e iniciar
 
@@ -26,11 +27,13 @@ caracteres especiais da senha na URL; nunca inclua credenciais reais em commits.
 O adaptador atual é `@prisma/adapter-pg`; as configurações RSA do MySQL não se aplicam.
 Defina `DOTENV_CONFIG_PATH=.env/.env` no terminal conforme o README do backend.
 
-Para a API normal, prepare o schema do banco `DATABASE_URL` revisando as
-alterações (`npx prisma db push`, sem aceitar perda de dados) e execute
+Para a API normal, prepare o schema do banco `DATABASE_URL` com as migrations
+versionadas (`npm run db:migrate:deploy`) e execute
 `npm run start:dev`. As rotas leem e gravam nesse banco. Para demonstrações, use o seed local protegido descrito no README do Prisma.
 
 ## POST /prestadores
+
+O nome deve ter 3–191 caracteres, com letras Unicode e acentos; espaços, hífen e apóstrofos são aceitos entre partes do nome. Números, emojis e outros símbolos retornam 400. A mesma regra se aplica ao cadastro de clientes; não altera registros existentes.
 
 Cria **uma conta, o perfil de prestador e o primeiro serviço juntos**. Não
 reutiliza uma conta existente. Email, CPF ou CNPJ duplicados retornam 409 e
@@ -169,3 +172,8 @@ O lint continua verificando os models: foram corrigidos formatação, cast
 desnecessário e conversão explícita de Date, mantendo as regras habilitadas.
 Se o VS Code mantiver avisos antigos, execute `ESLint: Restart ESLint Server`
 e `TypeScript: Restart TS Server` pela paleta de comandos.
+
+
+## Evolução planejada: conta única
+
+O [plano de conta única](CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.

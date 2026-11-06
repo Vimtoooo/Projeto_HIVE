@@ -50,6 +50,10 @@ export class CadastroPrestadorDto {
   @Transform(texto)
   @IsString()
   @Length(3, 191)
+  @Matches(/^[\p{L}][\p{L}\p{M}]*(?:[ '’-][\p{L}][\p{L}\p{M}]*)*$/u, {
+    message:
+      'O nome deve conter somente letras, espaços, hífen ou apóstrofo entre partes do nome.',
+  })
   nome!: string;
 
   @Transform(texto)

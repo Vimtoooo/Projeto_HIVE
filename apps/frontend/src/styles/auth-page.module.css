@@ -108,7 +108,7 @@
   align-items: center;
   gap: 12px;
   text-decoration: none;
-  margin-bottom: 64px;
+  margin-bottom: 32px;
 }
 
 .logo-icon {
@@ -211,9 +211,9 @@
 ════════════════════════════ */
 .panel-right {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 48px 40px;
+  padding: clamp(80px, calc((100dvh - 560px) / 2), 220px) 40px 48px;
   background: var(--white);
   position: relative;
 }
@@ -295,7 +295,7 @@
   text-transform: uppercase;
   padding: 5px 12px;
   border-radius: var(--radius-pill);
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .form-title {
@@ -572,7 +572,7 @@
 }
 
 /* ── Responsivo ── */
-@media (max-width: 860px) {
+@media (max-width: 768px) {
   .page {
     grid-template-columns: 1fr;
   }
@@ -598,6 +598,9 @@
 }
 
 @media (max-width: 400px) {
+  .link-subscribe {
+    font-size: 0.75rem;
+  }
   .form-title {
     font-size: 1.6rem;
   }
@@ -611,4 +614,177 @@
 .screen button:disabled {
   opacity: 0.6;
   cursor: wait;
+}
+
+.personalFields {
+  border: 0;
+  min-width: 0;
+}
+.fieldHint {
+  color: #595959;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-top: 7px;
+}
+.fieldError {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-top: 7px;
+}
+.screen .form-input {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+.screen .form-input[aria-invalid="true"] {
+  border-color: #b91c1c;
+}
+.screen .form-input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px #b91c1c20;
+}
+.multiline .input-icon {
+  top: 16px;
+  transform: none;
+}
+.multiline textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .painel-left {
+    padding: 32px 24px;
+  }
+  .panel-right {
+    padding: clamp(80px, calc((100dvh - 560px) / 2), 220px) 24px 48px;
+  }
+  .btn-back {
+    left: 16px;
+    padding: 8px 10px;
+  }
+  .link-subscribe {
+    right: 16px;
+    font-size: 0.8rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .screen .form-group,
+  .screen .form-input,
+  .screen *,
+  .screen *::before,
+  .screen *::after {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Login compacto: mantém os controles acessíveis sem recortar o conteúdo. */
+.loginScreen .page {
+  min-height: 100dvh;
+}
+.loginScreen .panel-right {
+  min-height: 100dvh;
+  padding-bottom: 24px;
+}
+.loginScreen .form-greeting {
+  margin-bottom: 20px;
+}
+.loginScreen .form-greeting-tag {
+  margin-bottom: 8px;
+}
+.loginScreen .form-group {
+  margin-bottom: 14px;
+}
+.loginScreen .form-row {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+.loginScreen .error:empty {
+  margin: 0;
+}
+.loginScreen .btn-login {
+  margin-bottom: 10px;
+}
+.loginScreen .btn-register {
+  margin-bottom: 16px;
+}
+.loginScreen .divider {
+  margin-bottom: 12px;
+}
+.loginScreen .social-btns {
+  margin-bottom: 16px;
+}
+.loginScreen .painel-left {
+  gap: 24px;
+}
+@media (max-height: 740px) {
+  .screen .panel-right {
+    padding-top: 64px;
+    padding-bottom: 16px;
+  }
+  .screen .btn-back {
+    top: 16px;
+  }
+  .screen .link-subscribe {
+    top: 24px;
+  }
+  .loginScreen .form-greeting {
+    margin-bottom: 12px;
+  }
+  .loginScreen .form-group {
+    margin-bottom: 10px;
+  }
+  .loginScreen .form-row {
+    margin-bottom: 10px;
+  }
+  .loginScreen .btn-register,
+  .loginScreen .social-btns {
+    margin-bottom: 10px;
+  }
+  .screen .painel-left {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+  .screen .logo {
+    margin-bottom: 24px;
+  }
+  .loginScreen .testimonial {
+    padding: 16px;
+  }
+}
+@media (max-height: 620px) {
+  .screen .panel-right {
+    padding-top: 60px;
+    padding-bottom: 8px;
+  }
+  .loginScreen .form-label {
+    margin-bottom: 4px;
+  }
+  .loginScreen .form-group {
+    margin-bottom: 8px;
+  }
+  .loginScreen .error {
+    margin-bottom: 8px;
+  }
+  .screen .form-greeting-tag {
+    margin-bottom: 4px;
+  }
+  .loginScreen .form-greeting,
+  .loginScreen .divider {
+    margin-bottom: 8px;
+  }
+  .loginScreen .btn-login,
+  .loginScreen .btn-register {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .loginScreen .btn-social {
+    padding: 7px;
+  }
+}
+
+/* Reserva a mesma largura com ou sem rolagem durante a troca de tela. */
+:global(html):has(.screen) {
+  scrollbar-gutter: stable;
 }

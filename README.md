@@ -21,11 +21,19 @@ A arquitetura organiza regras em **classes de domínio**; o catálogo segue Cont
 
 ## Integração atual
 
+O cadastro de prestadores também está disponível na interface em `/cadastro/prestador`, acessível pelo login e cadastro de cliente. O formulário cria o perfil e o primeiro serviço pela API existente, valida os campos e direciona ao login após sucesso. Consulte o [guia de cadastro](apps/frontend/docs/registration.md#cadastro-de-prestador).
+
 A API REST NestJS/Prisma/PostgreSQL oferece cadastro de clientes e prestadores, catálogo de serviços, login com sessão HTTP-only, mensagens persistentes e fluxo de solicitações: criar, aceitar/recusar, concluir, cancelar e avaliar. Notificações persistentes avisam a contraparte sobre novas mensagens, alterações dos pedidos e avaliações recebidas. O frontend Next.js integra essas funções em páginas com navegação compartilhada. Pagamentos continuam no planejamento; JWT/RBAC amplo permanece como evolução da autorização atual por sessão e participação.
 
 Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
 
 A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrão 5432). Os bancos locais devem ser preparados no PostgreSQL; há uma migration inicial PostgreSQL validada, e o SQL MySQL foi arquivado. Como os dados legados são fictícios, serão recriados pelo seed; não há cópia automática. Consulte o [guia do Prisma](apps/backend/prisma/README.md#preparação-para-postgresql).
+
+## Próximo requisito planejado: conta única
+
+**Estado: plano documentado, implementação pendente.** A prioridade proposta é permitir contratar e prestar serviços com a mesma conta. Analogia: um eletricista recebe pedidos de instalações e contrata um pintor para sua casa pelo mesmo login. O papel muda conforme o pedido; a identidade e o histórico permanecem.
+
+Hoje, o cadastro profissional cria `PRESTADOR`, que não pode solicitar serviços; `AMBOS` já é reconhecido pelo fluxo de pedidos, mas ainda falta a ativação profissional de clientes e a transição das contas existentes. Consulte o [plano de conta única, regras de negócio e critérios de aceite](apps/backend/docs/CONTA-UNICA.md). A página dedicada de perfil público permanece no backlog, após essa prioridade proposta.
 
 ## 🛠️ Stack Tecnológica
 
@@ -222,7 +230,7 @@ O cliente pode avaliar uma única vez cada pedido concluído, com nota inteira d
 | Central de Ajuda | Implementado | Guias, busca e perguntas frequentes, sem chamados |
 | Profissionais | Implementado | Catálogo real com busca, paginação, detalhes, conversa e solicitação |
 | Favoritos | Implementado | Profissionais reais salvos por conta; exemplos locais separados |
-| Cadastro de prestador pela interface | Próxima tarefa | Implementação em uma branch própria após o fechamento desta entrega |
+| Cadastro de prestador pela interface | Implementado | `/cadastro/prestador`, integrado ao POST `/prestadores`; veja o [guia](apps/frontend/docs/registration.md#cadastro-de-prestador) |
 
 O [plano da barra lateral](apps/frontend/docs/sidebar-roadmap.md) registra a ordem e os limites. Cada seção tem testes e commit próprios; o desenvolvimento pausa antes da próxima.
 
@@ -230,7 +238,19 @@ A [Central de Ajuda](apps/frontend/docs/help.md) está disponível em `/ajuda`, 
 Os [favoritos da conta](apps/frontend/docs/favorites.md) estão em `/favoritos`; aplique a migration aditiva com `npm run db:migrate:deploy` no backend.
 O [catálogo de profissionais](apps/frontend/docs/professionals.md) está em `/profissionais`, com prestadores disponíveis do banco e integração com mensagens e pedidos.
 
+## Colaboração e documentação
+
+As regras compartilhadas de trabalho estão em [AGENTS.md](AGENTS.md), complementadas por instruções nas aplicações e referenciadas pelos arquivos CLAUDE.md. Cada entrega deve atualizar os READMEs e guias afetados, explicando **o que mudou e por quê**. Essa regra mantém o contexto de uso e manutenção alinhado ao código, inclusive entre conversas e agentes diferentes.
+
+Os guias de [delegação](engineering/ai-workflow.md), [revisão](engineering/review.md), [CI](engineering/ci.md) e [configuração de agentes](engineering/ai-config.md) descrevem responsabilidades, verificações e limites. Os perfis ficam em `.codex/agents` e os procedimentos reutilizáveis em `.agents/skills`; sua existência não autoriza delegação automática nem amplia permissões.
+
+Documentação duradoura e necessária à equipe é versionada nos READMEs, em `apps/*/docs` e em `engineering/`. A pasta `docs/` da raiz permanece local e ignorada: contém prompts de continuidade, rascunhos e ferramentas locais de validação. Nenhuma instrução essencial para executar ou manter o projeto deve depender dela; procedimentos de preparação dessas ferramentas estão nos guias versionados.
+
 ## 📈 Roadmap
+
+- [x] Padronizar cadastros com validação por campo e cards reais da Home com preço e avaliações.
+- [ ] Implementar [conta única para contratar e prestar serviços](apps/backend/docs/CONTA-UNICA.md), incluindo ativação profissional e tratamento das contas existentes (próxima prioridade proposta; plano pronto, código pendente).
+- [ ] Desenvolver página dedicada de perfil público do prestador (backlog após conta única; atualmente existe o painel de detalhes no catálogo).
 
 - [x] Modelagem de Domínio e Validações de Integridade.
 - [x] Integração inicial com Prisma ORM e MySQL (histórico).

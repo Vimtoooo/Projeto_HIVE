@@ -9,6 +9,10 @@ modal e o conteúdo se reorganiza sem rolagem horizontal da página.
 
 ## O que funciona
 
+- O convite **Quero ser profissional** leva a `/cadastro/prestador`. O bloco aparece para visitantes e contratantes; fica oculto para `PRESTADOR` e `AMBOS`, durante a consulta inicial ou se não for possível confirmar a sessão. A decisão usa `/sessao`, com atualização ao trocar de conta ou voltar à janela, sem confiar apenas no armazenamento local.
+- A seção **Profissionais cadastrados** usa `/profissionais`, com paginação por prestador, preço inicial, quantidade de serviços e avaliações reais. Os cards seguem a composição visual dos demonstrativos, mas usam iniciais, **Sem avaliações** quando aplicável e **Distância indisponível**, pois fotografia e geolocalização não estão implementadas. Favoritos e conversas são persistentes; **Ver detalhes** abre o painel existente em `/profissionais?profissional=<id>`.
+- Carregamento, lista vazia e erro são estados distintos. Uma falha ao carregar a próxima página preserva os cards existentes e oferece nova tentativa.
+
 - Saudação e perfil com nome retornado pelo login; visitante sem identificação.
 - Busca por nome, profissão ou descrição, com normalização de acentos e caixa.
 - Filtros de profissão e favoritos combináveis; limpar filtros e estado vazio.
@@ -19,7 +23,7 @@ modal e o conteúdo se reorganiza sem rolagem horizontal da página.
 
 ## Dados e limites
 
-DemoProfessionals.ts contém nove perfis fictícios editáveis, com retratos sintéticos gerados por IA. As fotos não representam os usuários reais do banco. Osasco é uma região ilustrativa; o app
+As informações fictícias descritas neste parágrafo pertencem somente às seções demonstrativas, separadas dos profissionais cadastrados. DemoProfessionals.ts contém nove perfis fictícios editáveis, com retratos sintéticos gerados por IA. As fotos não representam os usuários reais do banco. Osasco é uma região ilustrativa; o app
 não consulta GPS. Avaliações, distâncias, preços e popularidade não foram
 verificados nem recebidos da API. Nenhuma contratação é criada pelos botões.
 
@@ -30,6 +34,9 @@ CPF ou endereço. Armazenamento corrompido é ignorado; indisponível usa memór
 Ao sair, os dados de apresentação e favoritos do usuário atual são removidos.
 
 ## Organização
+
+- RegisteredProfessionalCard.tsx: apresentação dos profissionais reais com dados resumidos do catálogo, sem consulta individual por card.
+- ProviderInvitation.tsx: convite de cadastro condicionado à sessão retornada pela API.
 
 - HomeDashboard.tsx: estado e composição da Home.
 - ProfessionalCard.tsx: cartão e ações do perfil.
@@ -65,6 +72,15 @@ Siga o [roteiro completo de mensagens](messages.md) para configurar a migration 
 
 `public/images/demo-professionals.webp` deriva de uma imagem gerada pela ferramenta integrada image_gen, otimizada localmente para WebP. Prompt: uma grade fotográfica 3×3 de nove adultos inteiramente fictícios, homens e mulheres com aparências variadas, enquadramento de rosto e ombros, iluminação natural consistente, fundos neutros, sem texto ou marcas. Nenhum retrato foi associado a uma conta real.
 
+## Próxima etapa proposta: perfil público do prestador
+
+Desenvolver uma página dedicada de perfil público do prestador é uma das próximas etapas propostas. O painel de detalhes em `/profissionais` já existe e continua sendo usado pelos cards; não equivale à futura página dedicada. O escopo dessa página, fotografia e demais evoluções ainda devem ser definidos antes da implementação.
+
 ## Navegação para mensagens
 
 Mensagens agora abre a página `/mensagens` com a navegação compartilhada da Home. Os cards de profissionais cadastrados e de histórico direcionam para a conversa selecionada. Veja [o guia de mensagens](messages.md) para comportamento, protótipos e limites.
+
+
+## Evolução planejada: conta única
+
+O [plano de conta única](../../backend/docs/CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.

@@ -4,17 +4,20 @@ import Link from "next/link";
 import {
   ApiError,
   history,
-  providers,
   session,
   startConversation,
 } from "../../services/MessagingApi";
 import type {
   Conversation,
   PreviousProvider,
-  Provider,
 } from "../../services/MessagingApi";
 import { rememberViewer, writeStored, VIEWER_KEY } from "../../lib/ViewerStore";
-import FavoriteButton from "../favorites/FavoriteButton";
+import {
+  professionalsList,
+  type ProfessionalSummary,
+} from "../../services/ProfessionalsApi";
+import RegisteredProfessionalCard from "./RegisteredProfessionalCard";
+import homeStyles from "../../styles/home-page.module.css";
 import HomeIcon from "./HomeIcon";
 import styles from "../../styles/conversations.module.css";
 export default function ConnectedProfessionals({
@@ -22,11 +25,12 @@ export default function ConnectedProfessionals({
 }: {
   onConversation: (c: Conversation) => void;
 }) {
-  const [catalog, setCatalog] = useState<Provider[]>([]);
+  const [catalog, setCatalog] = useState<ProfessionalSummary[]>([]);
   const [previous, setPrevious] = useState<PreviousProvider[]>([]);
   const [user, setUser] = useState<number | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [login, setLogin] = useState(false);
+  const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState("");
   const [historyError, setHistoryError] = useState("");
   const [actionError, setActionError] = useState("");
@@ -36,7 +40,7 @@ export default function ConnectedProfessionals({
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     let alive = true;
-    providers(page)
+    professionalsList(`pagina=${page}&limite=12`)
       .then((data) => {
         if (alive) {
           setCatalog((old) => [
@@ -47,7 +51,7 @@ export default function ConnectedProfessionals({
               ]),
             ).values(),
           ]);
-          setMore(data.temMais);
+          setMore(data.pagina * data.limite < data.total);
           setCatalogError("");
         }
       })
@@ -56,6 +60,9 @@ export default function ConnectedProfessionals({
           setCatalogError(
             e instanceof Error ? e.message : "Falha ao carregar profissionais.",
           );
+      })
+      .finally(() => {
+        if (alive) setCatalogLoading(false);
       });
     return () => {
       alive = false;
@@ -141,7 +148,13 @@ export default function ConnectedProfessionals({
         {historyError && (
           <p role="alert">
             {historyError}{" "}
-            <button type="button" onClick={() => setRetry((v) => v + 1)}>
+            <button
+              type="button"
+              onClick={() => {
+                setCatalogLoading(true);
+                setRetry((v) => v + 1);
+              }}
+            >
               Tentar novamente
             </button>
           </p>
@@ -189,39 +202,44 @@ export default function ConnectedProfessionals({
         {catalogError && (
           <p role="alert">
             {catalogError}{" "}
-            <button type="button" onClick={() => setRetry((v) => v + 1)}>
+            <button
+              type="button"
+              onClick={() => {
+                setCatalogLoading(true);
+                setRetry((v) => v + 1);
+              }}
+            >
               Tentar novamente
             </button>
           </p>
         )}
-        {!catalogError && !catalog.length && (
-          <p>Nenhum profissional disponível nesta lista.</p>
-        )}
-        <div className={styles.providerGrid}>
+        {catalogLoading && <p role="status">Carregando profissionais…</p>}
+        {!catalogLoading &&
+          !catalogError &&
+          !catalog.filter((p) => p.idPrestador !== user).length && (
+            <p>Nenhum profissional disponível nesta lista.</p>
+          )}
+        <div className={homeStyles.registeredGrid}>
           {catalog
             .filter((p) => p.idPrestador !== user)
             .map((p) => (
-              <article
+              <RegisteredProfessionalCard
                 key={p.idPrestador}
-                aria-label={"Profissional cadastrado: " + p.nome}
-              >
-                <span className={styles.initial}>{p.nome.charAt(0)}</span>
-                <h3>{p.nome}</h3>
-                <p>{p.areaAtuacao}</p>
-                <FavoriteButton id={p.idPrestador} name={p.nome} />
-                <button
-                  type="button"
-                  disabled={busy !== null}
-                  onClick={() => void contact(p.idPrestador)}
-                >
-                  {busy === p.idPrestador ? "Abrindo…" : "Enviar mensagem"}{" "}
-                  <HomeIcon name="message" size={17} />
-                </button>
-              </article>
+                professional={p}
+                busy={busy}
+                onMessage={() => void contact(p.idPrestador)}
+              />
             ))}
         </div>
         {more && (
-          <button type="button" onClick={() => setPage((p) => p + 1)}>
+          <button
+            type="button"
+            disabled={catalogLoading || Boolean(catalogError)}
+            onClick={() => {
+              setCatalogLoading(true);
+              setPage((p) => p + 1);
+            }}
+          >
             Ver mais profissionais
           </button>
         )}

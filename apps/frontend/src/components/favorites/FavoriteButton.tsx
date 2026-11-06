@@ -4,20 +4,28 @@ import Link from "next/link";
 import { useFavorites } from "./FavoritesProvider";
 import HomeIcon from "../home/HomeIcon";
 import styles from "../../styles/favorites-page.module.css";
+import homeStyles from "../../styles/home-page.module.css";
 export default function FavoriteButton({
   id,
   name,
+  compact = false,
 }: {
   id: number;
   name: string;
+  compact?: boolean;
 }) {
   const { data, loading, busy, unauthorized, change, refresh } = useFavorites();
   const saved = Boolean(data?.itens.some((p) => p.idPrestador === id));
   const [error, setError] = useState("");
   return (
-    <div className={styles.action}>
+    <div className={compact ? homeStyles.compactFavorite : styles.action}>
       <button
         type="button"
+        className={
+          compact
+            ? `${homeStyles.favorite} ${saved ? homeStyles.saved : ""}`
+            : undefined
+        }
         aria-pressed={saved}
         aria-label={`${saved ? "Remover dos favoritos" : "Favoritar"}: ${name}`}
         disabled={loading || busy}
@@ -33,7 +41,12 @@ export default function FavoriteButton({
         }}
       >
         <HomeIcon name="heart" size={17} />
-        {loading ? "Consultando…" : saved ? "Salvo nos favoritos" : "Favoritar"}
+        {!compact &&
+          (loading
+            ? "Consultando…"
+            : saved
+              ? "Salvo nos favoritos"
+              : "Favoritar")}
       </button>
       {error && (
         <div role="alert">

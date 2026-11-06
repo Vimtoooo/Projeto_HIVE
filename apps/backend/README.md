@@ -1,5 +1,9 @@
 # Backend do HIVE
 
+Os cadastros `POST /clientes` e `POST /prestadores` validam nomes com letras Unicode, acentos, espaços, hífen e apóstrofos entre partes (3–191 caracteres); nomes com números ou símbolos são rejeitados com 400. Nenhuma migration é necessária e os registros existentes não são modificados. A suíte de profissionais verifica a regra nos dois endpoints.
+
+O frontend oferece `/cadastro/prestador` usando o contrato existente de `POST /prestadores`, sem migration adicional. A suíte `npm run test:profissionais` inclui cadastro HTTP, consulta do novo perfil/serviço, preço persistido, login e duplicidade em banco descartável. Veja o [guia de cadastro](../frontend/docs/registration.md#cadastro-de-prestador).
+
 Avaliações definitivas disponíveis em `POST /solicitacoes/:id/avaliacao` e leitura pública em `GET /profissionais/:id/avaliacoes`. Aplique a migration `20261003000000_review_notifications` e execute `npm run test:avaliacoes` para validar em banco descartável. Veja [regras e preparação](../frontend/docs/reviews.md).
 
 API REST NestJS com Prisma 7 e PostgreSQL, integrada ao frontend Next.js. Oferece cadastro de clientes e prestadores, catálogo, login por sessão HTTP-only, mensagens persistentes, solicitações de serviços com criação, aceite/recusa, conclusão e cancelamento, além de notificações por conta desses eventos.
@@ -366,3 +370,8 @@ Não há migration nova. Teste com `npm run test:profissionais` em PostgreSQL de
 A migration aditiva `20261002000000_favorites` cria `Favorito`, com chave composta `(usuarioId, prestadorId)`, data de criação e FKs com exclusão em cascata. Preserva os registros existentes. Aplique `npm run db:migrate:deploy` e gere o client com `npm run prisma:generate`; reinicie o backend, sem reset.
 
 `GET /favoritos`, `PUT /favoritos/:prestadorId` e `DELETE /favoritos/:prestadorId` exigem sessão; escritas exigem `X-Hive-Request: 1`. Não aceitam identidade enviada no corpo. PUT/DELETE são idempotentes; indisponíveis permanecem removíveis. `npm run test:favoritos` verifica migrations e integração em PostgreSQL descartável, sem limpar o banco da aplicação. O reset de dados já remove vínculos por cascata; nenhum favorito é adicionado pelo seed.
+
+
+## Evolução planejada: conta única
+
+O [plano de conta única](docs/CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.

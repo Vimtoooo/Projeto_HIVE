@@ -3,15 +3,16 @@ import { useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  ValidatedRegistration,
+  PersonalRegistrationFields,
+} from "./RegistrationFields";
 import Image from "next/image";
+import HomeIcon from "./home/HomeIcon";
+import stepsStyles from "../styles/provider-registration.module.css";
 import styles from "../styles/auth-page.module.css";
 import { register } from "../services/ApiClient";
-import {
-  formatCpf,
-  formatPhone,
-  registrationInput,
-  validateRegistration,
-} from "../lib/FormValidation";
+import { registrationInput, validateRegistration } from "../lib/FormValidation";
 export default function RegistrationForm() {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -77,23 +78,53 @@ export default function RegistrationForm() {
               perto de você.
             </p>
           </div>
-          <blockquote className={styles["testimonial"]}>
-            <p className={styles["testimonial-quote"]}>
-              &quot;Encontrei um eletricista certificado em menos de 10 minutos.
-              O serviço ficou impecável e o preço foi justo. Indico o HIVE para
-              todos!&quot;
-            </p>
-            <div className={styles["testimonial-author"]}>
-              <div className={styles["testimonial-avatar"]}>A</div>
-              <div>
-                <div className={styles["testimonial-name"]}>Ana Rodrigues</div>
-                <div className={styles["testimonial-role"]}>
-                  Usuária desde 2024 · São Paulo
+          <div className={stepsStyles.steps}>
+            <svg
+              className={stepsStyles.honeycomb}
+              viewBox="0 0 240 110"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <path d="m45 5 39 23v46L45 97 6 74V28z M123 5l39 23v46l-39 23-39-23V28z M201 5l33 23v46l-33 23-39-23V28z" />
+              <circle cx="41" cy="46" r="11" />
+              <path d="m49 54 12 12 M110 38h26v30h-26z M116 47h14 M116 55h10 M186 38h29v22h-17l-9 8v-8h-3z" />
+            </svg>
+            <h2>Seu próximo serviço começa aqui</h2>
+            <ol>
+              <li>
+                <HomeIcon name="search" />
+                <div>
+                  <h3>Encontre profissionais</h3>
+                  <p>
+                    Explore as áreas de atuação e encontre quem oferece o
+                    serviço de que você precisa.
+                  </p>
                 </div>
-              </div>
-              <div className={styles["testimonial-stars"]}>★★★★★</div>
-            </div>
-          </blockquote>
+              </li>
+              <li>
+                <HomeIcon name="clipboard" />
+                <div>
+                  <h3>Compare os serviços</h3>
+                  <p>
+                    Confira descrições, preços e avaliações disponíveis para
+                    escolher com mais informação.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <HomeIcon name="message" />
+                <div>
+                  <h3>Converse e combine</h3>
+                  <p>
+                    Tire dúvidas pelo HIVE e combine os detalhes do serviço
+                    diretamente com o profissional.
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </div>
         </aside>
         <main className={styles["panel-right"]}>
           <Link href="/login" className={styles["btn-back"]}>
@@ -123,214 +154,17 @@ export default function RegistrationForm() {
               </p>
             </div>
 
-            <form id="registerForm" onSubmit={handleSubmit}>
-              <div className={styles["form-group"]}>
-                <label className={styles["form-label"]} htmlFor="nome">
-                  Nome completo
-                </label>
-                <div className={styles["input-wrap"]}>
-                  <svg
-                    className={styles["input-icon"]}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 21v-1a8 8 0 0 1 16 0v1" />
-                  </svg>
-                  <input
-                    className={styles["form-input"]}
-                    type="text"
-                    id="nome"
-                    name="nome"
-                    placeholder="Seu nome completo"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles["form-group"]}>
-                <label className={styles["form-label"]} htmlFor="cpf">
-                  CPF
-                </label>
-                <div className={styles["input-wrap"]}>
-                  <svg
-                    className={styles["input-icon"]}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="3" y="4" width="18" height="16" rx="2" />
-                    <line x1="7" y1="9" x2="17" y2="9" />
-                    <line x1="7" y1="13" x2="13" y2="13" />
-                  </svg>
-                  <input
-                    className={styles["form-input"]}
-                    type="text"
-                    id="cpf"
-                    onChange={(event) => {
-                      event.currentTarget.value = formatCpf(
-                        event.currentTarget.value,
-                      );
-                    }}
-                    name="cpf"
-                    placeholder="000.000.000-00"
-                    maxLength={14}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className={styles["form-group"]}>
-                <label className={styles["form-label"]} htmlFor="telefone">
-                  Telefone
-                </label>
-                <div className={styles["input-wrap"]}>
-                  <svg
-                    className={styles["input-icon"]}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
-                  <input
-                    className={styles["form-input"]}
-                    type="text"
-                    id="telefone"
-                    onChange={(event) => {
-                      event.currentTarget.value = formatPhone(
-                        event.currentTarget.value,
-                      );
-                    }}
-                    name="telefone"
-                    placeholder="(11) 99999-9999"
-                    maxLength={15}
-                    required
-                  />
-                </div>
-              </div>
-              <div className={styles["form-group"]}>
-                <label className={styles["form-label"]} htmlFor="endereco">
-                  Endereço
-                </label>
-                <div className={styles["input-wrap"]}>
-                  <svg
-                    className={styles["input-icon"]}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  <input
-                    className={styles["form-input"]}
-                    type="text"
-                    id="endereco"
-                    name="endereco"
-                    placeholder="Rua, número, bairro"
-                    required
-                  />
-                </div>
-              </div>
-              <div className={styles["form-group"]}>
-                <label className={styles["form-label"]} htmlFor="email">
-                  E-mail
-                </label>
-                <div className={styles["input-wrap"]}>
-                  <svg
-                    className={styles["input-icon"]}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                  <input
-                    className={styles["form-input"]}
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="seu@email.com"
-                    required
-                  />
-                </div>
-              </div>
-              <div className={styles["form-group"]}>
-                <label className={styles["form-label"]} htmlFor="senha">
-                  Senha
-                </label>
-                <div className={styles["input-wrap"]}>
-                  <svg
-                    className={styles["input-icon"]}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  <input
-                    className={styles["form-input"]}
-                    type="password"
-                    id="senha"
-                    name="senha"
-                    placeholder="Mínimo 8 caracteres"
-                    required
-                  />
-                </div>
-              </div>
-              <div className={styles["form-group"]}>
-                <label
-                  className={styles["form-label"]}
-                  htmlFor="confirmarSenha"
-                >
-                  Confirmar senha
-                </label>
-                <div className={styles["input-wrap"]}>
-                  <svg
-                    className={styles["input-icon"]}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  <input
-                    className={styles["form-input"]}
-                    type="password"
-                    id="confirmarSenha"
-                    name="confirmarSenha"
-                    placeholder="Repita a senha"
-                    required
-                  />
-                </div>
-              </div>
-
+            <Link href="/cadastro/prestador" className={styles["btn-register"]}>
+              Quero me cadastrar como prestador
+            </Link>
+            <ValidatedRegistration
+              id="registerForm"
+              onSubmit={handleSubmit}
+              pending={pending}
+            >
+              <fieldset disabled={pending} className={styles.personalFields}>
+                <PersonalRegistrationFields />
+              </fieldset>
               <span id="erro" role="alert" className={styles.error}>
                 {error}
               </span>
@@ -342,7 +176,7 @@ export default function RegistrationForm() {
               >
                 {pending ? "Cadastrando..." : "Cadastrar"}
               </button>
-            </form>
+            </ValidatedRegistration>
             <p className={styles["switch-account"]}>
               Já tem conta? <Link href="/login">Entrar</Link>
             </p>

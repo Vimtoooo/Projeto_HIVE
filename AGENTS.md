@@ -17,6 +17,19 @@
 - Use os testes de integração com bancos descartáveis documentados. Confira destino e migrations antes de modificar o banco local. Nunca registre credenciais, cookies de sessão ou conteúdo de arquivos de ambiente em documentação ou logs compartilhados.
 - Não inicie agentes paralelos por padrão. Se o usuário autorizar, distribua escopos sem edições concorrentes nos mesmos arquivos.
 
+## Delegação
+
+Quando o usuário solicitar delegação, siga [o acordo de trabalho](engineering/ai-workflow.md). O coordenador define objetivos, responsáveis por arquivos e critérios de aceite; agentes retornam evidências e não ampliam o escopo. Use execução sequencial quando houver dependência ou disputa pelos mesmos arquivos.
+
+## Documentação acompanha a implementação
+
+- Ao adicionar ou alterar uma funcionalidade, correção ou melhoria técnica, atualize na mesma entrega os READMEs afetados e os guias relacionados. Documentação coerente faz parte dos critérios de conclusão, não é uma tarefa opcional para outra conversa.
+- Descreva o que mudou, por que a mudança foi necessária e seu efeito para quem usa ou mantém o projeto. Registre apenas motivos confirmados; não invente justificativas ou benefícios sem evidência.
+- Atualize o README da raiz quando mudar a visão geral, capacidades, arquitetura, estrutura ou execução do projeto. Atualize os READMEs das aplicações e áreas envolvidas para detalhes locais; não altere READMEs sem relação com a entrega apenas para cumprir esta regra.
+- Revise instruções de uso, configuração, comandos, contratos, migrations, testes e limitações conforme o impacto real. Distinga o que está implementado do que permanece planejado. Prefira atualizar as seções existentes e vincular guias detalhados a duplicar conteúdo ou acumular um diário de conversas.
+- Confira caminhos e comandos documentados. Se uma alteração interna não exigir mudança em nenhum README, explique brevemente essa ausência de impacto no fechamento, em vez de acrescentar texto artificial.
+- Documentação necessária à equipe deve ser versionada nos READMEs, em `apps/*/docs` ou em `engineering/`. Mantenha prompts pessoais, rascunhos, estado transitório, ambientes virtuais e segredos fora dessa documentação compartilhada.
+
 ## Conclusão e parada da branch
 
 1. Identifique o requisito principal, os critérios de aceite e os limites da entrega antes de implementar. Se já estiverem documentados, reutilize-os.
@@ -49,3 +62,9 @@ Crie documentos auxiliares apenas quando decisões ou procedimentos não coubere
 - `AGENTS.md` é a fonte das regras compartilhadas; os `CLAUDE.md` correspondentes apenas referenciam os arquivos aplicáveis.
 - Mantenha regras estáveis aqui e estado temporário no prompt de continuidade. Não acrescente instruções redundantes a cada tarefa.
 - Estas instruções orientam o agente; não substituem permissões, sandbox e aprovações do ambiente.
+
+## Code Review Rules
+
+- Revise o diff contra a base informada e os critérios de aceite, seguindo `engineering/review.md`. Não transforme uma revisão em implementação.
+- Priorize autorização por conta/participante, exposição de dados, integridade de transações, concorrência e compatibilidade dos contratos frontend/backend.
+- Informe apenas problemas sustentados por evidência, com arquivo/linha, impacto e cenário de reprodução. Separe sugestões opcionais de impedimentos da entrega.

@@ -3,6 +3,7 @@
 Aplicam-se também as orientações de `../../AGENTS.md`, incluindo encerramento da branch e prompt de continuidade.
 
 - Consulte `README.md` para execução e o guia da funcionalidade em `docs/` para requisitos. `docs/sidebar-roadmap.md` registra o escopo da barra lateral, não uma autorização para novas funcionalidades.
+- Siga a regra de documentação da raiz: atualize o README do frontend e os guias afetados quando mudar telas, fluxos ou execução, descrevendo o que mudou e por quê; atualize também a visão geral da raiz quando necessário.
 - Preserve o shell compartilhado, o padrão de painéis e os CSS Modules existentes. Confira desktop, celular, teclado e estados de carregamento, erro e ausência de dados nas telas alteradas.
 - Mantenha interatividade nos Client Components e use os clientes HTTP de `src/services`, com validação das respostas e tratamento de sessão. A API é a autoridade sobre identidade, permissões e valores.
 - Não apresente dados demonstrativos como reais. Não invente dados para contornar campos obrigatórios de contratos do backend.

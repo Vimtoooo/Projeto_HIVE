@@ -20,6 +20,26 @@ test.beforeEach(async ({ page }) => {
     r.fulfill({ json: { usuarioId: 7, naoLidas: 0, ateId: 0 } }),
   );
   await page.route("**/api/sessao", (route) => route.fulfill({ json: user }));
+  await page.route("**/api/favoritos", (route) =>
+    route.fulfill({ json: { usuarioId: 7, itens: [] } }),
+  );
+  await page.route("**/api/profissionais?*", (route) =>
+    route.fulfill({
+      json: {
+        itens: [
+          {
+            ...provider,
+            precoInicial: 100,
+            quantidadeServicos: 1,
+            avaliacao: { media: null, quantidade: 0 },
+          },
+        ],
+        total: 1,
+        pagina: 1,
+        limite: 12,
+      },
+    }),
+  );
   await page.route("**/api/servicos?*", (route) =>
     route.fulfill({ json: { itens: [{ prestador: provider }], total: 1 } }),
   );
@@ -166,7 +186,7 @@ test("conversa no celular, histórico vazio, sessão expirada e retratos locais"
   );
   await page
     .getByRole("article", { name: "Profissional cadastrado: Carlos do Banco" })
-    .getByRole("button", { name: "Enviar mensagem" })
+    .getByRole("button", { name: "Conversar com Carlos do Banco" })
     .click();
   await expect(page.getByLabel("Sua mensagem")).toBeVisible();
   expect(

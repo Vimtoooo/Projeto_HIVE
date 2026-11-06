@@ -52,6 +52,9 @@ export async function mockHomeApi(page: Page) {
         : { status: 401, json: { message: "Entre novamente para continuar." } },
     );
   });
+  await page.route("**/api/profissionais?*", (route) =>
+    route.fulfill({ json: { itens: [], total: 0, pagina: 1, limite: 12 } }),
+  );
   await page.route("**/api/servicos?*", (route) =>
     route.fulfill({ json: { itens: [], total: 0 } }),
   );
