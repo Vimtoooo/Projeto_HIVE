@@ -1,4 +1,5 @@
 "use client";
+import { useAccountSession } from "../../lib/useAccountSession";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -33,7 +34,21 @@ const date = (value: string) =>
   });
 export default function RequestsWorkspace() {
   const params = useSearchParams();
-  return <RequestsContent key={params.toString()} query={params.toString()} />;
+  const account = useAccountSession();
+  if (account.loading) return <p role="status">Consultando sua sessão…</p>;
+  if (account.error)
+    return (
+      <div role="alert">
+        {account.error}{" "}
+        <button onClick={() => void account.refresh()}>Tentar novamente</button>
+      </div>
+    );
+  return (
+    <RequestsContent
+      key={`${account.user?.idUsuario ?? "guest"}:${params.toString()}`}
+      query={params.toString()}
+    />
+  );
 }
 function RequestsContent({ query }: { query: string }) {
   const router = useRouter(),
@@ -190,7 +205,7 @@ function RequestsContent({ query }: { query: string }) {
           </h1>
           <p>Acompanhe cada pedido e combine os próximos passos.</p>
         </div>
-        {user?.tipoUsuario !== "PRESTADOR" && user && (
+        {user && (
           <button
             className={styles.primary}
             onClick={() => navigate({ nova: "1" })}
@@ -243,22 +258,15 @@ function RequestsContent({ query }: { query: string }) {
                 >
                   ← Voltar à lista
                 </button>
-                {user.tipoUsuario === "PRESTADOR" ? (
-                  <p>
-                    Esta conta é somente de prestador. Veja os pedidos
-                    recebidos.
-                  </p>
-                ) : (
-                  <NewRequestForm
-                    user={user.idUsuario}
-                    initialProfessional={params.get("profissional")}
-                    initialService={params.get("servico")}
-                    onUnauthorized={expire}
-                    onCreated={(id) =>
-                      navigate({ papel: "cliente", pedido: String(id) })
-                    }
-                  />
-                )}
+                <NewRequestForm
+                  user={user.idUsuario}
+                  initialProfessional={params.get("profissional")}
+                  initialService={params.get("servico")}
+                  onUnauthorized={expire}
+                  onCreated={(id) =>
+                    navigate({ papel: "cliente", pedido: String(id) })
+                  }
+                />
               </div>
               <aside className={styles.tip}>
                 <HomeIcon name="shield" />
@@ -464,7 +472,9 @@ function RequestsContent({ query }: { query: string }) {
                         onSaved={(row) => {
                           if (!mounted.current) return;
                           setDetail(row);
-                          setNotice("Avaliação enviada. Obrigado por compartilhar sua experiência!");
+                          setNotice(
+                            "Avaliação enviada. Obrigado por compartilhar sua experiência!",
+                          );
                           setTick((v) => v + 1);
                         }}
                       />

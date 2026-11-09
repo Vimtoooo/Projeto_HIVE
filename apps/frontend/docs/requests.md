@@ -23,7 +23,7 @@ A migration `20261001000000_request_idempotency` adiciona uma chave UUID opciona
 | Concluída | Consultar, conversar e avaliar uma única vez | Consultar e conversar |
 | Cancelada | Consultar e conversar | Consultar e conversar |
 
-- Cliente com perfil CONTRATANTE ou AMBOS solicita um serviço ativo de outro prestador com conta ativa. Conta somente PRESTADOR recebe pedidos, mas não cria pedidos como cliente.
+- Toda conta ativa, inclusive PRESTADOR legado, pode solicitar serviço ativo de outro prestador ativo. O servidor impede autocontratação; o papel e as ações dependem de cada pedido.
 - A criação registra o preço vigente no servidor e a forma de pagamento pretendida. O valor é exibido nos detalhes e não muda se o catálogo mudar depois. O preço visto antes do envio pode ter sido atualizado pelo prestador; confira o valor registrado.
 - Aceitar muda PENDENTE para EM_ANDAMENTO. Concluir exige EM_ANDAMENTO. Recusar usa o estado CANCELADA já existente; não há um estado adicional de recusa.
 - Cancelar ou recusar exige ausência de lançamentos financeiros e fatura ausente, PENDENTE ou CANCELADO. Fatura pendente é cancelada na mesma transação. Pagamento pago, parcial, estornado ou lançamento financeiro bloqueia essa ação; tratamento financeiro não faz parte desta tela.
@@ -67,6 +67,6 @@ O backend cria um banco temporário `hive_requests_<uuid>_test` a partir da cone
 A suíte HTTP/Prisma/PostgreSQL cobre autorização, validação, idempotência, preço preservado, aceite/conclusão, recusa/cancelamento, pagamentos, filtros, conversa e concorrência. Os testes de navegador simulam a API e cobrem a interface desktop/celular, falha recuperável, sessão expirada e confirmações. Capturas ficam em `test-results/requests-desktop.png` e `requests-mobile.png`.
 
 
-## Evolução planejada: conta única
+## Conta única implementada
 
-O [plano de conta única](../../backend/docs/CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.
+A conta única permite contratar e prestar serviços pelo mesmo login, com ativação profissional autenticada e certificações opcionais. Consulte [o contrato de conta única](../../backend/docs/CONTA-UNICA.md) para API, sessão, compatibilidade e procedimento separado de conversão do legado.

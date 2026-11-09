@@ -96,6 +96,7 @@ test("valida a resposta em runtime e normaliza erros NestJS", () => {
       idUsuario: 1,
       nome: "Ana",
       email: "ana@example.invalid",
+      possuiPerfilProfissional: false,
       tipoUsuario: "CONTRATANTE",
     }),
     true,

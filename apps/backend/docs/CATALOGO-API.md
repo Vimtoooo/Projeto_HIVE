@@ -174,6 +174,12 @@ Se o VS Code mantiver avisos antigos, execute `ESLint: Restart ESLint Server`
 e `TypeScript: Restart TS Server` pela paleta de comandos.
 
 
-## Evolução planejada: conta única
+## Conta única implementada
 
-O [plano de conta única](CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.
+A conta única permite contratar e prestar serviços pelo mesmo login, com ativação profissional autenticada e certificações opcionais. Consulte [o contrato de conta única](CONTA-UNICA.md) para API, sessão, compatibilidade e procedimento separado de conversão do legado.
+
+### Ativação e certificações opcionais
+
+O cadastro direto cria tipo `AMBOS`. `certificacoes` pode ser omitido ou `[]`; `null` não é aceito. Quando informadas, são até 20 strings de 1–191 caracteres, não vazias nem só espaços. Não há autenticação oficial ou selo. CNPJ mantém formato obrigatório e unicidade.
+
+`POST /perfil/prestador` usa sessão e cabeçalho `X-Hive-Request: 1`, recebe somente campos profissionais e `servico` e retorna o mesmo objeto público de serviço. Cria perfil/serviço e atualiza tipo na mesma transação. Consulte [contrato, erros e concorrência](CONTA-UNICA.md#contrato-de-ativação).

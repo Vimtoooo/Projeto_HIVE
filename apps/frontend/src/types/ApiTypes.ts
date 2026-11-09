@@ -15,5 +15,6 @@ export interface PublicUser {
   idUsuario: number;
   nome: string;
   email: string;
+  possuiPerfilProfissional: boolean;
   tipoUsuario: "CONTRATANTE" | "PRESTADOR" | "AMBOS";
 }

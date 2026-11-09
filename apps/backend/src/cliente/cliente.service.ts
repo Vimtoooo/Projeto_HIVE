@@ -34,6 +34,7 @@ export class ClienteService {
         nome: registro.nome,
         email: registro.email,
         tipoUsuario: registro.tipoUsuario,
+        possuiPerfilProfissional: false,
       };
     } catch (error) {
       this.falhaPersistencia(error);

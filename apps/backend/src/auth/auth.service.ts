@@ -30,6 +30,7 @@ export class AuthService {
       nome: usuario.nome,
       email: usuario.email,
       tipoUsuario: usuario.tipoUsuario,
+      possuiPerfilProfissional: usuario.prestadorPerfil !== null,
     };
   }
 

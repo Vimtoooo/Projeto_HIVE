@@ -1,4 +1,9 @@
 import { test, expect, type Page } from "@playwright/test";
+test.beforeEach(async ({ page }) => {
+  await page.route("**/api/sessao", (r) =>
+    r.fulfill({ status: 401, json: { message: "Entre novamente." } }),
+  );
+});
 const result = {
   idServico: 10,
   titulo: "Montagem de mesa",
@@ -113,9 +118,9 @@ test("falhas preservam campos e permitem nova tentativa", async ({ page }) => {
     );
     await expect(page.locator("form").getByRole("alert")).toBeFocused();
     await expect(page.getByLabel("Nome completo")).toHaveValue("Ana Teste");
-    await expect(page.getByLabel("Certificações", { exact: true })).toHaveValue(
-      "Curso A\nCurso B",
-    );
+    await expect(
+      page.getByLabel("Certificações (opcional)", { exact: true }),
+    ).toHaveValue("Curso A\nCurso B");
   }
   await page.route("**/api/prestadores", (route) => route.abort());
   await page.getByRole("button", { name: "Cadastrar prestador" }).click();

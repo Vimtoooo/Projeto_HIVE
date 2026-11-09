@@ -41,11 +41,19 @@ export class AuthController {
   }
   @Get('sessao')
   @UseGuards(SessionGuard)
-  me(@Req() req: SessionRequest) {
-    return this.db.usuario.findUniqueOrThrow({
-      where: { idUsuario: req.usuarioId },
-      select: { idUsuario: true, nome: true, email: true, tipoUsuario: true },
-    });
+  async me(@Req() req: SessionRequest) {
+    const { prestadorPerfil, ...usuario } =
+      await this.db.usuario.findUniqueOrThrow({
+        where: { idUsuario: req.usuarioId },
+        select: {
+          idUsuario: true,
+          nome: true,
+          email: true,
+          tipoUsuario: true,
+          prestadorPerfil: { select: { idPrestador: true } },
+        },
+      });
+    return { ...usuario, possuiPerfilProfissional: prestadorPerfil !== null };
   }
   @Post('logout')
   @HttpCode(204)

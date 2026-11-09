@@ -82,3 +82,12 @@ A página de mensagens também é testada por URL direta e após recarregar, bus
 O cenário de login compacto em `RegistrationPolishSpec.ts` verifica ausência de rolagem vertical e horizontal, inclusive com erro de autenticação, em 320×568, 390×844, 768×768, 769×720, 860×720, 1366×768 e 1440×900. Também verifica as três etapas do painel de cliente e a remoção do depoimento. Usa API simulada e gera capturas em `test-results` para inspeção.
 
 O cenário `topo permanece alinhado entre login e cadastros` compara coordenadas de Voltar, título do formulário e, no desktop, logo, título e descrição do painel esquerdo nas três rotas. Também verifica ausência de sobreposição entre os links superiores em seis combinações de largura e altura.
+
+## Conta única e ativação profissional
+
+`ProviderActivationSpec.ts` usa API simulada para verificar convite da home/Meu perfil, encaminhamento do cadastro público, payload exclusivamente profissional, ausência de certificações, recuperação de resposta perdida e consulta indisponível após envio, CNPJ duplicado, bloqueio de envio duplo, troca de conta e descarte de resposta atrasada. Inclui teclado, foco, bordas/cores e ausência de transbordamento em 320/390/768/1440 px. Capturas: `test-results/activation-<largura>.png`.
+
+Execute `npm run test:e2e -- ProviderActivationSpec ProviderRegistrationSpec AuthenticationSpec ProfileSpec ProfessionalsSpec RequestsSpec RegistrationPolishSpec`. O contrato público de usuário exige `possuiPerfilProfissional`; fixtures dos demais consumidores de sessão também devem fornecê-lo. O Edge instalado pode ser usado com `PLAYWRIGHT_CHANNEL=msedge`. A suíte backend `test:conta-unica` valida a API e persistência reais em banco descartável, complementando os mocks do navegador.
+
+
+`ProfileSpec` também verifica a ação profissional dentro do resumo, foco por teclado, sublinhado, altura natural do formulário e espaçamento inferior no desktop e ausência de transbordamento em 320/390/768/1440 px. Na navegação entre seções, verifica que os mesmos nós de sidebar, logo e convite continuam conectados ao DOM. `ProviderActivationSpec` verifica animação em todos os campos e desativação por movimento reduzido. As capturas `profile-polish-<largura>.png` ficam em `test-results/`. Estes cenários usam API simulada.

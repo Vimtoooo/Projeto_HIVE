@@ -73,10 +73,6 @@ export default function ProfessionalDetails({
       if (user.idUsuario === id)
         throw Error("Escolha outro profissional para esta ação.");
       if (service !== undefined) {
-        if (user.tipoUsuario === "PRESTADOR")
-          throw Error(
-            "Esta conta é somente de prestador e não pode solicitar serviços.",
-          );
         router.push(
           `/solicitacoes?nova=1&profissional=${id}&servico=${service}`,
         );

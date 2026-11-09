@@ -372,6 +372,13 @@ A migration aditiva `20261002000000_favorites` cria `Favorito`, com chave compos
 `GET /favoritos`, `PUT /favoritos/:prestadorId` e `DELETE /favoritos/:prestadorId` exigem sessão; escritas exigem `X-Hive-Request: 1`. Não aceitam identidade enviada no corpo. PUT/DELETE são idempotentes; indisponíveis permanecem removíveis. `npm run test:favoritos` verifica migrations e integração em PostgreSQL descartável, sem limpar o banco da aplicação. O reset de dados já remove vínculos por cascata; nenhum favorito é adicionado pelo seed.
 
 
-## Evolução planejada: conta única
+## Conta única implementada
 
-O [plano de conta única](docs/CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.
+`POST /perfil/prestador` recebe dados profissionais e primeiro serviço, com sessão e `X-Hive-Request: 1`; preserva a identidade e cria perfil/serviço atomicamente. `POST /prestadores` continua público para novas contas e cria `AMBOS`. Certificações são opcionais e declaradas; CNPJ permanece obrigatório e único. Login, sessão, cadastro de cliente e perfil incluem `possuiPerfilProfissional`, derivado da relação persistida.
+
+Valide com `npm run test:conta-unica` (banco descartável). `npm run contas:diagnostico` é somente leitura; a conversão de legado exige flags explícitas e autorização para o ambiente, conforme o guia abaixo. Nenhuma migration estrutural nova é necessária.
+
+A conta única permite contratar e prestar serviços pelo mesmo login, com ativação profissional autenticada e certificações opcionais. Consulte [o contrato de conta única](docs/CONTA-UNICA.md) para API, sessão, compatibilidade e procedimento separado de conversão do legado.
+
+
+As próximas funcionalidades de Meu perfil (endereço detalhado, edição profissional e segurança da conta) e a avaliação necessária antes de um piloto acadêmico com dados reais estão registradas em [Próximas tarefas](docs/PROXIMAS-TAREFAS.md). São pendências de planejamento, sem implementação ou autorização para coleta de dados reais nesta entrega.

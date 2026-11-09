@@ -22,7 +22,10 @@ export const helpArticles: readonly HelpArticle[] = [
       "Abra um pedido concluído em Minhas solicitações, escolha uma nota de 1 a 5 e escreva um comentário opcional de até 1000 caracteres. Somente o cliente daquele pedido pode avaliar. Revise e confirme o envio: a avaliação é definitiva nesta versão.",
       "A nota, o comentário e seu primeiro nome aparecem nos detalhes do profissional. Cada pedido recebe uma única avaliação, que atualiza a média real e gera uma notificação ao prestador. Não inclua dados pessoais no comentário.",
     ],
-    link: { label: "Avaliar um pedido concluído", href: "/solicitacoes?status=CONCLUIDA" },
+    link: {
+      label: "Avaliar um pedido concluído",
+      href: "/solicitacoes?status=CONCLUIDA",
+    },
   },
   {
     id: "editar-conta",
@@ -49,7 +52,7 @@ export const helpArticles: readonly HelpArticle[] = [
     category: "Contratação",
     title: "Como solicito um serviço?",
     paragraphs: [
-      "Entre com uma conta de contratante ou de ambos os tipos e abra Minhas solicitações → Nova solicitação. Escolha um serviço ativo de outro prestador e confirme a forma de pagamento pretendida. Contas somente de prestador recebem pedidos, mas não solicitam como clientes.",
+      "Entre com uma conta ativa e abra Minhas solicitações → Nova solicitação. Escolha um serviço ativo de outro prestador e confirme a forma de pagamento pretendida. Profissionais também podem contratar outros profissionais com a mesma conta.",
       "O pedido registra o preço vigente ao confirmar. Confira o valor nos detalhes e combine endereço e horário pela conversa; ainda não há agenda estruturada ou rastreamento de localização.",
     ],
     link: { label: "Abrir minhas solicitações", href: "/solicitacoes" },

@@ -33,15 +33,15 @@
 .dialog button {
   cursor: pointer;
 }
-.shell a {
+.shell a:not(:global(.hive-link)) {
   color: inherit;
   text-decoration: none;
 }
 .shell button:focus-visible,
 .shell a:focus-visible,
 .dialog button:focus-visible {
-  outline: 3px solid #ad7900;
-  outline-offset: 4px;
+  outline: var(--link-focus-width) solid var(--link-focus-color);
+  outline-offset: var(--link-focus-offset);
 }
 .shell button {
   -webkit-tap-highlight-color: transparent;
@@ -76,7 +76,7 @@
 .brand img {
   object-fit: contain;
   width: 44px;
-  height: auto;
+  height: 75px;
   flex-shrink: 0;
   transform: scale(1.65);
 }

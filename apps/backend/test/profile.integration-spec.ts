@@ -112,6 +112,7 @@ describe('Perfil: sessão, edição e PostgreSQL', () => {
         'telefone',
         'endereco',
         'tipoUsuario',
+        'possuiPerfilProfissional',
         'dataCadastro',
       ].sort(),
     );

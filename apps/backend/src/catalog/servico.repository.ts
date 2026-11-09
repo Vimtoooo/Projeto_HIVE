@@ -6,7 +6,7 @@ import { Servico } from '../models/Servico';
 import { PersistenciaService } from '../persistence/persistencia.service';
 
 // A lista explícita também protege contra expor novos campos privados no futuro.
-const publico = {
+export const publico = {
   idServico: true,
   titulo: true,
   descricao: true,
@@ -23,7 +23,7 @@ const publico = {
 
 type RegistroPublico = Prisma.ServicoGetPayload<{ select: typeof publico }>;
 
-function apresentar(registro: RegistroPublico) {
+export function apresentar(registro: RegistroPublico) {
   const { usuario, ...prestador } = registro.prestador;
   return { ...registro, prestador: { ...prestador, nome: usuario.nome } };
 }
