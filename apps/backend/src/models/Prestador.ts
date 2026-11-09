@@ -129,10 +129,14 @@ export class Prestador extends Usuario {
     return this.certificacoes;
   }
   public set setCertificacoes(certs: string[]) {
-    if (!certs || certs.length === 0)
-      throw new Error(
-        'O prestador deve ter ao menos uma certificação ou habilidade listada.',
-      );
+    if (
+      !Array.isArray(certs) ||
+      certs.length > 20 ||
+      certs.some(
+        (cert) => typeof cert !== 'string' || !cert.trim() || cert.length > 191,
+      )
+    )
+      throw new Error('Informe até 20 certificações de 1 a 191 caracteres.');
     this.certificacoes = certs;
   }
 

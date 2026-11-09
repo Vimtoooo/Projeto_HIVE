@@ -12,7 +12,7 @@ O nome aceita letras Unicode, acentos, espaços, hífen e apóstrofos entre part
 
 A rota `/cadastro/prestador` permite criar uma nova conta de prestador com seu primeiro serviço. Está acessível pelos links **Sou prestador** no login e **Quero me cadastrar como prestador** no cadastro de cliente. Usa `POST /api/prestadores`, encaminhado pelo proxy ao endpoint existente. Isso permite cadastrar profissionais pela interface sem preencher requisições manualmente.
 
-O formulário organiza os campos obrigatórios em dados pessoais, perfil profissional e primeiro serviço. Segue o contrato atual:
+O formulário organiza os campos em dados pessoais, perfil profissional e primeiro serviço. Segue o contrato atual:
 
 | Campo | Limite |
 | --- | --- |
@@ -20,7 +20,7 @@ O formulário organiza os campos obrigatórios em dados pessoais, perfil profiss
 | E-mail / senha | E-mail válido até 191; senha de 8 a 128 caracteres |
 | CPF / CNPJ / telefone | 11 / 14 / 10–11 dígitos, respectivamente |
 | Área de atuação / experiência | 1–191 caracteres cada |
-| Certificações | De 1 a 20, uma por linha, até 191 caracteres cada; linhas em branco são ignoradas |
+| Certificações | Opcionais: até 20, uma por linha, até 191 caracteres cada; linhas em branco são ignoradas |
 | Título / descrição do serviço | 5–191 / 1–5000 caracteres |
 | Preço base | R$ 0,01 a R$ 1.000.000,00, até duas casas decimais |
 
@@ -28,7 +28,7 @@ Documentos e telefone têm máscaras, removidas no envio. O preço usa vírgula 
 
 O cadastro cria conta, perfil e serviço juntos. O formulário bloqueia novos envios enquanto aguarda e preserva os campos após falhas de validação, duplicidade ou conexão. Erros locais direcionam o foco ao primeiro campo inválido; falhas gerais direcionam ao alerta do formulário. Uma resposta válida leva a `/login`; não há login automático. Se a resposta de sucesso vier malformada, a interface avisa que a conta pode ter sido criada e orienta tentar entrar antes de reenviar.
 
-CNPJ e ao menos uma certificação continuam obrigatórios. Não há preenchimento fictício, conversão de conta existente ou gestão de serviços. Não foi necessária migration. A validação do nome foi reforçada nos dois endpoints de cadastro, conforme descrito acima. Depois de cadastrar, o perfil e o serviço ativos ficam disponíveis em `/profissionais` conforme as regras atuais de visibilidade.
+CNPJ continua obrigatório e único; certificações são opcionais. Sem CNPJ, autônomos não podem concluir o cadastro. A validação é de formato, sem consulta oficial. Clientes autenticados ativam a mesma conta em `/perfil/prestador`; não há gestão de serviços nesta entrega. Não foi necessária migration. A validação do nome foi reforçada nos dois endpoints de cadastro, conforme descrito acima. Depois de cadastrar, o perfil e o serviço ativos ficam disponíveis em `/profissionais` conforme as regras atuais de visibilidade.
 
 Arquivos principais: `src/components/ProviderRegistrationForm.tsx`, `src/lib/ProviderRegistration.ts`, `src/services/ProviderRegistrationApi.ts` e `src/styles/provider-registration.module.css`.
 
@@ -150,6 +150,12 @@ O painel do prestador acompanha a extensão do formulário com orientações ilu
 Login e cadastros usam as mesmas posições de navegação, logo, título e descrição do painel esquerdo. O início dos formulários compartilha uma posição responsiva pela altura da janela, sem depender do tamanho total de cada formulário. Margens do logo e etiqueta de boas-vindas também são compartilhadas. A área de rolagem reserva uma largura estável nessas páginas para evitar deslocamentos horizontais ao trocar entre login e cadastro; o login continua sem rolagem nas dimensões verificadas. Em telas estreitas, o link superior usa tamanho ajustado para não sobrepor Voltar.
 
 
-## Evolução planejada: conta única
+## Conta única implementada
 
-O [plano de conta única](../../backend/docs/CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.
+A conta única permite contratar e prestar serviços pelo mesmo login, com ativação profissional autenticada e certificações opcionais. Consulte [o contrato de conta única](../../backend/docs/CONTA-UNICA.md) para API, sessão, compatibilidade e procedimento separado de conversão do legado.
+
+### Ativação profissional
+
+A home e Meu perfil levam à ativação autenticada. O formulário reutiliza os campos profissionais e de primeiro serviço, sem pedir nome, CPF, e-mail ou senha novamente. Usa `POST /api/perfil/prestador`; após sucesso reconsulta a sessão e abre Meu perfil, mantendo login e histórico. Profissional já ativo não recebe convite. Na rota pública, usuários autenticados são encaminhados à ativação ou Meu perfil. O novo booleano `possuiPerfilProfissional` vem do servidor e é revalidado no foco/visibilidade e na troca de conta.
+
+Falha incerta exige consulta da sessão antes do reenvio. CNPJ duplicado mantém os campos para correção; perfil existente não cria segundo serviço. Na troca de identidade, o formulário anterior é descartado. Certificações vazias viram `[]`; nenhuma informação recebe selo.

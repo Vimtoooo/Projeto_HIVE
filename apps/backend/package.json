@@ -47,6 +47,8 @@
     "prestart:dev": "npm run prisma:generate",
     "prestart:debug": "npm run prisma:generate",
     "prestart:demo": "npm run prisma:generate",
+    "test:conta-unica": "node scripts/verify-account.cjs",
+    "contas:diagnostico": "ts-node scripts/conta-unica.ts",
     "test:avaliacoes": "node scripts/verify-reviews.cjs"
   },
   "dependencies": {

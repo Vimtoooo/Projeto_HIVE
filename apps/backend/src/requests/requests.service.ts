@@ -151,12 +151,6 @@ export class RequestsService {
     if (previous) return replay(previous);
     try {
       return await this.db.$transaction(async (tx) => {
-        const account = await tx.usuario.findUniqueOrThrow({
-          where: { idUsuario: user },
-          select: { tipoUsuario: true },
-        });
-        if (account.tipoUsuario === 'PRESTADOR')
-          throw new BadRequestException('Esta conta é somente de prestador.');
         const service = await tx.servico.findFirst({
           where: {
             idServico: input.servicoId,

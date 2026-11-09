@@ -1,3 +1,41 @@
 /* Base compartilhada. As telas usam estilos isolados com CSS Modules. */
-* { box-sizing: border-box; }
-body { margin: 0; }
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+
+:root {
+  --link-color: #805c00;
+  --link-hover-color: #513a00;
+  --link-weight: 600;
+  --link-decoration-thickness: 1px;
+  --link-underline-offset: 0.22em;
+  --link-focus-color: #ad7900;
+  --link-focus-width: 3px;
+  --link-focus-offset: 4px;
+  --link-transition: 160ms ease;
+}
+a.hive-link {
+  color: var(--link-color);
+  font-weight: var(--link-weight);
+  text-decoration: underline;
+  text-decoration-thickness: var(--link-decoration-thickness);
+  text-underline-offset: var(--link-underline-offset);
+  transition:
+    color var(--link-transition),
+    background-color var(--link-transition);
+}
+a.hive-link:hover {
+  color: var(--link-hover-color);
+}
+a.hive-link:focus-visible {
+  outline: var(--link-focus-width) solid var(--link-focus-color);
+  outline-offset: var(--link-focus-offset);
+}
+@media (prefers-reduced-motion: reduce) {
+  a.hive-link {
+    transition: none;
+  }
+}

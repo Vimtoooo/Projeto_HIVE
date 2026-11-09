@@ -60,7 +60,7 @@ Rotas fixas devem ser declaradas sem conflito com `:id`. DTOs validarão enums, 
 
 - Backend: módulo `src/notifications/` com controller, DTOs e serviço; registro no `AppModule` e integração transacional com os módulos existentes, evitando dependências circulares.
 - Prisma: migration aditiva, sem reset e sem mudar registros antigos de contratação ou mensagem.
-- Frontend: rota `src/app/notificacoes/page.tsx`, componentes em `src/components/notifications/`, cliente `NotificationsApi.ts` com validação em runtime, estado compartilhado de avisos e CSS Module próprio.
+- Frontend: rota `src/app/(dashboard)/notificacoes/page.tsx`, componentes em `src/components/notifications/`, cliente `NotificationsApi.ts` com validação em runtime, estado compartilhado de avisos e CSS Module próprio.
 - Navegação: substituir o aviso “Em breve” e a caixa atual por acesso à página, mantendo Mensagens e Solicitações funcionais.
 
 Não reconstruir notificações de eventos anteriores à migration: estados atuais não informam com precisão todas as ações, autores e datas passadas. A conta começa sem avisos e recebe os novos eventos realizados após a implementação. Repetições de envios antigos sem aviso não farão retrocarga. A demonstração usará duas contas fictícias e ações reais; fixtures automatizadas ficarão em banco descartável.

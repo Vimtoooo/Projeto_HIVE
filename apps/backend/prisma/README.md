@@ -318,3 +318,7 @@ A migration aditiva `20261001010000_notifications` cria `Notificacao`, o enum de
 A migration aditiva `20261002000000_favorites` cria `Favorito`, com chave composta `(usuarioId, prestadorId)`, data de criação e FKs com exclusão em cascata. Preserva os registros existentes. Aplique `npm run db:migrate:deploy` e gere o client com `npm run prisma:generate`; reinicie o backend, sem reset.
 
 `GET /favoritos`, `PUT /favoritos/:prestadorId` e `DELETE /favoritos/:prestadorId` exigem sessão; escritas exigem `X-Hive-Request: 1`. Não aceitam identidade enviada no corpo. PUT/DELETE são idempotentes; indisponíveis permanecem removíveis. `npm run test:favoritos` verifica migrations e integração em PostgreSQL descartável, sem limpar o banco da aplicação. O reset de dados já remove vínculos por cascata; nenhum favorito é adicionado pelo seed.
+
+## Conta única e legado
+
+Nenhuma migration estrutural nova: `Prestador.idPrestador` já compartilha a identidade, CNPJ é único e `certificacoes` aceita lista vazia. A ativação usa transação separada de criação de usuário. `npm run contas:diagnostico` somente lê; conversão exige flags explícitas e não faz parte do deploy. Consulte [procedimento e recuperação](../docs/CONTA-UNICA.md#legado-diagnóstico-e-conversão-controlada). `npm run test:conta-unica` valida a conversão somente em banco descartável.

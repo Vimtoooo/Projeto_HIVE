@@ -9,7 +9,7 @@ persistência no PostgreSQL. As migrations do backend incluem sessões, conversa
 
 ### Plano de adoção
 
-Os cadastros de cliente e prestador agora usam mensagens de validação junto aos campos, ícones e exemplos de preenchimento. O layout de autenticação usa painel lateral acima de 768 px. Na Home, o convite de cadastro respeita o tipo da sessão, e os cards de profissionais reais mostram preço e avaliações do catálogo. Veja [cadastros](docs/registration.md) e [Home](docs/home.md). A próxima prioridade proposta é a [conta única para contratar e prestar serviços](../backend/docs/CONTA-UNICA.md), ainda não implementada. A página dedicada de perfil público do prestador permanece no backlog; o painel de detalhes atual continua disponível.
+Os cadastros de cliente e prestador agora usam mensagens de validação junto aos campos, ícones e exemplos de preenchimento. O layout de autenticação usa painel lateral acima de 768 px. Na Home, o convite de cadastro respeita a presença do perfil profissional na sessão, e os cards de profissionais reais mostram preço e avaliações do catálogo. Veja [cadastros](docs/registration.md) e [Home](docs/home.md). A [conta única para contratar e prestar serviços](../backend/docs/CONTA-UNICA.md) permite ativar o perfil em `/perfil/prestador`, pela home ou Meu perfil, sem novo login. A página dedicada de perfil público do prestador permanece no backlog; o painel de detalhes atual continua disponível.
 
 1. **Concluído:** base Next.js, App Router, TypeScript estrito e proxy /api.
 2. **Concluído:** migração do login, cadastro e Home para React; retirada da cópia
@@ -26,7 +26,7 @@ Os cadastros de cliente e prestador agora usam mensagens de validação junto ao
 
 ### Executar agora
 
-O cadastro de prestadores está em `/cadastro/prestador`, com acesso pelo login e pelo cadastro de cliente. Cria conta, perfil profissional e primeiro serviço usando `POST /prestadores`, permitindo que novos profissionais entrem no catálogo pela interface. Exige CNPJ e certificações conforme o contrato existente; após o sucesso, redireciona ao login. Veja [campos e validações](docs/registration.md#cadastro-de-prestador).
+O cadastro de prestadores está em `/cadastro/prestador`, com acesso pelo login e pelo cadastro de cliente. Cria conta, perfil profissional e primeiro serviço usando `POST /prestadores`, permitindo que novos profissionais entrem no catálogo pela interface. Exige CNPJ; certificações são opcionais; após o sucesso, redireciona ao login. Veja [campos e validações](docs/registration.md#cadastro-de-prestador).
 
 Use Node.js **22.18 ou superior** (Node 24 usado na validação) e npm. O executor
 nativo dos testes TypeScript exige essa base; Python não é mais usado no frontend.
@@ -407,3 +407,6 @@ O login possui espaçamento compacto por altura de tela, preservando acesso ao c
 O cadastro de prestador também distribui orientações e ícones ao longo do painel lateral: apresentação profissional, descrição do serviço e conversa com clientes, acompanhando a altura do formulário.
 
 Login e cadastros compartilham o alinhamento do topo e reservam largura estável para a área de rolagem, evitando deslocamentos na navegação. O login conserva o layout compacto por altura de tela.
+
+
+O painel usa o layout persistente de `src/app/(dashboard)`: logo, navegação e convite profissional permanecem montados entre as rotas, sem reiniciar a consulta do convite a cada página. As URLs públicas permanecem iguais. Meu perfil integra a ação profissional ao resumo da conta e mantém cada cartão com altura natural conforme seu conteúdo. Links textuais podem adotar a classe global `hive-link` e os tokens `--link-*`; veja [perfil](docs/profile.md) e [Home](docs/home.md).

@@ -15,6 +15,7 @@ import {
 } from "../lib/FormValidation";
 import {
   providerErrors,
+  professionalErrors,
   type ProviderForm,
   type ProviderErrors,
 } from "../lib/ProviderRegistration";
@@ -47,12 +48,14 @@ export function readRegistration(form: HTMLFormElement): ProviderForm {
 export function ValidatedRegistration({
   children,
   provider = false,
+  activation = false,
   pending,
   onSubmit,
   id,
 }: {
   children: ReactNode;
   provider?: boolean;
+  activation?: boolean;
   pending: boolean;
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   id?: string;
@@ -61,9 +64,11 @@ export function ValidatedRegistration({
   const touched = useRef(new Set<string>());
   const attempted = useRef(false);
   const validate = (form: HTMLFormElement) =>
-    provider
-      ? providerErrors(readRegistration(form))
-      : registrationErrors(readRegistration(form));
+    activation
+      ? professionalErrors(readRegistration(form))
+      : provider
+        ? providerErrors(readRegistration(form))
+        : registrationErrors(readRegistration(form));
   function refresh(event: FormEvent<HTMLFormElement>, blur: boolean) {
     if (pending) return;
     const target = event.target;
@@ -168,7 +173,7 @@ export function RegistrationField({
   const common = {
     id: name,
     name,
-    required: true,
+    required: props.required ?? true,
     className: styles["form-input"],
     placeholder: placeholders[name],
     "aria-invalid": Boolean(error),

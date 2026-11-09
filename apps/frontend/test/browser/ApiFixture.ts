@@ -43,6 +43,7 @@ export async function mockHomeApi(page: Page) {
             idUsuario: stored.id,
             nome: stored.name,
             email: "fixture@example.invalid",
+            possuiPerfilProfissional: false,
             tipoUsuario: "CONTRATANTE",
           }
         : null);

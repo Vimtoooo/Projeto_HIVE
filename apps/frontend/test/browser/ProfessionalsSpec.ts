@@ -4,6 +4,7 @@ const user = {
   idUsuario: 7,
   nome: "Ana Teste",
   email: "ana@example.invalid",
+  possuiPerfilProfissional: false,
   tipoUsuario: "CONTRATANTE",
 };
 const detail = {
@@ -202,7 +203,9 @@ test("pedido preserva serviço escolhido até confirmar o envio", async ({
   await expect(page).toHaveURL(/pedido=31/);
   expect(state.sent).toBe(1);
 });
-test("ações exigem sessão e conta prestador não contrata", async ({ page }) => {
+test("ações exigem sessão e conta prestador pode contratar", async ({
+  page,
+}) => {
   const state = await fixture(page);
   state.anonymous = true;
   await page.goto("/profissionais?profissional=12");
@@ -215,8 +218,8 @@ test("ações exigem sessão e conta prestador não contrata", async ({ page }) 
   await page
     .getByRole("button", { name: "Solicitar serviço: Montagem de estante" })
     .click();
-  await expect(page.locator("#main-content").getByRole("alert")).toContainText(
-    "somente de prestador",
+  await expect(page).toHaveURL(
+    /solicitacoes\?nova=1&profissional=12&servico=40/,
   );
   expect(state.sent).toBe(0);
 });

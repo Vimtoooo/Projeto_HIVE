@@ -4,6 +4,7 @@ const base = {
   idUsuario: 7,
   nome: "Ana Teste",
   email: "ana@example.invalid",
+  possuiPerfilProfissional: false,
   tipoUsuario: "CONTRATANTE",
   telefone: "11999998888",
   endereco: "Rua das Flores, 123",
@@ -169,4 +170,102 @@ test("erro de carga é recuperável e celular não transborda", async ({
     path: "test-results/profile-mobile.png",
     fullPage: true,
   });
+});
+
+for (const width of [320, 390, 768, 1440]) {
+  test(`perfil: convite integrado e painéis responsivos em ${width}px`, async ({
+    page,
+  }) => {
+    await fixture(page);
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto("/perfil");
+    const summary = page.getByRole("complementary", {
+      name: "Resumo da conta",
+    });
+    const link = summary.getByRole("link", { name: "Quero ser profissional" });
+    await expect(link).toBeVisible();
+    await link.focus();
+    await expect(link).toBeFocused();
+    expect(
+      await link.evaluate((el) => getComputedStyle(el).textDecorationLine),
+    ).toBe("underline");
+    if (width === 1440) {
+      const left = await summary.boundingBox();
+      const right = await page
+        .getByRole("form", { name: "Editar perfil" })
+        .boundingBox();
+      expect(right!.height).toBeLessThan(left!.height);
+      const actions = await page
+        .getByRole("button", { name: "Salvar alterações" })
+        .boundingBox();
+      expect(
+        right!.y + right!.height - (actions!.y + actions!.height),
+      ).toBeCloseTo(33, 0);
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    await page.screenshot({
+      path: `test-results/profile-polish-${width}.png`,
+      fullPage: true,
+    });
+    await link.press("Enter");
+    await expect(page).toHaveURL(/perfil\/prestador$/);
+  });
+}
+
+test("barra lateral mantém logo, convite e rolagem durante navegação", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.setViewportSize({ width: 1440, height: 800 });
+  await page.goto("/perfil");
+  const sidebar = page
+    .locator("aside")
+    .filter({ has: page.getByRole("link", { name: "HIVE." }) });
+  await expect(
+    sidebar.getByText("Seu talento tem", { exact: false }),
+  ).toBeVisible();
+  await sidebar.evaluate((el) => {
+    const image = el.querySelector("img")!;
+    const invite = el.querySelector('a[href="/perfil/prestador"]')!;
+    Object.assign(window, {
+      stableSidebar: el,
+      stableLogo: image,
+      stableInvite: invite,
+    });
+    el.scrollTop = 60;
+  });
+  for (const name of [
+    "Profissionais",
+    "Mensagens",
+    "Notificações",
+    "Meu perfil",
+  ]) {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await sidebar.getByRole("button", { name, exact: true }).click();
+    await expect(
+      sidebar.getByRole("button", { name, exact: true }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      await page.evaluate(() => {
+        const saved = window as unknown as {
+          stableSidebar: Element;
+          stableLogo: Element;
+          stableInvite: Element;
+        };
+        return [
+          saved.stableSidebar,
+          saved.stableLogo,
+          saved.stableInvite,
+        ].every((el) => el.isConnected);
+      }),
+    ).toBe(true);
+    await expect(
+      sidebar.getByRole("link", { name: "Quero ser profissional" }),
+    ).toBeVisible();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+  }
 });

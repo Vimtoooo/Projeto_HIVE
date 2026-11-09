@@ -22,7 +22,7 @@ export class ServicoService {
       dados.telefone,
       dados.cpf,
       dados.endereco,
-      TipoUsuario.PRESTADOR,
+      TipoUsuario.AMBOS,
       StatusConta.ATIVO,
       dados.areaAtuacao,
       dados.experiencia,

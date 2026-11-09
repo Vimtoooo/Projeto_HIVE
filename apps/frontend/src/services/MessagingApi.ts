@@ -3,6 +3,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
+    public code?: string,
   ) {
     super(message);
   }
@@ -111,6 +112,7 @@ export async function api(
     throw new ApiError(
       apiMessage(data, "Não foi possível concluir a solicitação."),
       response.status,
+      object(data) && typeof data.code === "string" ? data.code : undefined,
     );
   return data;
 }
