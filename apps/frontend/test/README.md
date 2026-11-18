@@ -91,3 +91,6 @@ Execute `npm run test:e2e -- ProviderActivationSpec ProviderRegistrationSpec Aut
 
 
 `ProfileSpec` também verifica a ação profissional dentro do resumo, foco por teclado, sublinhado, altura natural do formulário e espaçamento inferior no desktop e ausência de transbordamento em 320/390/768/1440 px. Na navegação entre seções, verifica que os mesmos nós de sidebar, logo e convite continuam conectados ao DOM. `ProviderActivationSpec` verifica animação em todos os campos e desativação por movimento reduzido. As capturas `profile-polish-<largura>.png` ficam em `test-results/`. Estes cenários usam API simulada.
+
+
+Regressão de troca de conta em avaliações: `ReviewsSpec` verifica que o aviso de interrupção permanece após a reconsulta de sessão, sem formulário/dados antigos e sem POST. Também controla uma resposta de sessão atrasada após desmontagem do formulário. A fixture respeita os participantes do pedido. Use Chromium (sem `PLAYWRIGHT_CHANNEL`) e `npm run test:e2e -- ReviewsSpec --grep "troca de conta|resposta de sessão" --repeat-each=10` para repetir os dois cenários; não aumentar timeouts nem remover verificações para contornar falhas.

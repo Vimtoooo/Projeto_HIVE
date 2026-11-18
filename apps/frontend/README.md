@@ -410,3 +410,6 @@ Login e cadastros compartilham o alinhamento do topo e reservam largura estável
 
 
 O painel usa o layout persistente de `src/app/(dashboard)`: logo, navegação e convite profissional permanecem montados entre as rotas, sem reiniciar a consulta do convite a cada página. As URLs públicas permanecem iguais. Meu perfil integra a ação profissional ao resumo da conta e mantém cada cartão com altura natural conforme seu conteúdo. Links textuais podem adotar a classe global `hive-link` e os tokens `--link-*`; veja [perfil](docs/profile.md) e [Home](docs/home.md).
+
+
+A confirmação de avaliações e ações em solicitações interrompe o fluxo quando identifica troca de conta ou sessão expirada. O aviso permanece mesmo após revalidar a sessão, e respostas atrasadas de formulários desmontados não retomam o envio. Detalhes e regressões em [avaliações](docs/reviews.md).

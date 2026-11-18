@@ -1,6 +1,6 @@
 "use client";
 import { useAccountSession } from "../../lib/useAccountSession";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ApiError, session } from "../../services/MessagingApi";
@@ -35,6 +35,20 @@ const date = (value: string) =>
 export default function RequestsWorkspace() {
   const params = useSearchParams();
   const account = useAccountSession();
+  // Keep the interruption outside the identity-keyed content: a session refresh
+  // must not erase it and resume an action prepared by the previous account.
+  const [interrupted, setInterrupted] = useState(false);
+  const interrupt = useCallback(() => setInterrupted(true), []);
+  if (interrupted)
+    return (
+      <section className={styles.page}>
+        <h1>Minhas solicitações</h1>
+        <div className={styles.error} role="alert">
+          Sua sessão mudou ou expirou. A operação foi interrompida.{" "}
+          <Link href="/login">Entrar novamente</Link>
+        </div>
+      </section>
+    );
   if (account.loading) return <p role="status">Consultando sua sessão…</p>;
   if (account.error)
     return (
@@ -47,10 +61,17 @@ export default function RequestsWorkspace() {
     <RequestsContent
       key={`${account.user?.idUsuario ?? "guest"}:${params.toString()}`}
       query={params.toString()}
+      onUnauthorized={interrupt}
     />
   );
 }
-function RequestsContent({ query }: { query: string }) {
+function RequestsContent({
+  query,
+  onUnauthorized,
+}: {
+  query: string;
+  onUnauthorized: () => void;
+}) {
   const router = useRouter(),
     params = new URLSearchParams(query);
   const role: RequestRole =
@@ -95,6 +116,7 @@ function RequestsContent({ query }: { query: string }) {
     pagina: String(page),
   };
   function expire() {
+    onUnauthorized();
     setUnauthorized(true);
     setUser(null);
     setData(null);
@@ -161,6 +183,7 @@ function RequestsContent({ query }: { query: string }) {
     setError("");
     try {
       const current = await session();
+      if (!mounted.current) return;
       if (current.idUsuario !== user.idUsuario) {
         expire();
         return;
