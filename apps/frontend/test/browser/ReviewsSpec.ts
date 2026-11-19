@@ -3,6 +3,7 @@ const user = {
   idUsuario: 7,
   nome: "Ana Teste",
   email: "ana@example.invalid",
+  possuiPerfilProfissional: false,
   tipoUsuario: "CONTRATANTE",
 };
 const review = {
@@ -38,6 +39,10 @@ async function fixture(page: Page) {
   const state = { row, user, sent: 0, fail: false };
   await page.route("**/api/**", async (r) => {
     const url = new URL(r.request().url());
+    const participant = [
+      row.contratante.idUsuario,
+      row.prestador.idUsuario,
+    ].includes(state.user.idUsuario);
     switch (url.pathname) {
       case "/api/sessao":
         return r.fulfill({ json: state.user });
@@ -47,12 +52,27 @@ async function fixture(page: Page) {
         return r.fulfill({ json: { usuarioId: 7, naoLidas: 0, ateId: 0 } });
       case "/api/solicitacoes":
         return r.fulfill({
-          json: { itens: [row], total: 1, pagina: 1, limite: 20 },
+          json: {
+            itens: participant ? [row] : [],
+            total: participant ? 1 : 0,
+            pagina: 1,
+            limite: 20,
+          },
         });
       case "/api/solicitacoes/31":
-        return r.fulfill({ json: row });
+        return participant
+          ? r.fulfill({ json: row })
+          : r.fulfill({
+              status: 404,
+              json: { message: "Solicitação não encontrada." },
+            });
       case "/api/solicitacoes/31/avaliacao":
         state.sent++;
+        if (state.user.idUsuario !== row.contratante.idUsuario)
+          return r.fulfill({
+            status: 403,
+            json: { message: "Acesso negado." },
+          });
         expect(r.request().headers()["x-hive-request"]).toBe("1");
         expect(r.request().postDataJSON()).toEqual({
           nota: 5,
@@ -165,7 +185,12 @@ test("não oferece avaliação em pedido pendente nem ao prestador", async ({
   ).toHaveCount(0);
   state.row.status = "CONCLUIDA";
   state.row.papel = "prestador";
-  state.user = { ...user, idUsuario: 12, tipoUsuario: "PRESTADOR" };
+  state.user = {
+    ...user,
+    idUsuario: 12,
+    possuiPerfilProfissional: true,
+    tipoUsuario: "PRESTADOR",
+  };
   await page.reload();
   await expect(
     page.getByRole("heading", { name: "Montagem de estante" }),
@@ -188,7 +213,77 @@ test("troca de conta antes de confirmar impede envio", async ({ page }) => {
   await expect(
     page.getByRole("link", { name: "Entrar novamente" }),
   ).toBeVisible();
+  // Wait for the session refresh AND a browser paint, not a transient alert.
+  const refreshed = page.waitForResponse((r) =>
+    r.url().endsWith("/api/sessao"),
+  );
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await (await refreshed).finished();
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await expect(
+    page.getByRole("link", { name: "Entrar novamente" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Avaliar serviço", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("region", { name: "Detalhes da solicitação" }),
+  ).toHaveCount(0);
   expect(state.sent).toBe(0);
+});
+
+test("resposta de sessão atrasada não envia avaliação após troca de identidade", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/solicitacoes?pedido=31");
+  await page.getByRole("radio", { name: "5 ★", exact: true }).check();
+  await page
+    .getByRole("button", { name: "Enviar avaliação", exact: true })
+    .click();
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let held = false;
+  await page.route("**/api/sessao", async (r) => {
+    if (held) return r.fallback();
+    held = true;
+    await gate;
+    await r.fulfill({ json: user });
+  });
+  await page
+    .getByRole("button", { name: "Confirmar avaliação", exact: true })
+    .click();
+  await expect.poll(() => held).toBe(true);
+  state.user = { ...user, idUsuario: 99 };
+  await page.evaluate(() =>
+    window.dispatchEvent(new Event("hive:display-change")),
+  );
+  await expect(
+    page.getByRole("region", { name: "Avaliar serviço", exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "não encontrada",
+  );
+  const delayed = page.waitForResponse((r) => r.url().endsWith("/api/sessao"));
+  release();
+  await (await delayed).finished();
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  expect(state.sent).toBe(0);
+  await expect(
+    page.getByRole("region", { name: "Avaliar serviço", exact: true }),
+  ).toHaveCount(0);
 });
 test("celular: formulário sem transbordamento e avaliações públicas paginadas", async ({
   page,

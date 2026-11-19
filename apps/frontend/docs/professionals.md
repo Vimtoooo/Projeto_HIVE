@@ -7,7 +7,7 @@ Inicie a API com `npm run start:dev` em `apps/backend` e o frontend com `npm run
 1. Busque pelo nome, área ou título/descrição de serviço ativo. O campo **Área de atuação** restringe a busca por trecho de área. Ambos ignoram maiúsculas/minúsculas; diferenças de acentos ainda são significativas nesta busca PostgreSQL.
 2. Abra **Ver detalhes**. O painel mostra experiência, certificações declaradas (sem selo de verificação), avaliações registradas e serviços ativos com preços.
 3. Use **Conversar** para abrir a conversa real da dupla. A própria conta não pode conversar consigo mesma.
-4. **Solicitar serviço** abre a criação de pedido com o serviço selecionado. Confira o valor, escolha a forma de pagamento pretendida e confirme. Não há cobrança. Contas somente de prestador não contratam; contas CONTRATANTE ou AMBOS contratam outro prestador.
+4. **Solicitar serviço** abre a criação de pedido com o serviço selecionado. Confira o valor, escolha a forma de pagamento pretendida e confirme. Não há cobrança. Toda conta ativa pode contratar outro prestador, inclusive PRESTADOR legado; autocontratação permanece proibida.
 5. No celular, **Voltar à lista** retorna aos resultados. Filtros, página e seleção ficam na URL e funcionam com Voltar/Avançar.
 
 A Home conserva os exemplos identificados como demonstração. `/home?secao=Profissionais` é encaminhado a `/profissionais`; favoritos locais continuam separados. Avaliações pela interface e favoritos reais foram acrescentados posteriormente; veja [avaliações](reviews.md) e [favoritos](favorites.md). Cadastro de prestador pela interface é a próxima etapa.

@@ -9,11 +9,16 @@ const select = {
   telefone: true,
   endereco: true,
   tipoUsuario: true,
+  prestadorPerfil: { select: { idPrestador: true } },
   dataCadastro: true,
 } satisfies Prisma.UsuarioSelect;
 function present(row: Prisma.UsuarioGetPayload<{ select: typeof select }>) {
-  const { cpf, ...publicFields } = row;
-  return { ...publicFields, cpfMascarado: `***.***.${cpf.slice(-5, -2)}-**` };
+  const { cpf, prestadorPerfil, ...publicFields } = row;
+  return {
+    ...publicFields,
+    possuiPerfilProfissional: prestadorPerfil !== null,
+    cpfMascarado: `***.***.${cpf.slice(-5, -2)}-**`,
+  };
 }
 @Injectable()
 export class ProfileService {

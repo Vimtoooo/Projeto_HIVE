@@ -35,3 +35,14 @@ Para demonstrar, conclua um pedido como prestador, entre como seu cliente em out
 - Complementos: lint e build nas duas aplicações; `npm run typecheck` no frontend e `npx tsc --project test/tsconfig.json` no backend.
 
 Os testes de navegador não substituem a integração HTTP/PostgreSQL: cada suíte verifica sua camada. Sem moderação, resposta do prestador, anexos ou edição de avaliações nesta entrega.
+
+
+## Troca de conta durante a confirmação
+
+Quando a consulta anterior ao envio detecta outra identidade ou sessão expirada, a operação é interrompida e os dados/formulário são removidos. O aviso com **Entrar novamente** pertence ao componente externo da página, fora do conteúdo cuja chave muda com a identidade: uma reconsulta da sessão não apaga o aviso nem reabre a avaliação. Esse estado dura enquanto a página permanece montada; não revoga por si só a sessão do servidor.
+
+Se o formulário já tiver sido desmontado enquanto aguardava a consulta, uma resposta atrasada não inicia o POST. Uma resposta de gravação já iniciada também não atualiza uma tela desmontada; isso não cancela uma gravação que o servidor já recebeu. A autorização final continua no backend.
+
+O teste de troca de conta aguarda a reconsulta e a renderização antes de conferir a permanência do aviso, ausência do formulário/detalhes antigos e zero envios. A fixture só entrega o pedido aos participantes e rejeita avaliações de terceiros. Outro cenário retém a resposta da sessão anterior até a identidade nova remover o formulário, comprovando que liberá-la depois não envia avaliação.
+
+Para investigar estabilidade no mesmo navegador da CI, remova `PLAYWRIGHT_CHANNEL` do processo e execute `npm run test:e2e -- ReviewsSpec --grep "troca de conta|resposta de sessão" --repeat-each=10`. Os cenários usam API simulada e não substituem a integração backend/PostgreSQL.

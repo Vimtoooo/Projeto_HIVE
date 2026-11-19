@@ -35,7 +35,8 @@ As senhas não são armazenadas em texto puro. O cadastro utiliza o algoritmo sc
   "idUsuario": 1,
   "nome": "Nome do usuário",
   "email": "usuario@email.com",
-  "tipoUsuario": "CONTRATANTE"
+  "tipoUsuario": "CONTRATANTE",
+  "possuiPerfilProfissional": false
 }
 
 ### Erros
@@ -71,3 +72,7 @@ O login agora exige `Content-Type: application/json` e `X-Hive-Request: 1`. Alé
 SessionGuard valida expiração e conta ATIVA. Operações de escrita exigem o header customizado para impedir formulários cross-origin; CORS não permite credenciais de outras origens. Use o frontend pelo proxy de mesma origem `/api`. A autorização de conversas verifica no servidor se o usuário é cliente ou prestador da dupla. Não aceita remetenteId ou contratanteId enviados pelo navegador como prova de identidade.
 
 Conversas privadas retornam 404 para terceiros e 401 sem sessão válida. Essa implementação não é JWT/RBAC e não transforma as rotas públicas do catálogo em rotas privadas.
+
+## Capacidades da conta
+
+Login, `GET /sessao`, cadastro de cliente e respostas de perfil incluem `possuiPerfilProfissional`, calculado pela presença da relação profissional. O tipo permanece por compatibilidade. Ativar o perfil preserva o cookie e a sessão; o frontend reconsulta a sessão e atualiza telas sem logout. Toda conta ativa pode contratar terceiros, inclusive o tipo legado PRESTADOR. Veja [conta única](CONTA-UNICA.md).

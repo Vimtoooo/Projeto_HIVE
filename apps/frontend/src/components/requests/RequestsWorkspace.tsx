@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useAccountSession } from "../../lib/useAccountSession";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ApiError, session } from "../../services/MessagingApi";
@@ -33,9 +34,44 @@ const date = (value: string) =>
   });
 export default function RequestsWorkspace() {
   const params = useSearchParams();
-  return <RequestsContent key={params.toString()} query={params.toString()} />;
+  const account = useAccountSession();
+  // Keep the interruption outside the identity-keyed content: a session refresh
+  // must not erase it and resume an action prepared by the previous account.
+  const [interrupted, setInterrupted] = useState(false);
+  const interrupt = useCallback(() => setInterrupted(true), []);
+  if (interrupted)
+    return (
+      <section className={styles.page}>
+        <h1>Minhas solicitações</h1>
+        <div className={styles.error} role="alert">
+          Sua sessão mudou ou expirou. A operação foi interrompida.{" "}
+          <Link href="/login">Entrar novamente</Link>
+        </div>
+      </section>
+    );
+  if (account.loading) return <p role="status">Consultando sua sessão…</p>;
+  if (account.error)
+    return (
+      <div role="alert">
+        {account.error}{" "}
+        <button onClick={() => void account.refresh()}>Tentar novamente</button>
+      </div>
+    );
+  return (
+    <RequestsContent
+      key={`${account.user?.idUsuario ?? "guest"}:${params.toString()}`}
+      query={params.toString()}
+      onUnauthorized={interrupt}
+    />
+  );
 }
-function RequestsContent({ query }: { query: string }) {
+function RequestsContent({
+  query,
+  onUnauthorized,
+}: {
+  query: string;
+  onUnauthorized: () => void;
+}) {
   const router = useRouter(),
     params = new URLSearchParams(query);
   const role: RequestRole =
@@ -80,6 +116,7 @@ function RequestsContent({ query }: { query: string }) {
     pagina: String(page),
   };
   function expire() {
+    onUnauthorized();
     setUnauthorized(true);
     setUser(null);
     setData(null);
@@ -146,6 +183,7 @@ function RequestsContent({ query }: { query: string }) {
     setError("");
     try {
       const current = await session();
+      if (!mounted.current) return;
       if (current.idUsuario !== user.idUsuario) {
         expire();
         return;
@@ -190,7 +228,7 @@ function RequestsContent({ query }: { query: string }) {
           </h1>
           <p>Acompanhe cada pedido e combine os próximos passos.</p>
         </div>
-        {user?.tipoUsuario !== "PRESTADOR" && user && (
+        {user && (
           <button
             className={styles.primary}
             onClick={() => navigate({ nova: "1" })}
@@ -243,22 +281,15 @@ function RequestsContent({ query }: { query: string }) {
                 >
                   ← Voltar à lista
                 </button>
-                {user.tipoUsuario === "PRESTADOR" ? (
-                  <p>
-                    Esta conta é somente de prestador. Veja os pedidos
-                    recebidos.
-                  </p>
-                ) : (
-                  <NewRequestForm
-                    user={user.idUsuario}
-                    initialProfessional={params.get("profissional")}
-                    initialService={params.get("servico")}
-                    onUnauthorized={expire}
-                    onCreated={(id) =>
-                      navigate({ papel: "cliente", pedido: String(id) })
-                    }
-                  />
-                )}
+                <NewRequestForm
+                  user={user.idUsuario}
+                  initialProfessional={params.get("profissional")}
+                  initialService={params.get("servico")}
+                  onUnauthorized={expire}
+                  onCreated={(id) =>
+                    navigate({ papel: "cliente", pedido: String(id) })
+                  }
+                />
               </div>
               <aside className={styles.tip}>
                 <HomeIcon name="shield" />
@@ -464,7 +495,9 @@ function RequestsContent({ query }: { query: string }) {
                         onSaved={(row) => {
                           if (!mounted.current) return;
                           setDetail(row);
-                          setNotice("Avaliação enviada. Obrigado por compartilhar sua experiência!");
+                          setNotice(
+                            "Avaliação enviada. Obrigado por compartilhar sua experiência!",
+                          );
                           setTick((v) => v + 1);
                         }}
                       />

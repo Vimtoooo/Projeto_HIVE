@@ -9,7 +9,7 @@ modal e o conteúdo se reorganiza sem rolagem horizontal da página.
 
 ## O que funciona
 
-- O convite **Quero ser profissional** leva a `/cadastro/prestador`. O bloco aparece para visitantes e contratantes; fica oculto para `PRESTADOR` e `AMBOS`, durante a consulta inicial ou se não for possível confirmar a sessão. A decisão usa `/sessao`, com atualização ao trocar de conta ou voltar à janela, sem confiar apenas no armazenamento local.
+- O convite **Quero ser profissional** leva visitantes a `/cadastro/prestador` e contas sem perfil profissional a `/perfil/prestador`. O bloco fica oculto quando `possuiPerfilProfissional` é verdadeiro, durante a consulta inicial ou se não for possível confirmar a sessão. A decisão usa `/sessao`, com atualização ao trocar de conta ou voltar à janela, sem confiar apenas no armazenamento local.
 - A seção **Profissionais cadastrados** usa `/profissionais`, com paginação por prestador, preço inicial, quantidade de serviços e avaliações reais. Os cards seguem a composição visual dos demonstrativos, mas usam iniciais, **Sem avaliações** quando aplicável e **Distância indisponível**, pois fotografia e geolocalização não estão implementadas. Favoritos e conversas são persistentes; **Ver detalhes** abre o painel existente em `/profissionais?profissional=<id>`.
 - Carregamento, lista vazia e erro são estados distintos. Uma falha ao carregar a próxima página preserva os cards existentes e oferece nova tentativa.
 
@@ -81,6 +81,13 @@ Desenvolver uma página dedicada de perfil público do prestador é uma das pró
 Mensagens agora abre a página `/mensagens` com a navegação compartilhada da Home. Os cards de profissionais cadastrados e de histórico direcionam para a conversa selecionada. Veja [o guia de mensagens](messages.md) para comportamento, protótipos e limites.
 
 
-## Evolução planejada: conta única
+## Conta única implementada
 
-O [plano de conta única](../../backend/docs/CONTA-UNICA.md) propõe permitir que profissionais também contratem serviços e que clientes ativem a atuação profissional sem criar outra identidade. Inclui regras de negócio, transição de contas existentes, sessão, convite e critérios de aceite. **Ainda não implementado:** os contratos e as restrições atuais descritos neste guia continuam válidos até a entrega desse requisito.
+A [conta única](../../backend/docs/CONTA-UNICA.md) permite que profissionais contratem terceiros e que clientes ativem o perfil profissional sem criar identidade, senha ou sessão novas. O convite depende da presença real do perfil e revalida a sessão no foco e na troca de conta.
+
+
+## Estabilidade durante a navegação
+
+As páginas do painel ficam em `src/app/(dashboard)`, com URLs inalteradas. O layout monta `DashboardLayout`/`HomeDashboard` uma vez; `usePathname` escolhe o conteúdo. O logo, o convite, a barra lateral e os providers de favoritos/notificações sobrevivem às transições entre Home, profissionais, mensagens, favoritos, solicitações, notificações, perfil e ajuda. Isso evita desmontar a imagem e ocultar o convite enquanto uma nova consulta de sessão acontece. O logo reserva largura e altura explícitas.
+
+Ao mudar de seção, somente controles transitórios (busca demonstrativa, filtros, menu e diálogos) são reiniciados. O convite continua revalidando a sessão ao retornar à janela e após mudanças de conta; armazenamento local não concede capacidade profissional. Login/cadastros ficam fora desse layout. O atalho legado `/home?secao=Favoritos` continua filtrando apenas exemplos demonstrativos; `/favoritos` representa os dados reais.

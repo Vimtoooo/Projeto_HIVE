@@ -289,6 +289,7 @@ export class RepositorioDominio {
       where: {
         email: email.toLowerCase().trim(),
       },
+      include: { prestadorPerfil: { select: { idPrestador: true } } },
     });
   }
 }

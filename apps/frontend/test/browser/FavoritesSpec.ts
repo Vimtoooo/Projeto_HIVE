@@ -28,6 +28,7 @@ async function fixture(page: Page) {
                 idUsuario: state.owner,
                 nome: "Ana",
                 email: "ana@example.invalid",
+                possuiPerfilProfissional: false,
                 tipoUsuario: "CONTRATANTE",
               },
             },

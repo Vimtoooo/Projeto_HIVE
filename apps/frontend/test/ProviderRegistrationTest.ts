@@ -59,7 +59,6 @@ test("preço brasileiro aceita limites sem truncar ou arredondar entradas invál
 test("campos obrigatórios e limites do contrato são respeitados", () => {
   for (const change of [
     { cnpj: "123" },
-    { certificacoes: " \n " },
     { certificacoes: Array(21).fill("Curso").join("\n") },
     { certificacoes: "x".repeat(192) },
     { nome: "x".repeat(192) },
@@ -94,4 +93,10 @@ test("resposta de serviço é validada sem aceitar resposta de usuário ou dados
     { ...result, idServico: -1 },
   ])
     assert.equal(isCreatedProvider(value), false);
+});
+
+test("certificações vazias geram lista vazia sem erro", () => {
+  const empty = { ...form, certificacoes: " \n " };
+  assert.deepEqual(providerInput(empty).certificacoes, []);
+  assert.equal(validateProvider(empty), null);
 });

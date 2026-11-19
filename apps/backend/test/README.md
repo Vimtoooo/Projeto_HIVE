@@ -444,3 +444,11 @@ Execute `npm run test:profissionais` para validar paginação por prestador, bus
 A migration aditiva `20261002000000_favorites` cria `Favorito`, com chave composta `(usuarioId, prestadorId)`, data de criação e FKs com exclusão em cascata. Preserva os registros existentes. Aplique `npm run db:migrate:deploy` e gere o client com `npm run prisma:generate`; reinicie o backend, sem reset.
 
 `GET /favoritos`, `PUT /favoritos/:prestadorId` e `DELETE /favoritos/:prestadorId` exigem sessão; escritas exigem `X-Hive-Request: 1`. Não aceitam identidade enviada no corpo. PUT/DELETE são idempotentes; indisponíveis permanecem removíveis. `npm run test:favoritos` verifica migrations e integração em PostgreSQL descartável, sem limpar o banco da aplicação. O reset de dados já remove vínculos por cascata; nenhum favorito é adicionado pelo seed.
+
+## Conta única
+
+Em `apps/backend`, `npm run test:conta-unica` usa `scripts/verify-account.cjs` e a configuração `test/jest-account.json`. Exige PostgreSQL local e TEST_DATABASE_URL com sufixo `_test`, como as suítes recentes: cria um banco `hive_account_<uuid>_test`, aplica migrations, compara schema e remove somente esse banco no encerramento. Não usar `test:db:prepare`, reset ou seed para substituir esse isolamento.
+
+Os seis cenários HTTP/Prisma verificam cadastro AMBOS com certificações omitidas, ativação concorrente sem duplicação, preservação de dados/sessões/relações, validações e segurança, rollback após falha real no primeiro serviço, contratação recíproca e conversão seletiva/idempotente. As falhas transitórias e o limite de três tentativas são cobertos nos testes unitários do serviço. Execute também `npx tsc --project test/tsconfig.json`.
+
+As suítes `test:profissionais`, `test:perfil`, `test:solicitacoes`, `test:avaliacoes`, `test:mensagens`, `test:favoritos` e `test:notificacoes` verificam as regressões relacionadas, cada uma em banco descartável próprio. A conversão de dados reais não é parte desses comandos.

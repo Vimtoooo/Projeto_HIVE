@@ -122,10 +122,15 @@ test("celular tem menu funcional, sem transbordamento horizontal e captura", asy
     .click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(
-    page.getByRole("heading", { name: "Seus profissionais favoritos ficam aqui" }),
+    page.getByRole("heading", {
+      name: "Seus profissionais favoritos ficam aqui",
+    }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Abrir navegação" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Início", exact: true }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Início", exact: true })
+    .click();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -197,6 +202,7 @@ test("login com armazenamento bloqueado mantém nome em memória", async ({
         idUsuario: 9,
         nome: "Marina Teste",
         email: "marina@example.invalid",
+        possuiPerfilProfissional: false,
         tipoUsuario: "CONTRATANTE",
       },
     }),

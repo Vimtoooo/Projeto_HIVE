@@ -1,98 +1,84 @@
-# Próximo requisito — conta única para contratar e prestar serviços
+# Conta única para contratar e prestar serviços
 
-## Estado e objetivo
+Implementação iniciada em 05/11/2026 e finalizada em 08/11/2026. Uma conta ativa pode contratar outros profissionais; o perfil profissional é uma capacidade adicional ligada ao mesmo `idUsuario`. Certificações são opcionais e continuam declaradas, sem verificação ou selo. Veja as [etapas futuras](PROXIMAS-TAREFAS.md).
 
-**Planejado, ainda não implementado.** O usuário solicitou a preparação deste requisito e do plano para o próximo agente. Esta entrega altera somente documentação; não converte contas, não aplica migrations e não autoriza publicação ou alterações em banco real.
+## Fluxos e autorização
 
-Objetivo: permitir que a mesma pessoa contrate e ofereça serviços com uma única identidade, senha, sessão e histórico. Este requisito passa a ser a prioridade proposta antes da página dedicada de perfil público do prestador, que permanece no backlog.
+- `POST /clientes` cria `CONTRATANTE`. `POST /prestadores` cria `AMBOS`, perfil e primeiro serviço na transação existente; mantém resposta pública de serviço e login posterior.
+- `POST /perfil/prestador` ativa a conta autenticada sem criar usuário ou alterar senha, CPF, e-mail, sessão ou histórico. Perfil, serviço e tipo `AMBOS` são gravados juntos.
+- Toda conta ativa pode contratar, inclusive `PRESTADOR` legado. Oferecer serviços exige o registro profissional e a disponibilidade atual do serviço/conta.
+- Autocontratação e autoavaliação são negadas no servidor. Ser `AMBOS` não concede acesso a pedidos de terceiros nem permite aceitar/concluir pedidos feitos a outro profissional. Avaliação exige participação como contratante e pedido concluído.
+- Mantêm-se preço do servidor, chave de envio do pedido, bloqueios financeiros, notificações transacionais e conversas direcionais. Não há cobrança nova nem fusão de conversas.
 
-### Analogia de produto
+## Contrato de ativação
 
-Um eletricista usa o HIVE para receber pedidos de instalações. Quando precisa pintar sua casa, contrata um pintor pelo mesmo login. Na instalação ele é o prestador; na pintura ele é o contratante. São dois papéis em pedidos diferentes, e não duas pessoas ou duas contas.
+Exige cookie de sessão válido, conta ativa e `X-Hive-Request: 1`. Aceita somente:
 
-A conta é a identidade da pessoa. O perfil profissional é uma capacidade adicional dessa conta. Uma eventual seleção visual de papel serve para filtrar a interface, nunca para conceder permissões.
+```json
+{
+  "cnpj": "12345678000199",
+  "areaAtuacao": "Montagem",
+  "experiencia": "Montagem de móveis",
+  "certificacoes": [],
+  "servico": {
+    "titulo": "Montagem de mesa",
+    "descricao": "Montagem completa",
+    "precoBase": 200
+  }
+}
+```
 
-## O que existe hoje
+CNPJ obrigatório e único, com 14 dígitos: validação de formato, sem consulta oficial. Área/experiência: 1–191 caracteres; título: 5–191; descrição: 1–5000; preço: 0,01–1.000.000,00, até duas casas decimais. Certificações omitidas ou `[]` persistem como `[]`; `null`, tipos incorretos, itens vazios ou só espaços são rejeitados. Máximo de 20 itens, 1–191 caracteres cada. O DTO profissional é compartilhado com o cadastro direto.
 
-- `Usuario` concentra identidade e relações de contratação; `Prestador` é uma extensão opcional ligada à mesma identidade no schema Prisma.
-- Existem os valores `CONTRATANTE`, `PRESTADOR` e `AMBOS`.
-- `POST /clientes` cria `CONTRATANTE`; `POST /prestadores` cria `PRESTADOR`, perfil profissional e primeiro serviço juntos.
-- O backend bloqueia explicitamente `PRESTADOR` ao criar uma solicitação. A interface repete essa restrição no catálogo e em Minhas solicitações.
-- `AMBOS` já passa pela regra de criação de pedidos. Oferecer serviços exige também o registro profissional; apenas alterar o enum não cria esse registro.
-- Minhas solicitações já distingue **Pedidos feitos** e **Pedidos recebidos**.
-- Ainda não existe fluxo de ativação profissional de uma conta autenticada. O cadastro público atual não deve ser reutilizado como conversão, pois cria outra identidade.
+- `201`: mesmo objeto público de serviço de `POST /prestadores`.
+- `400`: payload inválido ou campo extra, inclusive identidade, senha, capacidades ou tipo de usuário.
+- `401`: sessão inexistente, expirada ou conta não ativa; `403`: ausência do cabeçalho de segurança.
+- `409`, `code: PERFIL_PROFISSIONAL_EXISTENTE`: já existe perfil; nenhuma gravação adicional, mesmo se o payload repetido for diferente.
+- `409`, `code: CNPJ_DUPLICADO`: CNPJ de outro perfil.
+- `503`: falha recuperável; consultar sessão antes de repetir.
 
-## Regras de negócio propostas
+A transação usa isolamento serializável e até três tentativas para conflitos transitórios `P2034`. As chaves únicas do banco impedem perfis/CNPJs duplicados. A repetição após confirmação devolve conflito explícito, sem criar outro primeiro serviço. Falha no serviço desfaz também o perfil.
 
-| Situação final | Contratar outro profissional | Receber pedidos de seus serviços |
-| --- | --- | --- |
-| Visitante | Entrar ou cadastrar-se primeiro | Não |
-| Conta ativa sem perfil profissional | Sim | Não |
-| Conta ativa com perfil profissional | Sim | Sim, conforme disponibilidade do serviço |
-| Conta inativa | Não iniciar novas operações | Não disponibilizar novos pedidos; preservar histórico e regras existentes de acesso |
+Login, sessão, cadastro de cliente e perfil retornam `possuiPerfilProfissional: boolean`. A presença real da relação profissional é a autoridade; `tipoUsuario` permanece no contrato. O novo frontend exige esse booleano: disponibilize o backend antes de atualizar o frontend. Clientes antigos continuam recebendo os campos anteriores, mas precisam recarregar a versão nova para remover seus antigos bloqueios visuais.
 
-1. **Identidade única:** ativar a atuação profissional preserva `idUsuario`, CPF, e-mail, senha, favoritos, conversas, notificações, avaliações e pedidos existentes. Não solicitar novo cadastro pessoal nem criar outro login.
-2. **Contratação como capacidade básica:** todo usuário ativo pode contratar serviços ativos de outros profissionais ativos, inclusive quem presta serviços.
-3. **Ativação profissional explícita:** cliente informa CNPJ, área, experiência, certificações e primeiro serviço, seguindo as validações atuais. Dados pessoais vêm da conta autenticada; não aceitar identidade de destino ou tipo de conta escolhidos pelo navegador.
-4. **Ativação atômica:** perfil, primeiro serviço e mudança de tipo devem ocorrer juntos. Falha ou conflito não pode deixar perfil incompleto nem modificar parcialmente a conta.
-5. **Sem duplicação:** chamadas simultâneas e repetição após falha de conexão não podem duplicar perfil ou primeiro serviço. Definir contrato de idempotência; repetir uma ativação concluída deve retornar resultado consistente ou conflito claro, sem novas gravações.
-6. **Unicidade:** CPF/e-mail permanecem os da conta; CNPJ mantém a restrição existente. Não fundir automaticamente contas com identidades ou documentos conflitantes.
-7. **Sem autocontratação:** comparar a identidade autenticada com o dono do serviço no servidor. Proibir também autoavaliação e preservar as restrições atuais de ações sobre o próprio perfil.
-8. **Papel por pedido:** o contratante cria/cancela e avalia conforme as regras atuais; o prestador responsável aceita/recusa/conclui/cancela conforme o estado. Ser `AMBOS` não dá acesso a pedidos alheios nem permite aceitar o pedido feito a outro profissional.
-9. **Avaliações:** somente o contratante do pedido concluído pode avaliar, uma vez. Um prestador que contratou outro pode avaliá-lo nesse contexto; a avaliação pertence ao profissional que executou o serviço.
-10. **Mesmas garantias do fluxo atual:** manter preço obtido do servidor, chave de envio, transições, bloqueios financeiros e notificações à contraparte. Nenhum pagamento automático novo faz parte do requisito.
-11. **Sessão como autoridade:** após ativação, consultar novamente a sessão no servidor e atualizar todas as telas dependentes. Revalidar ao retornar à janela e trocar de conta; armazenamento local não concede capacidades.
-12. **Interface única:** manter Pedidos feitos/Pedidos recebidos. O convite profissional aparece para quem ainda não possui a capacidade; autenticados seguem para ativação e visitantes para cadastro. Quem já é profissional não vê convite de ativação. Não exigir logout para alternar entre contratar e prestar.
+## Interface e sessão
 
-## Estratégia proposta para os tipos e contas existentes
+O convite da home e Meu perfil levam o cliente a `/perfil/prestador`; visitantes seguem para `/cadastro/prestador`. Profissionais não veem o convite. O cadastro público encaminha autenticados à ativação ou Meu perfil, conforme a sessão.
 
-Preferir reaproveitar `AMBOS` como tipo persistido da conta com perfil profissional, mantendo `CONTRATANTE` para quem não ativou essa capacidade. Não remover o valor legado `PRESTADOR` nesta entrega sem necessidade demonstrada.
+A ativação exibe somente dados profissionais e primeiro serviço, reutilizando campos/validações do cadastro. CNPJ obrigatório e certificações opcionais são explicados antes do preenchimento. Não há dados fictícios para contornar campos obrigatórios.
 
-- Novos cadastros profissionais passam a produzir conta `AMBOS`, perfil e primeiro serviço, mantendo o contrato público compatível ou documentando sua evolução.
-- Ativação de cliente autenticado muda `CONTRATANTE` para `AMBOS` somente após criar o perfil e primeiro serviço na transação.
-- Contas legadas `PRESTADOR` com perfil válido devem ganhar capacidade de contratar. Preferência: conversão controlada e idempotente para `AMBOS`, sem recriar usuários ou apagar histórico.
-- Preparar primeiro uma consulta de diagnóstico: contagens por tipo e presença de perfil, incluindo `PRESTADOR` sem perfil e `AMBOS` sem perfil. Inconsistências exigem tratamento explícito; não inventar CNPJ, certificações ou serviços para corrigir dados.
-- Definir compatibilidade durante implantação: backend não deve depender apenas da atualização simultânea de todos os clientes ou de sessões armazenadas localmente. Testar sessões abertas antes da conversão.
-- O enum e a relação já existem; não presumir necessidade de alteração estrutural. Se necessária, justificar migration. Uma atualização de dados deve ser rastreável, ter pré-condições e ser validada em banco descartável antes de qualquer execução real.
-- Documentar execução, auditoria e recuperação. Não fazer rollback cego para `PRESTADOR` após essas contas criarem pedidos. Não usar reset/seed para converter contas existentes.
+Após sucesso, a interface consulta a sessão e abre Meu perfil com confirmação, sem logout. Resposta perdida, conflito de perfil existente ou falha incerta exigem consulta antes de reenviar. CNPJ duplicado preserva campos para correção. Falha na consulta não é apresentada como prova de falha da ativação.
 
-Essas são decisões técnicas propostas para revisão pelo próximo agente, não funcionalidades já disponíveis. A forma exata do endpoint de ativação e da atualização de dados deve ser definida após conferir os contratos atuais.
+As capacidades são reconsultadas no foco da janela, retorno de visibilidade e eventos de mudança de conta. Respostas obsoletas são descartadas; a ativação limpa o formulário ao trocar identidade. SessionStorage contém somente apresentação, nunca autoridade. Pedidos feitos e Pedidos recebidos permanecem na mesma interface.
 
-## Plano de implementação
+## Legado: diagnóstico e conversão controlada
 
-1. **Confirmar o ponto de partida:** ler AGENTS.md, conferir branch/diff e preservar trabalho não commitado. Rastrear os tipos no domínio, persistência, sessão, pedidos e interface. Registrar contratos e invariantes antes de editar.
-2. **Concluir o contrato:** definir endpoint autenticado separado do cadastro público, payload apenas profissional, resposta, erros de validação/unicidade e idempotência. Documentar antes de ligar a interface. Não abrir alteração arbitrária de `tipoUsuario` na edição de perfil.
-3. **Implementar backend:** ativação atômica, cadastro profissional com capacidade dupla, autorização por identidade/participação e compatibilidade de contratação das contas legadas. Reutilizar as regras atuais de validação, sem duplicá-las em versões divergentes.
-4. **Preparar transição dos dados:** diagnóstico, procedimento de atualização e verificação em banco descartável. Preservar IDs, vínculos, valores e histórico. Separar preparação/testes da execução em ambiente real.
-5. **Implementar interface:** visitante mantém cadastro profissional; cliente autenticado ativa perfil sem redigitar dados pessoais; profissional contrata pelo catálogo. Remover mensagens/bloqueios de “somente prestador” de forma coordenada com o backend. Atualizar convite, perfil, solicitações e sessão. Preservar o alinhamento e responsividade já entregues.
-6. **Validar ponta a ponta:** contas novas/legadas, ativação, contratação recíproca, ações por participante, avaliações, notificações e histórico. Corrigir somente regressões relacionadas.
-7. **Documentar e encerrar:** atualizar contratos, guias, exemplos e estado real do roadmap; registrar resultados/limitações, preparar continuidade e parar. Não iniciar a página pública de perfil no mesmo escopo.
+Não há migration estrutural nova. O enum `PRESTADOR` permanece aceito e as contas legadas já podem contratar antes de qualquer conversão. Certificações e histórico antigos são preservados.
 
-## Critérios de aceite e testes
+Em `apps/backend`, selecione conscientemente o arquivo de ambiente e o destino. `npm run contas:diagnostico` somente lê o banco `DATABASE_URL`: retorna contagens por tipo/presença de perfil, IDs elegíveis e inconsistências. Não expõe documentos ou credenciais.
 
-- Um eletricista cadastrado como profissional contrata um pintor sem criar outra conta; continua recebendo pedidos de instalações. Os pedidos aparecem nas abas corretas.
-- Um cliente ativa o perfil, mantendo identidade, credenciais e histórico. A sessão aberta passa a refletir a capacidade profissional; o convite desaparece.
-- Novo cadastro profissional resulta em capacidades duplas; conta sem perfil continua podendo contratar, mas não oferecer serviços.
-- Perfil existente, CNPJ duplicado, campos inválidos, envio duplo, concorrência, timeout após confirmação e falha no primeiro serviço não causam duplicações ou estado parcial.
-- Conta legada válida continua acessível após a atualização; inconsistências são identificadas sem dados inventados. Sessões antigas e troca entre contas não vazam permissões.
-- Autocontratação e autoavaliação são negadas pelo backend mesmo com requisição manual. Usuário externo não consulta/altera pedidos de terceiros. Prestador contratante não aceita/conclui pedidos que fez a outro profissional.
-- Preços, avaliações, notificações, favoritos, histórico e fluxo de mensagens mantêm seus contratos. Testar dois profissionais contratando um ao outro, respeitando a direção das conversas atual, sem fundir conversas indiscriminadamente.
-- Conferir desktop/tablet/celular, teclado, mensagens em português, estados de carregamento/erro e ausência de sobreposição. Login permanece sem rolagem nas dimensões já testadas.
-- Frontend: lint, typecheck, testes unitários, build e Playwright dos fluxos de autenticação, cadastro, solicitações, catálogo e sessão afetados.
-- Backend: lint:check, build, testes unitários e integrações pertinentes de cadastro, solicitações, avaliações, mensagens e sessão em PostgreSQL descartável. Usar os scripts existentes descritos nos READMEs; não apontar testes destrutivos a bancos do usuário.
-- Atualizar documentação para distinguir o que foi efetivamente entregue de qualquer etapa pendente.
+O procedimento `scripts/conta-unica.ts` converte somente `PRESTADOR` com perfil, ao menos um serviço, CNPJ de 14 dígitos, área e experiência não vazias. Contas sem perfil, perfis sem serviço/dados essenciais e `CONTRATANTE` com perfil são diagnosticados, sem reparo automático. `AMBOS` sem perfil não recebe capacidade profissional fictícia.
 
-## Arquivos de entrada
+A conversão é separada do deploy e exige autorização própria para o ambiente de destino:
 
-- `apps/backend/prisma/schema.prisma`: identidade, tipos e extensão profissional.
-- `apps/backend/src/catalog/servico.service.ts`, `servico.repository.ts`, `catalogo.dto.ts`: cadastro profissional atual.
-- `apps/backend/src/cliente/cliente.service.ts`, `src/models/Prestador.ts`, `src/persistence/`: criação e persistência da identidade.
-- `apps/backend/src/auth/`, `src/profile/`, `src/requests/requests.service.ts`, `src/messaging/`: sessão, perfil e autorização.
-- `apps/frontend/src/components/ProviderRegistrationForm.tsx`, `src/services/ProviderRegistrationApi.ts`: cadastro público atual.
-- `apps/frontend/src/components/professionals/ProfessionalDetails.tsx`, `src/components/requests/RequestsWorkspace.tsx`: bloqueios atuais de contratação.
-- `apps/frontend/src/components/home/ProviderInvitation.tsx`, `src/components/profile/ProfileWorkspace.tsx`, `src/services/ApiClient.ts`, `src/types/ApiTypes.ts`: convite, conta e sessão.
-- Guias: [cadastros](../../frontend/docs/registration.md), [solicitações](../../frontend/docs/requests.md), [API de catálogo](CATALOGO-API.md).
+```powershell
+npm run contas:diagnostico -- --aplicar --confirmar-banco=NOME_EXATO_DO_BANCO
+```
 
-## Limites
+Ela refaz o diagnóstico dentro de transação serializável, registra contagens/IDs antes e depois e é idempotente. Antes de executar em ambiente real, revisar inconsistências, guardar diagnóstico e backup conforme o processo da equipe; depois, conferir IDs, contagens e sessões. Em falha, a transação desfaz a operação. Após confirmação, não fazer rollback cego para `PRESTADOR`: podem existir novos pedidos feitos por essas contas. Recuperação deve ser revisada com base nos registros afetados.
 
-Não inclui pagamentos, geolocalização, upload de fotos, fusão de contas duplicadas, remoção do perfil profissional, novos poderes administrativos ou página dedicada de perfil público. Não criar outra plataforma ou exigir duas contas. Não executar commit, push, merge, publicação ou conversão em banco real automaticamente. Neste momento foi autorizada a documentação do plano; o próximo agente deve confirmar a autorização de implementação na conversa em que receber a tarefa.
+**Nesta entrega, conversão executada somente em banco descartável de testes; nenhum banco real foi convertido.**
+
+## Verificação e limites
+
+`npm run test:conta-unica` cria/remove seu próprio PostgreSQL descartável e aplica as migrations existentes. Cobre cadastro sem certificações, validação/autorização, concorrência, rollback por falha real no insert do serviço, preservação das relações/sessão, contratação recíproca e conversão idempotente. As suítes de profissionais, perfil, solicitações, avaliações, mensagens, favoritos e notificações complementam as regressões.
+
+No frontend, `ProviderActivationSpec` verifica entradas, recuperação de resposta perdida, erros, troca de conta, teclado e larguras 320/390/768/1440. Executar também os cenários relacionados de cadastro, autenticação, perfil, catálogo, solicitações e acabamento visual. Playwright usa API simulada; as suítes backend usam HTTP/Prisma/PostgreSQL real.
+
+Sem upload, verificação oficial, distintivo azul, página pública dedicada, fusão de contas, remoção de perfil, pagamentos novos ou poderes administrativos. A próxima etapa exige definição de fontes oficiais, evidências, reconsulta, validade/revogação e revisão manual. Não iniciar automaticamente.
+
+### Evidência de validação — fechamento em 08/11/2026
+
+- Backend: lint, build, 4 testes unitários e tipos dos testes aprovados. Integrações PostgreSQL descartáveis: conta única (6), profissionais (6), perfil (4), solicitações (6), avaliações (5), mensagens (7), favoritos (5) e notificações (5): 44 testes aprovados. Nenhuma migration estrutural nova; migrations existentes aplicadas apenas nos bancos descartáveis.
+- Frontend: lint, typecheck, 25 testes unitários e build aprovados. Suíte completa Playwright com Edge: 80 testes aprovados; os 12 cenários de ativação foram repetidos após o ajuste final do cabeçalho e passaram. API simulada no navegador; sem alegação de validação browser/backend real de ponta a ponta. Capturas desktop/celular inspecionadas, inclusive correção de cores e bordas da ativação.
+- `git diff --check` e links locais dos documentos alterados sem problemas. Nenhum commit, push ou publicação. O procedimento de conversão do legado não foi executado no banco da aplicação.

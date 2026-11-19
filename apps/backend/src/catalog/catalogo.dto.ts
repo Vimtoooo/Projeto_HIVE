@@ -1,7 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
-  ArrayNotEmpty,
   IsArray,
   IsDefined,
   IsEmail,
@@ -46,7 +45,36 @@ export class ServicoInicialDto {
   precoBase!: number;
 }
 
-export class CadastroPrestadorDto {
+export class PerfilProfissionalDto {
+  @Transform(texto)
+  @IsString()
+  @Length(1, 191)
+  areaAtuacao!: string;
+
+  @Transform(texto)
+  @IsString()
+  @Length(1, 191)
+  experiencia!: string;
+
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  @Length(1, 191, { each: true })
+  @Matches(/\S/, { each: true })
+  certificacoes: string[] = [];
+
+  @IsString()
+  @Matches(/^\d{14}$/)
+  cnpj!: string;
+
+  @IsDefined()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ServicoInicialDto)
+  servico!: ServicoInicialDto;
+}
+
+export class CadastroPrestadorDto extends PerfilProfissionalDto {
   @Transform(texto)
   @IsString()
   @Length(3, 191)
@@ -77,34 +105,6 @@ export class CadastroPrestadorDto {
   @IsString()
   @Length(5, 191)
   endereco!: string;
-
-  @Transform(texto)
-  @IsString()
-  @Length(1, 191)
-  areaAtuacao!: string;
-
-  @Transform(texto)
-  @IsString()
-  @Length(1, 191)
-  experiencia!: string;
-
-  @IsArray()
-  @ArrayNotEmpty()
-  @ArrayMaxSize(20)
-  @IsString({ each: true })
-  @Length(1, 191, { each: true })
-  @Matches(/\S/, { each: true })
-  certificacoes!: string[];
-
-  @IsString()
-  @Matches(/^\d{14}$/)
-  cnpj!: string;
-
-  @IsDefined()
-  @IsObject()
-  @ValidateNested()
-  @Type(() => ServicoInicialDto)
-  servico!: ServicoInicialDto;
 }
 
 export class BuscarServicosDto {

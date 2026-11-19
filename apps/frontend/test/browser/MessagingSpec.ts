@@ -3,6 +3,7 @@ const user = {
   idUsuario: 7,
   nome: "Ana Teste",
   email: "ana@example.invalid",
+  possuiPerfilProfissional: false,
   tipoUsuario: "CONTRATANTE",
 };
 const provider = {

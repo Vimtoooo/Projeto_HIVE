@@ -8,6 +8,7 @@ const user = {
   idUsuario: 1,
   nome: "Ana Demonstração",
   email: "ana@example.invalid",
+  possuiPerfilProfissional: false,
   tipoUsuario: "CONTRATANTE",
 };
 async function credentials(page: Page) {

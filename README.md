@@ -23,17 +23,17 @@ A arquitetura organiza regras em **classes de domínio**; o catálogo segue Cont
 
 O cadastro de prestadores também está disponível na interface em `/cadastro/prestador`, acessível pelo login e cadastro de cliente. O formulário cria o perfil e o primeiro serviço pela API existente, valida os campos e direciona ao login após sucesso. Consulte o [guia de cadastro](apps/frontend/docs/registration.md#cadastro-de-prestador).
 
-A API REST NestJS/Prisma/PostgreSQL oferece cadastro de clientes e prestadores, catálogo de serviços, login com sessão HTTP-only, mensagens persistentes e fluxo de solicitações: criar, aceitar/recusar, concluir, cancelar e avaliar. Notificações persistentes avisam a contraparte sobre novas mensagens, alterações dos pedidos e avaliações recebidas. O frontend Next.js integra essas funções em páginas com navegação compartilhada. Pagamentos continuam no planejamento; JWT/RBAC amplo permanece como evolução da autorização atual por sessão e participação.
+A API REST NestJS/Prisma/PostgreSQL oferece cadastro de clientes e prestadores, catálogo de serviços, login com sessão HTTP-only, mensagens persistentes e fluxo de solicitações: criar, aceitar/recusar, concluir, cancelar e avaliar. Notificações persistentes avisam a contraparte sobre novas mensagens, alterações dos pedidos e avaliações recebidas. O frontend Next.js integra essas funções em páginas com navegação compartilhada, mantida pelo layout persistente `apps/frontend/src/app/(dashboard)` para preservar logo, convite e barra lateral nas transições. Pagamentos continuam no planejamento; JWT/RBAC amplo permanece como evolução da autorização atual por sessão e participação.
 
 Consulte os guias do [backend](apps/backend/README.md), [testes](apps/backend/test/README.md), [Prisma](apps/backend/prisma/README.md) e [requisições HTTP](apps/backend/http/README.md) para configuração, execução e limpeza dos dados fictícios.
 
 A migração atual usa `@prisma/adapter-pg` e URLs `postgresql://` (porta padrão 5432). Os bancos locais devem ser preparados no PostgreSQL; há uma migration inicial PostgreSQL validada, e o SQL MySQL foi arquivado. Como os dados legados são fictícios, serão recriados pelo seed; não há cópia automática. Consulte o [guia do Prisma](apps/backend/prisma/README.md#preparação-para-postgresql).
 
-## Próximo requisito planejado: conta única
+## Conta única: contratar e prestar serviços
 
-**Estado: plano documentado, implementação pendente.** A prioridade proposta é permitir contratar e prestar serviços com a mesma conta. Analogia: um eletricista recebe pedidos de instalações e contrata um pintor para sua casa pelo mesmo login. O papel muda conforme o pedido; a identidade e o histórico permanecem.
+Uma conta ativa pode contratar outros profissionais e ativar seu próprio perfil profissional, mantendo identidade, sessão e histórico. O cadastro direto cria `AMBOS`; contas legadas `PRESTADOR` também podem contratar. A ativação está disponível na home e em Meu perfil. CNPJ continua obrigatório; certificações são opcionais e declaradas.
 
-Hoje, o cadastro profissional cria `PRESTADOR`, que não pode solicitar serviços; `AMBOS` já é reconhecido pelo fluxo de pedidos, mas ainda falta a ativação profissional de clientes e a transição das contas existentes. Consulte o [plano de conta única, regras de negócio e critérios de aceite](apps/backend/docs/CONTA-UNICA.md). A página dedicada de perfil público permanece no backlog, após essa prioridade proposta.
+Consulte o [contrato e procedimento de legado](apps/backend/docs/CONTA-UNICA.md). A conversão de tipos foi validada apenas em banco descartável e não é executada automaticamente. As [próximas tarefas](apps/backend/docs/PROXIMAS-TAREFAS.md) mantêm verificação oficial e distintivo azul para etapas futuras. A página pública dedicada permanece no backlog.
 
 ## 🛠️ Stack Tecnológica
 
@@ -249,7 +249,7 @@ Documentação duradoura e necessária à equipe é versionada nos READMEs, em `
 ## 📈 Roadmap
 
 - [x] Padronizar cadastros com validação por campo e cards reais da Home com preço e avaliações.
-- [ ] Implementar [conta única para contratar e prestar serviços](apps/backend/docs/CONTA-UNICA.md), incluindo ativação profissional e tratamento das contas existentes (próxima prioridade proposta; plano pronto, código pendente).
+- [x] Implementar [conta única para contratar e prestar serviços](apps/backend/docs/CONTA-UNICA.md), ativação profissional e procedimento controlado de legado (execução em banco real separada).
 - [ ] Desenvolver página dedicada de perfil público do prestador (backlog após conta única; atualmente existe o painel de detalhes no catálogo).
 
 - [x] Modelagem de Domínio e Validações de Integridade.

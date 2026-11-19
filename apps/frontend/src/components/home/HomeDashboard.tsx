@@ -32,6 +32,7 @@ import FavoritesProvider, {
 import FavoritesWorkspace from "../favorites/FavoritesWorkspace";
 import ProfessionalsWorkspace from "../professionals/ProfessionalsWorkspace";
 import HelpWorkspace from "../help/HelpWorkspace";
+import ProviderActivation from "../profile/ProviderActivation";
 import ProfileWorkspace from "../profile/ProfileWorkspace";
 import RequestsWorkspace from "../requests/RequestsWorkspace";
 import MessagesWorkspace from "../messages/MessagesWorkspace";
@@ -94,6 +95,7 @@ type DashboardProps = {
     | "professionals"
     | "favorites";
   initialSection?: string;
+  activateProvider?: boolean;
 };
 export default function HomeDashboard(props: DashboardProps) {
   return (
@@ -107,6 +109,7 @@ export default function HomeDashboard(props: DashboardProps) {
 function DashboardContent({
   view = "home",
   initialSection = "Início",
+  activateProvider = false,
 }: {
   view?:
     | "home"
@@ -118,6 +121,7 @@ function DashboardContent({
     | "professionals"
     | "favorites";
   initialSection?: string;
+  activateProvider?: boolean;
 }) {
   const router = useRouter();
   const notifications = useNotifications();
@@ -210,6 +214,23 @@ function DashboardContent({
     null,
   );
   const [announcement, setAnnouncement] = useState("");
+  // The shell survives navigation; reset only transient page controls.
+  const route = `${view}:${activateProvider}:${initialSection}`;
+  const [previousRoute, setPreviousRoute] = useState(route);
+  if (previousRoute !== route) {
+    setPreviousRoute(route);
+    setDraft("");
+    setQuery("");
+    setCategory(null);
+    setAllCategories(false);
+    setOnlyFavorites(initialSection === "Favoritos");
+    setActive(initialSection);
+    setExpanded(null);
+    setMenu(false);
+    setDetail(null);
+    setNotice(null);
+    setAnnouncement("");
+  }
   const results = filterProfessionals(
     professionals,
     query,
@@ -296,8 +317,24 @@ function DashboardContent({
             <button
               type="button"
               key={item.label}
-              className={active === item.label ? styles.active : ""}
-              aria-current={active === item.label ? "page" : undefined}
+              className={
+                (
+                  item.label === "Início"
+                    ? view === "home" && active === item.label
+                    : view === "professionals"
+                )
+                  ? styles.active
+                  : ""
+              }
+              aria-current={
+                (
+                  item.label === "Início"
+                    ? view === "home" && active === item.label
+                    : view === "professionals"
+                )
+                  ? "page"
+                  : undefined
+              }
               onClick={() => nav(item.label)}
             >
               <HomeIcon name={item.icon} />
@@ -480,7 +517,11 @@ function DashboardContent({
               ) : view === "help" ? (
                 <HelpWorkspace />
               ) : view === "profile" ? (
-                <ProfileWorkspace />
+                activateProvider ? (
+                  <ProviderActivation />
+                ) : (
+                  <ProfileWorkspace />
+                )
               ) : view === "notifications" ? (
                 <NotificationsWorkspace />
               ) : view === "requests" ? (

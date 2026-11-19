@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
 import { mockHomeApi } from "./ApiFixture";
+test.beforeEach(async ({ page }) => {
+  await page.route("**/api/sessao", (r) =>
+    r.fulfill({ status: 401, json: {} }),
+  );
+});
 
 for (const path of ["/cadastro", "/cadastro/prestador"]) {
   test(`${path}: erros por campo, foco, edição e placeholders`, async ({
@@ -102,6 +107,7 @@ test("convite usa sessão real, oculta prestadores e acompanha troca de conta", 
               nome: "Ana",
               email: "ana@example.invalid",
               tipoUsuario: role,
+              possuiPerfilProfissional: role !== "CONTRATANTE",
             },
           }
         : { status: 401, json: {} },

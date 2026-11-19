@@ -12,7 +12,7 @@ A consulta é pública. Atalhos para informações pessoais seguem as proteçõe
 
 - `src/data/HelpArticles.ts`: artigos tipados, categorias e função pura de busca. Atualize os textos quando as regras do aplicativo evoluírem.
 - `src/components/help/HelpWorkspace.tsx`: pesquisa controlada, filtro e artigos com `details/summary` nativos, acessíveis por teclado.
-- `src/app/ajuda/page.tsx`: rota e metadados; `HomeDashboard` mantém cabeçalho e navegação compartilhados.
+- `src/app/(dashboard)/ajuda/page.tsx`: rota e metadados; `HomeDashboard` mantém cabeçalho e navegação compartilhados.
 - `src/styles/help-page.module.css`: painéis responsivos, foco visível e ícone simples junto ao título.
 
 Nenhuma dependência, endpoint, migration ou acesso ao banco foi adicionado. O shell conserva seu contador de notificações; falhas ou ausência de sessão não impedem a leitura dos guias. Os artigos e filtros não são persistidos.

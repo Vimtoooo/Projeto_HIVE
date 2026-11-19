@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ApiError, session } from "../../services/MessagingApi";
 import { reviewRequest, type ServiceRequest } from "../../services/RequestsApi";
 import styles from "../../styles/reviews.module.css";
@@ -21,6 +21,13 @@ export default function RequestReview({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const locked = useRef(false);
+  const mounted = useRef(false);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
   async function send() {
     if (locked.current) return;
     locked.current = true;
@@ -28,12 +35,19 @@ export default function RequestReview({
     setError("");
     try {
       const current = await session();
+      if (!mounted.current) return;
       if (current.idUsuario !== userId) {
         onUnauthorized();
         return;
       }
-      onSaved(await reviewRequest(request.idContratacao, nota, comentario));
+      const saved = await reviewRequest(
+        request.idContratacao,
+        nota,
+        comentario,
+      );
+      if (mounted.current) onSaved(saved);
     } catch (e) {
+      if (!mounted.current) return;
       if (e instanceof ApiError && e.status === 401) onUnauthorized();
       else
         setError(
@@ -43,7 +57,7 @@ export default function RequestReview({
         );
     } finally {
       locked.current = false;
-      setBusy(false);
+      if (mounted.current) setBusy(false);
     }
   }
   if (request.avaliacao)

@@ -1,4 +1,6 @@
 "use client";
+import { useSearchParams } from "next/navigation";
+import { useAccountSession } from "../../lib/useAccountSession";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { getProfile, saveProfile } from "../../services/ProfileApi";
@@ -26,6 +28,8 @@ const fields = (p: Profile): ProfileInput => ({
   endereco: p.endereco,
 });
 export default function ProfileWorkspace() {
+  const account = useAccountSession();
+  const params = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null),
     [draft, setDraft] = useState<ProfileInput>({
       nome: "",
@@ -42,6 +46,23 @@ export default function ProfileWorkspace() {
     locked = useRef(false),
     owner = useRef<number | null>(null),
     generation = useRef(0);
+  useEffect(() => {
+    if (
+      !account.loading &&
+      owner.current !== null &&
+      owner.current !== account.user?.idUsuario
+    ) {
+      generation.current++;
+      owner.current = null;
+      locked.current = false;
+      setProfile(null);
+      setDraft({ nome: "", telefone: "", endereco: "" });
+      setBusy(false);
+      setNotice("");
+      setLoading(true);
+      setRetry((n) => n + 1);
+    }
+  }, [account.loading, account.user?.idUsuario]);
   useEffect(() => {
     alive.current = true;
     const unsubscribe = subscribeViewer(() => {
@@ -200,11 +221,25 @@ export default function ProfileWorkspace() {
         <h1 id="profile-title">Meu perfil</h1>
         <p>Seus dados atualizados deixam cada conexão mais simples.</p>
       </header>
+      {account.user?.idUsuario === profile.idUsuario &&
+        account.user.possuiPerfilProfissional &&
+        params.get("ativado") === "1" && (
+          <p role="status">
+            Perfil profissional ativo. Você pode contratar e prestar serviços
+            com esta conta.
+          </p>
+        )}
       <div className={styles.panels}>
         <aside className={styles.summary} aria-label="Resumo da conta">
           <span className={styles.avatar}>{initials(profile.nome)}</span>
           <h2>{profile.nome}</h2>
-          <span className={styles.role}>{role[profile.tipoUsuario]}</span>
+          <span className={styles.role}>
+            {account.user?.idUsuario === profile.idUsuario
+              ? account.user.possuiPerfilProfissional
+                ? "Cliente e prestador"
+                : "Cliente"
+              : role[profile.tipoUsuario]}
+          </span>
           <dl>
             <dt>E-mail</dt>
             <dd>{profile.email}</dd>
@@ -219,6 +254,22 @@ export default function ProfileWorkspace() {
             <HomeIcon name="shield" size={19} />
             Seu CPF aparece mascarado para proteger sua identificação.
           </p>
+          {account.user?.idUsuario === profile.idUsuario &&
+            !account.user.possuiPerfilProfissional && (
+              <div className={styles.professionalInvite}>
+                <span className={styles.professionalIcon}>
+                  <HomeIcon name="wrench" size={20} />
+                </span>
+                <h3>Seu próximo passo profissional</h3>
+                <p>
+                  Ofereça seus serviços com a mesma conta e mantenha tudo por
+                  aqui.
+                </p>
+                <Link className="hive-link" href="/perfil/prestador">
+                  Quero ser profissional <HomeIcon name="arrow" size={17} />
+                </Link>
+              </div>
+            )}
         </aside>
         <form
           className={styles.form}

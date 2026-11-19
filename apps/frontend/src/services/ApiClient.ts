@@ -14,8 +14,12 @@ export function isPublicUser(value: unknown): value is PublicUser {
     typeof value.nome === "string" &&
     "email" in value &&
     typeof value.email === "string" &&
+    "possuiPerfilProfissional" in value &&
+    typeof value.possuiPerfilProfissional === "boolean" &&
     "tipoUsuario" in value &&
-    (value.tipoUsuario === "CONTRATANTE" || value.tipoUsuario === "PRESTADOR" || value.tipoUsuario === "AMBOS")
+    (value.tipoUsuario === "CONTRATANTE" ||
+      value.tipoUsuario === "PRESTADOR" ||
+      value.tipoUsuario === "AMBOS")
   );
 }
 export function apiMessage(value: unknown, fallback: string): string {

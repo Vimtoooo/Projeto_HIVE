@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
   RegistrationField as Field,
@@ -11,17 +11,26 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { formatCpf, formatPhone } from "../lib/FormValidation";
 import {
-  formatCnpj,
   providerInput,
   validateProvider,
   type ProviderForm,
 } from "../lib/ProviderRegistration";
 import { registerProvider } from "../services/ProviderRegistrationApi";
+import { ApiError, session } from "../services/MessagingApi";
+import ProfessionalFields from "./ProfessionalFields";
+import { useAccountSession } from "../lib/useAccountSession";
 import styles from "../styles/auth-page.module.css";
 import formStyles from "../styles/provider-registration.module.css";
 
 export default function ProviderRegistrationForm() {
   const router = useRouter();
+  const account = useAccountSession();
+  useEffect(() => {
+    if (account.user)
+      router.replace(
+        account.user.possuiPerfilProfissional ? "/perfil" : "/perfil/prestador",
+      );
+  }, [account.user, router]);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const sending = useRef(false);
@@ -60,6 +69,15 @@ export default function ProviderRegistrationForm() {
     setPending(true);
     setError("");
     try {
+      try {
+        const current = await session();
+        router.replace(
+          current.possuiPerfilProfissional ? "/perfil" : "/perfil/prestador",
+        );
+        return;
+      } catch (cause) {
+        if (!(cause instanceof ApiError && cause.status === 401)) throw cause;
+      }
       await registerProvider(providerInput(form));
       router.push("/login");
       // Mantém o bloqueio até a navegação concluir, evitando um segundo cadastro.
@@ -71,6 +89,15 @@ export default function ProviderRegistrationForm() {
       setPending(false);
     }
   }
+  if (account.loading || account.user)
+    return <p role="status">Consultando sua sessão…</p>;
+  if (account.error)
+    return (
+      <div role="alert">
+        {account.error}{" "}
+        <button onClick={() => void account.refresh()}>Tentar novamente</button>
+      </div>
+    );
   return (
     <div className={styles.screen}>
       <div className={styles.page}>
@@ -246,9 +273,10 @@ export default function ProviderRegistrationForm() {
               </div>
               <h2 className={styles["form-title"]}>Cadastro de prestador</h2>
               <p className={styles["form-subtitle"]}>
-                Todos os campos são obrigatórios. Você precisa de CNPJ, ao menos
-                uma certificação e um serviço inicial. Após cadastrar, entre com
-                seu e-mail e senha.
+                CNPJ e primeiro serviço são obrigatórios. Autônomos sem CNPJ não
+                podem concluir o cadastro. Certificações são opcionais. O CNPJ é
+                validado apenas pelo formato, sem consulta oficial. Após
+                cadastrar, entre com seu e-mail e senha.
               </p>
             </div>
             <ValidatedRegistration provider onSubmit={submit} pending={pending}>
@@ -307,61 +335,7 @@ export default function ProviderRegistrationForm() {
                   maxLength={128}
                 />
               </fieldset>
-              <fieldset className={formStyles.section} disabled={pending}>
-                <legend>2. Perfil profissional</legend>
-                <Field
-                  name="cnpj"
-                  label="CNPJ"
-                  inputMode="numeric"
-                  maxLength={18}
-                  mask={formatCnpj}
-                />
-                <Field
-                  name="areaAtuacao"
-                  label="Área de atuação"
-                  maxLength={191}
-                />
-                <Field
-                  name="experiencia"
-                  label="Experiência"
-                  multiline
-                  maxLength={191}
-                  hint="Descreva sua experiência em até 191 caracteres."
-                />
-                <Field
-                  name="certificacoes"
-                  label="Certificações"
-                  multiline
-                  hint="Uma por linha: de 1 a 20 certificações, até 191 caracteres cada. Informe somente certificações que você possui."
-                />
-              </fieldset>
-              <fieldset className={formStyles.section} disabled={pending}>
-                <legend>3. Primeiro serviço</legend>
-                <p className={formStyles.hint}>
-                  O perfil profissional e o serviço ficarão disponíveis no
-                  catálogo. Não inclua dados pessoais na descrição.
-                </p>
-                <Field
-                  name="titulo"
-                  label="Título do serviço"
-                  minLength={5}
-                  maxLength={191}
-                  hint="De 5 a 191 caracteres."
-                />
-                <Field
-                  name="descricao"
-                  label="Descrição do serviço"
-                  multiline
-                  maxLength={5000}
-                  hint="Até 5000 caracteres."
-                />
-                <Field
-                  name="precoBase"
-                  label="Preço base (R$)"
-                  inputMode="decimal"
-                  hint="De 0,01 a 1.000.000,00. Use vírgula para centavos, por exemplo: 200,50."
-                />
-              </fieldset>
+              <ProfessionalFields pending={pending} />
               <p
                 ref={errorRef}
                 tabIndex={-1}
